@@ -1,0 +1,15 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "prisma generate && next build",
+  "installCommand": "npm install --legacy-peer-deps",
+  "framework": "nextjs",
+  "regions": ["bom1"],
+  "functions": {
+    "src/app/api/lr/[id]/pdf/route.ts": { "memory": 1024, "maxDuration": 30 },
+    "src/app/api/reports/pdf/route.ts": { "memory": 1024, "maxDuration": 30 },
+    "src/app/api/upload/photo/route.ts": { "memory": 512, "maxDuration": 30 },
+    "src/app/api/upload/signature/route.ts": { "memory": 512, "maxDuration": 30 },
+    "src/app/api/upload/logo/route.ts": { "memory": 512, "maxDuration": 30 },
+    "src/app/api/upload/stamp/route.ts": { "memory": 512, "maxDuration": 30 }
+  }
+}

@@ -1,0 +1,112 @@
+export type UserRole = "super_admin" | "company_admin" | "driver";
+export type UserStatus = "active" | "inactive" | "invited";
+export type CompanyStatus = "active" | "suspended";
+export type LRStatus =
+  | "pending"
+  | "approved"
+  | "rejected"
+  | "in_transit"
+  | "delivered";
+export type PaymentMode = "To Pay" | "Paid" | "To Be Billed";
+
+export interface Company {
+  id: string;
+  name: string;
+  logoUrl?: string;
+  address: string;
+  gstNumber: string;
+  stampUrl?: string;
+  lrCode: string;
+  contactPhone: string;
+  maxBranches: number;
+  maxDrivers: number;
+  maxLrPerMonth: number;
+  status: CompanyStatus;
+  createdAt: string;
+}
+
+export interface Branch {
+  id: string;
+  companyId: string;
+  name: string;
+  city: string;
+  state: string;
+  createdAt: string;
+}
+
+export interface User {
+  id: string;
+  mobile: string;
+  role: UserRole;
+  companyId: string | null;
+  branchId: string | null;
+  name: string;
+  status: UserStatus;
+  createdAt: string;
+  email?: string;
+  password?: string;
+}
+
+export interface LRRequest {
+  id: string;
+  lrNumber: string | null;
+  trackingId: string;
+  companyId: string;
+  branchId: string;
+  driverId: string;
+  consignorName: string;
+  consignorAddress: string;
+  consigneeName: string;
+  consigneeAddress: string;
+  consigneePhone: string;
+  originCity: string;
+  destinationCity: string;
+  vehicleNumber: string;
+  goodsDescription: string;
+  noOfPackages: number;
+  weightKg: number;
+  declaredValue: number;
+  freightAmount: number;
+  paymentMode: PaymentMode;
+  dispatchDate: string;
+  specialInstructions?: string;
+  photos: string[];
+  signatureUrl?: string;
+  status: LRStatus;
+  rejectionReason?: string;
+  pdfUrl?: string;
+  qrCode: string;
+  createdAt: string;
+  approvedAt?: string;
+  deliveredAt?: string;
+}
+
+export interface Notification {
+  id: string;
+  userId: string;
+  title: string;
+  message: string;
+  lrId?: string;
+  read: boolean;
+  createdAt: string;
+}
+
+export interface AuthSession {
+  userId: string;
+  role: UserRole;
+  companyId: string | null;
+  branchId: string | null;
+  name: string;
+  token: string;
+}
+
+export interface DashboardStats {
+  totalLrs: number;
+  pending: number;
+  approved: number;
+  rejected: number;
+  delivered: number;
+  inTransit: number;
+  freightTotal: number;
+  approvalRate: number;
+}
