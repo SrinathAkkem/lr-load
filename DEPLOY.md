@@ -137,9 +137,14 @@ similar), add it as origin, and push.
 DATABASE_URL          mysql://u767592127_rayudugroup:<DB_PASSWORD>@<REMOTE_HOST_FROM_2A>:3306/u767592127_LRLoad?connection_limit=5
 NEXT_PUBLIC_APP_URL   https://<your-vercel-project>.vercel.app
 AUTH_SECRET           <run: node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))">
-NODE_ENV              production
 ```
 
+> ⚠ **Do not** set `NODE_ENV=production` on Vercel. Vercel sets it
+> automatically at runtime; setting it manually as a build-time env makes
+> `npm install` skip `devDependencies` (Tailwind, PostCSS, TypeScript types,
+> ESLint), which then makes the Next.js build fail with cryptic
+> "Module not found" errors. This is a documented Vercel foot-gun.
+>
 > The `?connection_limit=5` query is important. Each cold-started serverless
 > function opens its own pool; without a low cap they'll exhaust Hostinger's
 > shared MySQL connection limit (typically 25). 5 × `bom1` instances ≈ safe.
