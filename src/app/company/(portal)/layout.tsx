@@ -41,7 +41,7 @@ export default async function CompanyPortalLayout({
         <PortalTopbar
           variant="company_admin"
           userName={session.name}
-          userRole="Company Admin"
+          userRole={company?.name ?? "Company Admin"}
         />
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
