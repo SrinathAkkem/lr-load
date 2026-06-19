@@ -2,27 +2,36 @@ import { cn } from "@/lib/utils";
 
 export function RonoLogo({
   className,
-  logoSrc = "src/res/RonoHubLogo.png",
-  width = 32,
-  height = 20,
+  width = 120,
+  height = 25,
 }: {
   className?: string;
-  logoSrc?: string;
   width?: number;
   height?: number;
 }) {
   return (
-    <div className={cn("flex items-center gap-2", className)}>
+    <div className={cn("inline-flex items-center gap-2", className)}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={logoSrc}
-        alt="Rono logo"
-        width={width}
-        height={height}
+        src="/uploads/logos/RonoHubLogo.png"
+        alt="Rono Hub Logo"
         className="object-contain"
+        style={{
+          width: `${width}px`,
+          height: `${height}px`,
+          maxWidth: "100%",
+          display: "block",
+        }}
+        onLoad={() => {
+          console.log("✓ Logo loaded successfully");
+        }}
         onError={(e) => {
+          console.error("✗ Failed to load logo from /uploads/logos/RonoHubLogo.png");
           const target = e.currentTarget;
-          target.style.display = "none";
+          // Show error indicator
+          target.style.background = "#fee";
+          target.style.border = "1px solid #f88";
+          target.style.borderRadius = "4px";
         }}
       />
     </div>
