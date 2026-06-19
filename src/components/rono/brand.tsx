@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 export function RonoLogo({
@@ -11,27 +12,19 @@ export function RonoLogo({
 }) {
   return (
     <div className={cn("inline-flex items-center gap-2", className)}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <Image
         src="/uploads/logos/RonoHubLogo.png"
         alt="Rono Hub Logo"
+        width={width}
+        height={height}
         className="object-contain"
-        style={{
-          width: `${width}px`,
-          height: `${height}px`,
-          maxWidth: "100%",
-          display: "block",
+        priority={false}
+        unoptimized={true}
+        onError={() => {
+          console.error("✗ Failed to load logo from /uploads/logos/RonoHubLogo.png");
         }}
         onLoad={() => {
           console.log("✓ Logo loaded successfully");
-        }}
-        onError={(e) => {
-          console.error("✗ Failed to load logo from /uploads/logos/RonoHubLogo.png");
-          const target = e.currentTarget;
-          // Show error indicator
-          target.style.background = "#fee";
-          target.style.border = "1px solid #f88";
-          target.style.borderRadius = "4px";
         }}
       />
     </div>
