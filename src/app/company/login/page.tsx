@@ -30,6 +30,7 @@ export default function CompanyLoginPage() {
   const [otp, setOtp] = useState("");
 
   const [loading, setLoading] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
 
   async function handlePasswordLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -47,14 +48,15 @@ export default function CompanyLoginPage() {
       const data = await res.json();
       if (!data.success) {
         toast.error(data.error ?? "Login failed");
+        setLoading(false);
         return;
       }
       toast.success("Welcome back!");
+      setRedirecting(true);
       router.push("/company/dashboard");
       router.refresh();
     } catch {
       toast.error("Network error. Please retry.");
-    } finally {
       setLoading(false);
     }
   }
@@ -93,16 +95,31 @@ export default function CompanyLoginPage() {
       if (data.success) {
         if (data.data.user.role !== "company_admin") {
           toast.error("This login is for company admins only");
+          setLoading(false);
           return;
         }
+        setRedirecting(true);
         router.push("/company/dashboard");
         router.refresh();
       } else {
         toast.error(data.error ?? "Invalid OTP");
+        setLoading(false);
       }
-    } finally {
+    } catch {
+      toast.error("Network error. Please retry.");
       setLoading(false);
     }
+  }
+
+  if (redirecting) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-violet-900 via-violet-800 to-indigo-900">
+        <div className="text-center">
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-violet-300 border-t-white" />
+          <p className="mt-4 text-sm font-medium text-violet-200">Loading dashboard...</p>
+        </div>
+      </div>
+    );
   }
 
   return (

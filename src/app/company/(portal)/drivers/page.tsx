@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -12,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { UserPlus, Trash2, Search, RotateCw } from "lucide-react";
+import { Send, Search, RotateCw, Trash2 } from "lucide-react";
 
 interface Driver {
   id: string;
@@ -36,10 +35,11 @@ export default function DriversPage() {
   const [branches, setBranches] = useState<Branch[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "invited" | "inactive">("all");
-  const [showModal, setShowModal] = useState(false);
   const [busy, setBusy] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: "", mobile: "", branchId: "" });
+  const [inviteMobile, setInviteMobile] = useState("");
+  const [inviteBranch, setInviteBranch] = useState("");
+  const [maxDrivers, setMaxDrivers] = useState(150);
 
   useEffect(() => {
     refresh();
@@ -48,8 +48,13 @@ export default function DriversPage() {
       .then((d) => {
         if (d.success) {
           setBranches(d.data);
-          if (d.data[0]) setForm((f) => ({ ...f, branchId: d.data[0].id }));
+          if (d.data[0]) setInviteBranch(d.data[0].id);
         }
+      });
+    fetch("/api/company/profile")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d?.success && d.data) setMaxDrivers(d.data.maxDrivers);
       });
   }, []);
 
@@ -60,11 +65,11 @@ export default function DriversPage() {
   }
 
   async function inviteDriver() {
-    if (!/^\d{10}$/.test(form.mobile)) {
+    if (!/^\d{10}$/.test(inviteMobile)) {
       toast.error("Mobile must be 10 digits");
       return;
     }
-    if (!form.branchId) {
+    if (!inviteBranch) {
       toast.error("Please select a branch");
       return;
     }
@@ -73,17 +78,12 @@ export default function DriversPage() {
       const res = await fetch("/api/drivers/invite", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mobile: form.mobile,
-          name: form.name.trim() || undefined,
-          branchId: form.branchId,
-        }),
+        body: JSON.stringify({ mobile: inviteMobile, branchId: inviteBranch }),
       });
       const data = await res.json();
       if (data.success) {
         toast.success("Invite sent — driver can now log in via OTP");
-        setForm((f) => ({ name: "", mobile: "", branchId: f.branchId }));
-        setShowModal(false);
+        setInviteMobile("");
         refresh();
       } else {
         toast.error(data.error ?? "Failed to invite");
@@ -94,277 +94,275 @@ export default function DriversPage() {
   }
 
   async function removeDriver(id: string, name: string) {
-    if (!confirm(`Deactivate ${name}? They won't be able to log in or create LRs. Existing LRs are preserved.`)) {
-      return;
-    }
+    if (!confirm(`Deactivate ${name}? They won't be able to log in or create LRs.`)) return;
     setRemoving(id);
     try {
       const res = await fetch(`/api/drivers/${id}`, { method: "DELETE" });
       const data = await res.json();
-      if (data.success) {
-        toast.success(`${name} deactivated`);
-        refresh();
-      } else {
-        toast.error(data.error ?? "Failed to deactivate");
-      }
-    } finally {
-      setRemoving(null);
-    }
+      if (data.success) { toast.success(`${name} deactivated`); refresh(); }
+      else toast.error(data.error ?? "Failed");
+    } finally { setRemoving(null); }
   }
 
   const filtered = drivers.filter((d) => {
     if (statusFilter !== "all" && d.status !== statusFilter) return false;
     const q = search.trim().toLowerCase();
     if (!q) return true;
-    return (
-      d.name.toLowerCase().includes(q) ||
-      d.mobile.includes(q) ||
-      (d.branch?.name ?? "").toLowerCase().includes(q)
-    );
+    return d.name.toLowerCase().includes(q) || d.mobile.includes(q) || (d.branch?.name ?? "").toLowerCase().includes(q);
   });
 
-  const counts = drivers.reduce(
-    (acc, d) => {
-      acc.all += 1;
-      acc[d.status as "active" | "invited" | "inactive"] = (acc[d.status as "active" | "invited" | "inactive"] ?? 0) + 1;
-      return acc;
-    },
-    { all: 0, active: 0, invited: 0, inactive: 0 } as Record<string, number>,
-  );
+  const activeCount = drivers.filter(d => d.status === "active").length;
+  const invitedCount = drivers.filter(d => d.status === "invited").length;
+  const inactiveCount = drivers.filter(d => d.status === "inactive").length;
+
+  const initials = (name: string) => name.split(/\s+/).map(n => n[0]).join("").slice(0, 2).toUpperCase();
 
   return (
     <div className="p-6 md:p-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-lg font-bold text-slate-900">All Drivers</h1>
-          <p className="text-sm text-slate-500">
-            {drivers.length} / {drivers.length + 26} drivers used
-          </p>
-        </div>
-        <Button
-          className="bg-violet-600 hover:bg-violet-700"
-          onClick={() => setShowModal(true)}
-        >
-          <UserPlus className="mr-1.5 h-4 w-4" />
-          Invite Driver
-        </Button>
-      </div>
-
-      <div className="mt-6 flex flex-wrap items-center gap-3">
-        <div className="relative max-w-sm flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <Input
-            placeholder="Search driver name or number…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
-          />
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {(["all", "active", "invited", "inactive"] as const).map((s) => (
-            <button
-              key={s}
-              onClick={() => setStatusFilter(s)}
-              className={`rounded-full px-3 py-1.5 text-xs font-semibold capitalize transition ${
-                statusFilter === s
-                  ? "bg-violet-600 text-white shadow"
-                  : "bg-white text-slate-600 ring-1 ring-slate-200 hover:ring-violet-300"
-              }`}
-            >
-              {s === "invited" ? "Invited (Pending)" : s} ({counts[s] ?? 0})
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-6 overflow-hidden rounded-2xl border bg-white shadow-sm">
-        <div className="overflow-x-auto">
-        <table className="w-full min-w-[860px] text-sm">
-          <thead className="border-b bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
-            <tr>
-              <th className="p-4">Driver</th>
-              <th className="p-4">Mobile</th>
-              <th className="p-4">Branch</th>
-              <th className="p-4">LRs (Month)</th>
-              <th className="p-4">Last Active</th>
-              <th className="p-4">Status</th>
-              <th className="p-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="p-10 text-center text-sm text-slate-400">
-                  {drivers.length === 0
-                    ? "No drivers yet. Click Invite Driver to add the first one."
-                    : "No drivers match your filters."}
-                </td>
-              </tr>
-            ) : (
-              filtered.map((d) => (
-                <tr key={d.id} className="border-b last:border-b-0 hover:bg-slate-50">
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-700">
-                        {d.name.split(/\s+/).map(n => n[0]).join("").slice(0, 2).toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="font-medium text-slate-900">{d.name}</p>
-                        <p className="text-xs text-slate-400">
-                          {d.status === "invited" ? `Invited ${formatRelativeDate(d.createdAt)}` : `Driver since ${formatShortDate(d.createdAt)}`}
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="p-4 text-slate-600">+91 {d.mobile}</td>
-                  <td className="p-4 text-slate-600">{d.branch?.name ?? "—"}</td>
-                  <td className="p-4">
-                    {d.status === "inactive" ? (
-                      <span className="text-slate-400">{d.lrsThisMonth} LRs before removal</span>
-                    ) : d.status === "invited" ? (
-                      <span className="text-slate-400">— Not yet active</span>
-                    ) : (
-                      <span className="font-medium">{d.lrsThisMonth} <span className="text-slate-400 font-normal">LRs submitted</span></span>
-                    )}
-                  </td>
-                  <td className="p-4 text-sm text-slate-500">
-                    {d.lastActive ? formatLastActive(d.lastActive) : (
-                      d.status === "invited" ? "Not yet joined" : "—"
-                    )}
-                  </td>
-                  <td className="p-4">
-                    <StatusPill status={d.status} />
-                  </td>
-                  <td className="p-4 text-right">
-                    {d.status === "active" ? (
-                      <div className="flex items-center justify-end gap-2">
-                        <button className="text-xs font-semibold text-violet-600 hover:underline">
-                          LR History
-                        </button>
-                        <button
-                          onClick={() => removeDriver(d.id, d.name)}
-                          disabled={removing === d.id}
-                          className="inline-flex items-center gap-1 rounded-lg border border-red-100 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-60"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                          {removing === d.id ? "Removing…" : "Remove"}
-                        </button>
-                      </div>
-                    ) : d.status === "invited" ? (
-                      <div className="flex items-center justify-end gap-2">
-                        <button className="inline-flex items-center gap-1 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700 transition hover:bg-amber-100">
-                          <RotateCw className="h-3 w-3" />
-                          Resend OTP
-                        </button>
-                        <button
-                          onClick={() => removeDriver(d.id, d.name)}
-                          disabled={removing === d.id}
-                          className="text-xs font-semibold text-red-600 hover:underline"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    ) : (
-                      <span className="text-xs text-slate-400">Deactivated</span>
-                    )}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-        </div>
-      </div>
-
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 p-4 backdrop-blur sm:items-center">
-          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl">
-            <div className="border-b p-5">
-              <h2 className="text-lg font-bold">Invite a New Driver</h2>
-              <p className="text-xs text-slate-500">
-                Enter the driver&apos;s mobile number. They will receive an OTP to set up their account and join this company.
-              </p>
+      {/* Invite a New Driver section */}
+      <div className="rounded-2xl border border-violet-100 bg-violet-50/50 p-5">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100">
+            <Send className="h-5 w-5 text-violet-600" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-sm font-bold text-violet-900">Invite a New Driver</h3>
+            <p className="text-xs text-violet-700/70">
+              Enter the driver&apos;s mobile number. They will receive an OTP to set up their account and join this company.
+            </p>
+          </div>
+          <div className="flex items-center gap-3 text-right">
+            <div>
+              <p className="text-3xl font-bold text-violet-700">{drivers.length} / {maxDrivers}</p>
+              <p className="text-[10px] font-medium text-violet-500">drivers used</p>
             </div>
-            <div className="space-y-4 p-5">
-              <div>
-                <Label>Driver Name (optional)</Label>
-                <Input
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="Defaults to 'New Driver'"
-                  className="mt-1.5"
-                />
-              </div>
-              <div>
-                <Label>Mobile (10 digits) *</Label>
-                <div className="mt-1.5 flex items-center gap-2">
-                  <span className="text-sm text-slate-500">+91</span>
-                  <Input
-                    value={form.mobile}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        mobile: e.target.value.replace(/\D/g, "").slice(0, 10),
-                      })
-                    }
-                    placeholder="Enter 10-digit mobile number"
-                  />
-                </div>
-              </div>
-              <div>
-                <Label>Branch *</Label>
-                <Select
-                  value={form.branchId}
-                  onValueChange={(v) => setForm({ ...form, branchId: v })}
-                >
-                  <SelectTrigger className="mt-1.5">
-                    <SelectValue placeholder="Select a branch" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {branches.map((b) => (
-                      <SelectItem key={b.id} value={b.id}>
-                        {b.name} · {b.city}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="flex items-center justify-end gap-3 border-t bg-slate-50 p-5">
-              <Button
-                variant="outline"
-                onClick={() => setShowModal(false)}
-                disabled={busy}
-              >
-                Cancel
-              </Button>
-              <Button
-                className="bg-violet-600 hover:bg-violet-700"
-                onClick={inviteDriver}
-                disabled={busy}
-              >
-                {busy ? "Inviting…" : "Send Invite"}
-              </Button>
+            <div className="h-1.5 w-16 rounded-full bg-violet-200">
+              <div
+                className="h-1.5 rounded-full bg-violet-600"
+                style={{ width: `${Math.min(100, (drivers.length / maxDrivers) * 100)}%` }}
+              />
             </div>
           </div>
         </div>
-      )}
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <Select value={inviteBranch} onValueChange={setInviteBranch}>
+            <SelectTrigger className="w-44 rounded-lg border-violet-200 bg-white text-xs">
+              <SelectValue placeholder="Select branch" />
+            </SelectTrigger>
+            <SelectContent>
+              {branches.map((b) => (
+                <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <div className="relative flex-1 max-w-md">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">+91</span>
+            <Input
+              value={inviteMobile}
+              onChange={(e) => setInviteMobile(e.target.value.replace(/\D/g, "").slice(0, 10))}
+              placeholder="Enter 10-digit mobile number"
+              className="pl-10 rounded-lg border-violet-200 bg-white text-sm"
+            />
+          </div>
+          <Button onClick={inviteDriver} disabled={busy} className="bg-violet-600 hover:bg-violet-700 rounded-lg">
+            <Send className="mr-1.5 h-3.5 w-3.5" />
+            {busy ? "Sending…" : "Send Invite"}
+          </Button>
+        </div>
+      </div>
+
+      {/* All Drivers section */}
+      <div className="mt-6 rounded-2xl border border-slate-100 bg-white shadow-sm">
+        {/* Header */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-6 py-4">
+          <h2 className="text-base font-semibold text-slate-900">All Drivers</h2>
+          <div className="flex items-center gap-2">
+            <span className="rounded-full bg-violet-50 px-3 py-1 text-[11px] font-semibold text-violet-700">
+              {drivers.length} drivers
+            </span>
+            <span className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-medium text-slate-600">
+              Branch: All ▼
+            </span>
+            <span className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-medium text-slate-600">
+              Status: All ▼
+            </span>
+          </div>
+        </div>
+
+        {/* Filters + Search */}
+        <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-3">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-medium text-slate-500 mr-1">Filter:</span>
+            {([
+              { key: "all", label: "All Drivers" },
+              { key: "active", label: "Active" },
+              { key: "invited", label: "Invited (Pending)" },
+              { key: "inactive", label: "Inactive" },
+            ] as const).map((f) => (
+              <button
+                key={f.key}
+                onClick={() => setStatusFilter(f.key)}
+                className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                  statusFilter === f.key
+                    ? "bg-violet-600 text-white shadow-sm"
+                    : "bg-slate-50 text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+          <div className="relative w-52">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search driver name or number…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-xs outline-none focus:border-violet-300 focus:bg-white focus:ring-1 focus:ring-violet-100"
+            />
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[900px] text-sm">
+            <thead>
+              <tr className="border-b border-slate-100 text-left">
+                <th className="px-6 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Driver</th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Mobile</th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Branch</th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">LRs (Month)</th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Last Active</th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Status</th>
+                <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-400">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-12 text-center text-sm text-slate-400">
+                    {drivers.length === 0 ? "No drivers yet. Invite the first one above." : "No drivers match your filters."}
+                  </td>
+                </tr>
+              ) : (
+                filtered.map((d) => (
+                  <tr key={d.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50">
+                    <td className="px-6 py-3.5">
+                      <div className="flex items-center gap-3">
+                        <span className={`flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold text-white ${
+                          d.status === "active" ? "bg-violet-500" :
+                          d.status === "invited" ? "bg-amber-500" : "bg-slate-400"
+                        }`}>
+                          {initials(d.name)}
+                        </span>
+                        <div>
+                          <p className="font-semibold text-slate-900">{d.name}</p>
+                          <p className="text-[11px] text-slate-400">
+                            {d.status === "invited"
+                              ? `Invited ${relativeDate(d.createdAt)}`
+                              : d.status === "inactive"
+                                ? `Removed ${shortDate(d.createdAt)}`
+                                : `Driver since ${shortDate(d.createdAt)}`}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3.5 text-slate-600">+91 {d.mobile}</td>
+                    <td className="px-4 py-3.5">
+                      <span className="rounded-full bg-violet-50 px-2.5 py-0.5 text-[11px] font-semibold text-violet-700">
+                        {d.branch?.name ?? "—"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      {d.status === "invited" ? (
+                        <span className="text-slate-400">—<br/><span className="text-[10px]">Not yet active</span></span>
+                      ) : (
+                        <div>
+                          <p className="font-semibold text-slate-800">{d.lrsThisMonth}</p>
+                          <p className="text-[10px] text-slate-400">
+                            {d.status === "inactive" ? "LRs before removal" : "LRs submitted"}
+                          </p>
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-4 py-3.5 text-sm text-slate-500">
+                      {d.lastActive ? formatLastActive(d.lastActive) : (
+                        d.status === "invited" ? "Not yet joined" : "—"
+                      )}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <StatusPill status={d.status} />
+                    </td>
+                    <td className="px-4 py-3.5 text-right">
+                      {d.status === "active" ? (
+                        <div className="flex items-center justify-end gap-2">
+                          <button className="rounded-md border border-slate-200 px-3 py-1.5 text-[11px] font-semibold text-slate-600 hover:bg-slate-50">
+                            LR History
+                          </button>
+                          <button
+                            onClick={() => removeDriver(d.id, d.name)}
+                            disabled={removing === d.id}
+                            className="rounded-md border border-red-200 px-3 py-1.5 text-[11px] font-semibold text-red-600 hover:bg-red-50 disabled:opacity-60"
+                          >
+                            {removing === d.id ? "…" : "Remove"}
+                          </button>
+                        </div>
+                      ) : d.status === "invited" ? (
+                        <div className="flex items-center justify-end gap-2">
+                          <button className="rounded-md border border-amber-200 px-3 py-1.5 text-[11px] font-semibold text-amber-700 hover:bg-amber-50">
+                            <RotateCw className="mr-1 inline h-3 w-3" />
+                            Resend OTP
+                          </button>
+                          <button
+                            onClick={() => removeDriver(d.id, d.name)}
+                            className="rounded-md border border-red-200 px-3 py-1.5 text-[11px] font-semibold text-red-600 hover:bg-red-50"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <button className="rounded-md border border-slate-200 px-3 py-1.5 text-[11px] font-semibold text-slate-500 hover:bg-slate-50">
+                          LR History
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex items-center justify-between border-t border-slate-100 px-6 py-3">
+          <p className="text-xs text-slate-400">Showing 1–{Math.min(6, filtered.length)} of {filtered.length} drivers</p>
+          <div className="flex items-center gap-1">
+            <span className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-400">←</span>
+            <span className="rounded-md bg-violet-600 px-2.5 py-1 text-xs font-semibold text-white">1</span>
+            <span className="rounded-md border border-slate-200 px-2.5 py-1 text-xs text-slate-600">2</span>
+            <span className="rounded-md border border-slate-200 px-2.5 py-1 text-xs text-slate-600">3</span>
+            <span className="px-1 text-xs text-slate-400">...</span>
+            <span className="rounded-md border border-slate-200 px-2.5 py-1 text-xs text-slate-600">{Math.ceil(filtered.length / 6) || 1}</span>
+            <span className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-400">→</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
 function StatusPill({ status }: { status: string }) {
-  const map: Record<string, string> = {
-    active: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-    invited: "bg-amber-50 text-amber-700 ring-amber-200",
-    inactive: "bg-slate-100 text-slate-500 ring-slate-200",
+  const map: Record<string, { bg: string; text: string; dot: string }> = {
+    active: { bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500" },
+    invited: { bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-500" },
+    inactive: { bg: "bg-slate-100", text: "text-slate-500", dot: "bg-slate-400" },
   };
-  const cls = map[status] ?? map.inactive;
+  const s = map[status] ?? map.inactive;
   return (
-    <span
-      className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold capitalize ring-1 ${cls}`}
-    >
-      {status}
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${s.bg} ${s.text}`}>
+      <span className={`h-1.5 w-1.5 rounded-full ${s.dot}`} />
+      {status === "invited" ? "Invited" : status === "active" ? "Active" : "Inactive"}
     </span>
   );
 }
@@ -373,24 +371,19 @@ function formatLastActive(dateStr: string): string {
   const date = new Date(dateStr);
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-
-  if (diffMins < 60) return `${diffMins}m ago`;
-  const diffHours = Math.floor(diffMins / 60);
-  if (diffHours < 24) return `Today, ${date.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}`;
-  if (diffHours < 48) return `Yesterday, ${date.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}`;
-  return date.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+  const diffHours = Math.floor(diffMs / 3600000);
+  if (diffHours < 24) return `Today, ${date.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true })}`;
+  if (diffHours < 48) return `Yesterday, ${date.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true })}`;
+  return date.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) + ", " + date.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true });
 }
 
-function formatRelativeDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diffDays = Math.floor((now.getTime() - date.getTime()) / 86400000);
-  if (diffDays === 0) return "today";
-  if (diffDays === 1) return "yesterday";
-  return `${diffDays} days ago`;
+function relativeDate(dateStr: string): string {
+  const days = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
+  if (days === 0) return "today";
+  if (days === 1) return "yesterday";
+  return `${days} days ago`;
 }
 
-function formatShortDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("en-IN", { month: "short", year: "numeric" });
+function shortDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 }

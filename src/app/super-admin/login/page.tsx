@@ -13,6 +13,7 @@ export default function SuperAdminLoginPage() {
   const [email, setEmail] = useState("admin@ronohub.com");
   const [password, setPassword] = useState("admin123");
   const [loading, setLoading] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -26,16 +27,28 @@ export default function SuperAdminLoginPage() {
       const data = await res.json();
       if (!data.success) {
         toast.error(data.error ?? "Login failed");
+        setLoading(false);
         return;
       }
       toast.success("Welcome back!");
+      setRedirecting(true);
       router.push("/super-admin/dashboard");
       router.refresh();
     } catch {
       toast.error("Network error");
-    } finally {
       setLoading(false);
     }
+  }
+
+  if (redirecting) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-violet-900 via-violet-800 to-indigo-900">
+        <div className="text-center">
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-violet-300 border-t-white" />
+          <p className="mt-4 text-sm font-medium text-violet-200">Loading dashboard...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
