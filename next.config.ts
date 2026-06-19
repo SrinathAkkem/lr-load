@@ -38,7 +38,17 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  outputFileTracingExcludes: {
+    "/**/*": [
+      "node_modules/@swc/core-*",
+      "node_modules/esbuild",
+    ],
+  },
+
   serverExternalPackages: ["@prisma/client", "prisma", "bcryptjs"],
+
+  // Ensure public folder assets are properly served
+  staticPageGenerationTimeout: 1000,
 };
 
 export default nextConfig;
