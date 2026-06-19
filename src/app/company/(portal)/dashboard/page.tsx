@@ -13,9 +13,9 @@ import { prisma } from "@/lib/db/prisma";
 import { toLR } from "@/lib/db/serialize";
 import { StatCard } from "@/components/rono/brand";
 import { FileText, Clock, CheckCircle, Truck } from "lucide-react";
-import { StatusBadge } from "@/components/rono/status-badge";
 import { LrVolumeChart } from "@/components/rono/lr-volume-chart";
 import Link from "next/link";
+import { DashboardSearch } from "./dashboard-search";
 
 export const dynamic = "force-dynamic";
 
@@ -24,13 +24,7 @@ type PaymentModeKey = "TO_PAY" | "PAID" | "TO_BE_BILLED";
 const PAYMENT_LABELS: Record<PaymentModeKey, string> = {
   TO_PAY: "To Pay",
   PAID: "Paid",
-  TO_BE_BILLED: "TBB",
-};
-
-const PAYMENT_STYLES: Record<PaymentModeKey, string> = {
-  TO_PAY: "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
-  PAID: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
-  TO_BE_BILLED: "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200",
+  TO_BE_BILLED: "To Be Billed",
 };
 
 export default async function CompanyDashboardPage() {
@@ -82,6 +76,10 @@ export default async function CompanyDashboardPage() {
     ? Math.min(100, Math.round((branchCount / company.maxBranches) * 100))
     : 0;
 
+  const dailyAvg = daily.length > 0
+    ? Math.round(daily.reduce((s, d) => s + d.count, 0) / daily.length)
+    : 0;
+
   return (
     <div className="p-6 md:p-8">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
@@ -90,14 +88,16 @@ export default async function CompanyDashboardPage() {
             {company?.name} · LR Code {company?.lrCode}
           </p>
         </div>
-        {stats.totalLrs >= (company?.maxLrPerMonth ?? Infinity) - 30 && company ? (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
-            ⚠ Only {Math.max(0, company.maxLrPerMonth - stats.totalLrs)} LRs
-            remaining this month — contact your platform admin to increase the
-            limit.
-          </div>
-        ) : null}
+        <DashboardSearch />
       </div>
+
+      {stats.totalLrs >= (company?.maxLrPerMonth ?? Infinity) - 30 && company ? (
+        <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800">
+          Only {Math.max(0, company.maxLrPerMonth - stats.totalLrs)} LRs
+          remaining this month. Contact your platform admin to increase the
+          limit.
+        </div>
+      ) : null}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
@@ -110,7 +110,7 @@ export default async function CompanyDashboardPage() {
         <StatCard
           title="Pending Approval"
           value={stats.pending}
-          subtitle="Awaiting review"
+          subtitle={`${stats.pending > 0 ? "Awaiting review" : "All clear"}`}
           icon={<Clock className="h-5 w-5 text-amber-600" />}
           accent="amber"
         />
@@ -132,7 +132,21 @@ export default async function CompanyDashboardPage() {
 
       <div className="mt-8 grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <LrVolumeChart daily={daily} monthly={monthly} title="LR Volume" />
+          <LrVolumeChart daily={daily} monthly={monthly} title="LR Volume — {month}" />
+          <div className="mt-3 flex items-center gap-6 text-sm">
+            <div>
+              <span className="text-xs uppercase tracking-wide text-slate-500">Month Total</span>
+              <p className="text-xl font-bold text-slate-900">{stats.totalLrs}</p>
+            </div>
+            <div>
+              <span className="text-xs uppercase tracking-wide text-slate-500">Daily Avg</span>
+              <p className="text-xl font-bold text-slate-900">{dailyAvg}</p>
+            </div>
+            <div>
+              <span className="text-xs uppercase tracking-wide text-slate-500">Today</span>
+              <p className="text-xl font-bold text-slate-900">{daily[daily.length - 1]?.count ?? 0}</p>
+            </div>
+          </div>
         </div>
 
         <div className="rounded-2xl border bg-white p-6 shadow-sm">
@@ -140,63 +154,49 @@ export default async function CompanyDashboardPage() {
           <p className="text-xs text-slate-500">This month</p>
           <div className="mt-5 space-y-5">
             <UsageBar
-              label="LRs"
-              current={stats.totalLrs}
-              max={company?.maxLrPerMonth ?? 0}
-              pct={lrUsagePct}
-            />
-            <UsageBar
-              label="Active drivers"
-              current={activeDriverCount}
-              max={company?.maxDrivers ?? 0}
-              pct={driverUsagePct}
-            />
-            <UsageBar
               label="Branches"
               current={branchCount}
               max={company?.maxBranches ?? 0}
               pct={branchUsagePct}
             />
+            <UsageBar
+              label="Drivers"
+              current={activeDriverCount}
+              max={company?.maxDrivers ?? 0}
+              pct={driverUsagePct}
+            />
+            <UsageBar
+              label="LRs / month"
+              current={stats.totalLrs}
+              max={company?.maxLrPerMonth ?? 0}
+              pct={lrUsagePct}
+            />
           </div>
         </div>
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <h2 className="font-semibold">Payment Mode Mix</h2>
-            <span className="text-xs text-slate-400">Active LRs</span>
-          </div>
-          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl border bg-gradient-to-br from-violet-600 to-indigo-600 p-6 text-white shadow-sm">
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-violet-100">
+            Total Freight Value — {new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" })}
+          </h2>
+          <p className="mt-2 text-4xl font-bold">{formatCurrency(stats.freightTotal)}</p>
+          <p className="mt-1 text-sm text-violet-200">
+            Across {stats.totalLrs} LRs issued this month
+          </p>
+          <div className="mt-5 grid grid-cols-3 gap-3">
             {payments.map((p) => (
-              <div
-                key={p.mode}
-                className="rounded-xl border border-slate-100 p-4"
-              >
-                <span
-                  className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${PAYMENT_STYLES[p.mode]}`}
-                >
+              <div key={p.mode} className="rounded-xl bg-white/15 p-3 backdrop-blur">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-violet-200">
                   {PAYMENT_LABELS[p.mode]}
-                </span>
-                <p className="mt-3 text-2xl font-bold">{p.count}</p>
-                <p className="text-xs text-slate-500">
-                  {formatCurrency(p.amount)}
                 </p>
+                <p className="mt-1 text-lg font-bold">{formatCurrency(p.amount)}</p>
+                <p className="text-xs text-violet-200">{p.count} LRs</p>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="rounded-2xl border bg-gradient-to-br from-violet-600 to-indigo-600 p-6 text-white shadow-sm">
-          <h2 className="font-semibold text-violet-100">Total Freight Value</h2>
-          <p className="mt-2 text-4xl font-bold">{formatCurrency(stats.freightTotal)}</p>
-          <p className="mt-1 text-sm text-violet-200">
-            Across {stats.totalLrs} LRs this month
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
         <div className="rounded-2xl border bg-white p-6 shadow-sm">
           <h2 className="font-semibold">Top Routes This Month</h2>
           <div className="mt-4 space-y-3">
@@ -210,16 +210,9 @@ export default async function CompanyDashboardPage() {
                   </span>
                   <div className="flex-1">
                     <p className="text-sm font-medium">{route.route}</p>
-                    <div className="mt-1 h-2 rounded-full bg-slate-100">
-                      <div
-                        className="h-2 rounded-full bg-violet-500"
-                        style={{
-                          width: `${(route.count / (topRoutes[0]?.count || 1)) * 100}%`,
-                        }}
-                      />
-                    </div>
+                    <p className="text-xs text-slate-400">{route.count} shipments</p>
                   </div>
-                  <span className="text-sm font-semibold text-violet-600">
+                  <span className="rounded-full bg-violet-50 px-2.5 py-1 text-sm font-bold text-violet-700">
                     {route.count}
                   </span>
                 </div>
@@ -227,36 +220,54 @@ export default async function CompanyDashboardPage() {
             )}
           </div>
         </div>
+      </div>
 
-        <div className="rounded-2xl border bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <h2 className="font-semibold">Recent LR Requests</h2>
-            <Link href="/company/lr" className="text-sm font-semibold text-violet-600 hover:underline">
-              View all
-            </Link>
-          </div>
-          {recentLrs.length === 0 ? (
-            <p className="mt-3 text-sm text-slate-500">No LRs yet.</p>
-          ) : (
-            <div className="mt-4 divide-y">
-              {recentLrs.map((lr) => (
-                <Link
-                  key={lr.id}
-                  href={`/company/lr/${lr.id}`}
-                  className="flex items-center justify-between py-3 transition hover:bg-slate-50"
-                >
-                  <div>
-                    <p className="font-semibold text-violet-700">{lr.trackingId}</p>
-                    <p className="text-sm text-slate-500">
-                      {lr.originCity} → {lr.destinationCity} · {lr.driverName}
-                    </p>
-                  </div>
-                  <StatusBadge status={lr.status} />
-                </Link>
-              ))}
-            </div>
-          )}
+      <div className="mt-8 rounded-2xl border bg-white p-6 shadow-sm">
+        <div className="flex items-center justify-between">
+          <h2 className="font-semibold">Recent Activity</h2>
+          <Link href="/company/lr" className="text-sm font-semibold text-violet-600 hover:underline">
+            See all
+          </Link>
         </div>
+        {recentLrs.length === 0 ? (
+          <p className="mt-3 text-sm text-slate-500">No activity yet.</p>
+        ) : (
+          <div className="mt-4 space-y-3">
+            {recentLrs.map((lr) => (
+              <Link
+                key={lr.id}
+                href={`/company/lr/${lr.id}`}
+                className="flex items-center gap-3 rounded-xl border border-slate-100 p-3 transition hover:border-violet-200 hover:bg-violet-50/40"
+              >
+                <div className={`h-2 w-2 shrink-0 rounded-full ${
+                  lr.status === "pending" ? "bg-amber-500" :
+                  lr.status === "approved" ? "bg-emerald-500" :
+                  lr.status === "delivered" ? "bg-violet-500" :
+                  "bg-red-500"
+                }`} />
+                <div className="flex-1">
+                  <p className="text-sm">
+                    <span className="font-semibold text-violet-700">{lr.trackingId}</span>
+                    {" "}
+                    {lr.status === "pending" ? "submitted" : lr.status === "approved" ? "approved" : lr.status === "delivered" ? "marked delivered" : "rejected"}.
+                    {" "}{lr.originCity} → {lr.destinationCity}
+                  </p>
+                  <p className="text-xs text-slate-400">
+                    by {lr.driverName} · {timeAgo(new Date(lr.createdAt))}
+                  </p>
+                </div>
+                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${
+                  lr.status === "pending" ? "bg-amber-50 text-amber-700" :
+                  lr.status === "approved" ? "bg-emerald-50 text-emerald-700" :
+                  lr.status === "delivered" ? "bg-violet-50 text-violet-700" :
+                  "bg-red-50 text-red-700"
+                }`}>
+                  {lr.status}
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -294,7 +305,17 @@ function UsageBar({
           style={{ width: `${pct}%` }}
         />
       </div>
-      <p className="mt-1 text-xs text-slate-400">{pct}% used</p>
     </div>
   );
+}
+
+function timeAgo(date: Date): string {
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "Just now";
+  if (mins < 60) return `${mins} min ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return date.toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
 }

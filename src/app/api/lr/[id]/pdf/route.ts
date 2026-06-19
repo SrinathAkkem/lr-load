@@ -41,7 +41,7 @@ export async function GET(
   return new NextResponse(Buffer.from(bytes), {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `inline; filename="${filename}"`,
+      "Content-Disposition": `attachment; filename="${filename}"`,
       "Cache-Control": "private, max-age=0, must-revalidate",
     },
   });

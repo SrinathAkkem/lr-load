@@ -14,7 +14,7 @@ export function ApproveRejectActions({ id }: { id: string }) {
   async function handleApprove() {
     setBusy("approve");
     try {
-      const res = await fetch(`/api/lr/${id}/approve`, { method: "POST" });
+      const res = await fetch(`/api/lr/${id}/approve`, { method: "PUT" });
       const data = await res.json().catch(() => ({}));
       if (data.success) {
         toast.success("LR approved — PDF generated");
@@ -35,7 +35,7 @@ export function ApproveRejectActions({ id }: { id: string }) {
     setBusy("reject");
     try {
       const res = await fetch(`/api/lr/${id}/reject`, {
-        method: "POST",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reason: reason.trim() }),
       });

@@ -13,6 +13,9 @@ import {
   Search,
   Pencil,
   X,
+  Users,
+  FileText,
+  IndianRupee,
 } from "lucide-react";
 
 interface Branch {
@@ -23,6 +26,7 @@ interface Branch {
   driverCount: number;
   lrsThisMonth: number;
   freight: number;
+  status?: string;
 }
 
 interface CompanySummary {
@@ -135,12 +139,12 @@ export default function BranchesPage() {
   const used = branches.length;
   const max = company?.maxBranches ?? used;
   const remaining = Math.max(0, max - used);
-  const usagePct = max > 0 ? Math.min(100, (used / max) * 100) : 0;
 
   return (
     <div className="p-6 md:p-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
+          <h1 className="text-lg font-bold text-slate-900">Your Branches</h1>
           <p className="text-sm text-slate-500">
             {used} of {max} branches used · {remaining} slots remaining
           </p>
@@ -151,46 +155,8 @@ export default function BranchesPage() {
           className="bg-violet-600 hover:bg-violet-700"
         >
           <Plus className="mr-1.5 h-4 w-4" />
-          Add Branch
+          Add New Branch
         </Button>
-      </div>
-
-      <div className="mt-6 grid gap-4 md:grid-cols-3">
-        <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
-            <GitBranch className="h-3.5 w-3.5 text-violet-500" />
-            Branches Used
-          </div>
-          <p className="mt-2 text-3xl font-bold text-slate-900">
-            {used} <span className="text-base font-medium text-slate-400">/ {max}</span>
-          </p>
-          <div className="mt-3 h-2 rounded-full bg-slate-100">
-            <div
-              className="h-2 rounded-full bg-violet-500 transition-all"
-              style={{ width: `${usagePct}%` }}
-            />
-          </div>
-        </div>
-        <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
-            <Building2 className="h-3.5 w-3.5 text-violet-500" />
-            Cities Covered
-          </div>
-          <p className="mt-2 text-3xl font-bold text-slate-900">
-            {new Set(branches.map((b) => b.city)).size}
-          </p>
-          <p className="mt-1 text-sm text-slate-500">unique cities</p>
-        </div>
-        <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
-            <MapPin className="h-3.5 w-3.5 text-violet-500" />
-            Drivers Across All Branches
-          </div>
-          <p className="mt-2 text-3xl font-bold text-slate-900">
-            {branches.reduce((s, b) => s + b.driverCount, 0)}
-          </p>
-          <p className="mt-1 text-sm text-slate-500">across the network</p>
-        </div>
       </div>
 
       <div className="mt-6 relative max-w-md">
@@ -208,7 +174,7 @@ export default function BranchesPage() {
           Array.from({ length: 3 }).map((_, i) => (
             <div
               key={i}
-              className="h-44 animate-pulse rounded-2xl border bg-white shadow-sm"
+              className="h-52 animate-pulse rounded-2xl border bg-white shadow-sm"
             />
           ))
         ) : visible.length === 0 ? (
@@ -218,65 +184,96 @@ export default function BranchesPage() {
               : "No branches match your search."}
           </div>
         ) : (
-          visible.map((b) => (
-            <div
-              key={b.id}
-              className="group flex flex-col rounded-2xl border bg-white p-5 shadow-sm transition hover:border-violet-200 hover:shadow-md"
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="font-semibold text-slate-900">{b.name}</h3>
-                  <p className="mt-0.5 flex items-center gap-1 text-sm text-slate-500">
-                    <MapPin className="h-3.5 w-3.5 text-slate-400" />
-                    {b.city}, {b.state}
-                  </p>
-                </div>
-                <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-700 ring-1 ring-emerald-200">
-                  Active
-                </span>
-              </div>
-
-              <div className="mt-5 grid grid-cols-3 gap-2 rounded-xl bg-slate-50 p-3 text-center text-sm">
-                <div>
-                  <p className="text-base font-bold text-slate-900">
-                    {b.driverCount}
-                  </p>
-                  <p className="text-[11px] uppercase tracking-wider text-slate-500">
-                    Drivers
-                  </p>
-                </div>
-                <div>
-                  <p className="text-base font-bold text-slate-900">
-                    {b.lrsThisMonth}
-                  </p>
-                  <p className="text-[11px] uppercase tracking-wider text-slate-500">
-                    LRs/month
-                  </p>
-                </div>
-                <div>
-                  <p className="text-base font-bold text-emerald-600">
-                    ₹{(b.freight / 100000).toFixed(1)}L
-                  </p>
-                  <p className="text-[11px] uppercase tracking-wider text-slate-500">
-                    Freight
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setEditing(b);
-                  setEditForm({ name: b.name, city: b.city, state: b.state });
-                }}
-                className="mt-4 inline-flex items-center justify-center gap-1.5 rounded-full border border-slate-200 px-4 py-1.5 text-sm font-semibold text-slate-700 transition hover:border-violet-300 hover:text-violet-700"
+          visible.map((b) => {
+            const isActive = b.driverCount > 0 || b.lrsThisMonth > 0;
+            return (
+              <div
+                key={b.id}
+                className="group flex flex-col rounded-2xl border bg-white p-5 shadow-sm transition hover:border-violet-200 hover:shadow-md"
               >
-                <Pencil className="h-3.5 w-3.5" />
-                Edit Branch
-              </button>
-            </div>
-          ))
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="font-semibold text-slate-900">{b.name}</h3>
+                    <p className="mt-0.5 flex items-center gap-1 text-sm text-slate-500">
+                      <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                      {b.city}, {b.state}
+                    </p>
+                  </div>
+                  <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ring-1 ${
+                    isActive
+                      ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+                      : "bg-slate-100 text-slate-500 ring-slate-200"
+                  }`}>
+                    {isActive ? "Active" : "Inactive"}
+                  </span>
+                </div>
+
+                <div className="mt-5 grid grid-cols-3 gap-2 rounded-xl bg-slate-50 p-3 text-center text-sm">
+                  <div>
+                    <div className="flex items-center justify-center gap-1">
+                      <Users className="h-3 w-3 text-blue-500" />
+                      <p className="text-base font-bold text-blue-600">
+                        {b.driverCount}
+                      </p>
+                    </div>
+                    <p className="text-[11px] uppercase tracking-wider text-slate-500">
+                      Drivers
+                    </p>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-center gap-1">
+                      <FileText className="h-3 w-3 text-violet-500" />
+                      <p className="text-base font-bold text-violet-600">
+                        {b.lrsThisMonth}
+                      </p>
+                    </div>
+                    <p className="text-[11px] uppercase tracking-wider text-slate-500">
+                      LRs
+                    </p>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-center gap-1">
+                      <IndianRupee className="h-3 w-3 text-emerald-500" />
+                      <p className="text-base font-bold text-emerald-600">
+                        ₹{(b.freight / 100000).toFixed(1)}L
+                      </p>
+                    </div>
+                    <p className="text-[11px] uppercase tracking-wider text-slate-500">
+                      Freight
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditing(b);
+                    setEditForm({ name: b.name, city: b.city, state: b.state });
+                  }}
+                  className="mt-4 inline-flex items-center justify-center gap-1.5 rounded-full border border-slate-200 px-4 py-1.5 text-sm font-semibold text-slate-700 transition hover:border-violet-300 hover:text-violet-700"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                  Edit Branch
+                </button>
+              </div>
+            );
+          })
         )}
+
+        {remaining > 0 && (
+          <button
+            onClick={() => setShowAdd(true)}
+            className="flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-200 p-8 text-slate-400 transition hover:border-violet-300 hover:text-violet-600"
+          >
+            <Plus className="h-8 w-8" />
+            <span className="text-sm font-semibold">Add New Branch</span>
+            <span className="text-xs">{remaining} slots remaining</span>
+          </button>
+        )}
+      </div>
+
+      <div className="mt-6 text-sm text-slate-500">
+        {used} / {max} branches
       </div>
 
       {showAdd && (

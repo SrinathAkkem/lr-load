@@ -95,7 +95,8 @@ export default function SuperAdminLoginPage() {
           </RonoGradientButton>
 
           <div className="rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-800">
-            This portal is restricted to Rayudu Group / RonoHub administrators. All login activity is monitored and logged.
+            <p>This portal is restricted to Rayudu Group / RonoHub administrators. All login activity is monitored and logged.</p>
+            <p className="mt-1 font-semibold text-red-700">Unauthorised access is prohibited.</p>
           </div>
         </form>
       </div>

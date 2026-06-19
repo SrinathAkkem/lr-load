@@ -63,6 +63,16 @@ export async function GET(req: NextRequest) {
     },
   });
 
+  const driverIds = drivers.map((d) => d.id);
+  const latestLrs = await prisma.lRRequest.groupBy({
+    by: ["driverId"],
+    where: { driverId: { in: driverIds } },
+    _max: { createdAt: true },
+  });
+  const lastActiveMap = new Map(
+    latestLrs.map((l) => [l.driverId, l._max.createdAt]),
+  );
+
   return jsonOk(
     drivers.map((d) => ({
       ...toUser(d),
@@ -75,6 +85,7 @@ export async function GET(req: NextRequest) {
             )
           : null,
       lrsThisMonth: d.driverLrs.length,
+      lastActive: lastActiveMap.get(d.id)?.toISOString() ?? null,
     })),
   );
 }
