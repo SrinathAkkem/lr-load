@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 export function RonoLogo({
   className,
-  logoSrc = "/uploads/logos/RonoHubLogo.svg",
+  logoSrc = "/uploads/logos/RonoHubLogo.png",
   width = 32,
   height = 32,
 }: {
