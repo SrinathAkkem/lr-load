@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 
 export function RonoLogo({
   className,
-  logoSrc = "/uploads/logos/RonoHubLogo.png",
+  logoSrc = "src/res/RonoHubLogo.png",
   width = 32,
   height = 20,
 }: {
@@ -22,21 +22,7 @@ export function RonoLogo({
         className="object-contain"
         onError={(e) => {
           const target = e.currentTarget;
-          if (target.dataset.errorCount === undefined) {
-            target.dataset.errorCount = "0";
-          }
-          const errorCount = parseInt(target.dataset.errorCount, 10);
-          if (errorCount < 2) {
-            target.dataset.errorCount = String(errorCount + 1);
-            console.warn(`Failed to load logo from ${logoSrc}, retrying...`);
-            // Retry with a small delay
-            setTimeout(() => {
-              target.src = logoSrc + "?retry=" + Date.now();
-            }, 500);
-          } else {
-            console.error(`Failed to load logo from ${logoSrc} after retries`);
-            target.style.display = "none";
-          }
+          target.style.display = "none";
         }}
       />
     </div>
