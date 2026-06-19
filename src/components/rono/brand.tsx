@@ -20,12 +20,6 @@ export function RonoLogo({
         className="object-contain"
         priority={false}
         unoptimized={true}
-        onError={() => {
-          console.error("✗ Failed to load logo from /uploads/logos/RonoHubLogo.png");
-        }}
-        onLoad={() => {
-          console.log("✓ Logo loaded successfully");
-        }}
       />
     </div>
   );
