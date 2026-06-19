@@ -90,9 +90,10 @@ export default async function SuperAdminDashboardPage() {
         />
       </div>
 
-      {/* LR Volume Chart with MONTH TOTAL / DAILY AVG */}
-      <div className="mt-8">
-        <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+      {/* LR Volume Chart + Daily Recent Activity side by side */}
+      <div className="mt-8 grid gap-6 lg:grid-cols-5">
+        {/* LR Volume Chart with MONTH TOTAL / DAILY AVG - takes 3 cols */}
+        <div className="lg:col-span-3 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
           <div className="flex items-start justify-between">
             <div>
               <h2 className="text-base font-semibold text-slate-900">LR Volume — {monthName}</h2>
@@ -114,78 +115,6 @@ export default async function SuperAdminDashboardPage() {
               monthly={monthly}
               title=""
             />
-          </div>
-        </div>
-      </div>
-
-      {/* Top Companies + Recent Activity side by side */}
-      <div className="mt-8 grid gap-6 lg:grid-cols-5">
-        {/* Top Companies by LR Volume - takes 3 cols */}
-        <div className="lg:col-span-3 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold text-slate-900">Top Companies by LR Volume</h2>
-            <Link
-              href="/super-admin/companies"
-              className="text-xs font-semibold text-violet-600 hover:underline"
-            >
-              View All →
-            </Link>
-          </div>
-          <p className="text-xs text-slate-400">Top 5</p>
-
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-100 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-                  <th className="pb-3 pr-3">#</th>
-                  <th className="pb-3 pr-3">Company Name</th>
-                  <th className="pb-3 pr-3">Branches</th>
-                  <th className="pb-3 pr-3">Drivers</th>
-                  <th className="pb-3 pr-3">LRs This Month</th>
-                  <th className="pb-3">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {topCompanies.map((company, i) => (
-                  <tr key={company.id} className="border-b border-slate-50 last:border-0">
-                    <td className="py-3 pr-3 text-xs font-bold text-slate-300">
-                      {String(i + 1).padStart(2, "0")}
-                    </td>
-                    <td className="py-3 pr-3">
-                      <Link
-                        href={`/super-admin/companies/${company.id}`}
-                        className="text-sm font-semibold text-slate-800 hover:text-violet-700"
-                      >
-                        {company.name}
-                      </Link>
-                    </td>
-                    <td className="py-3 pr-3">
-                      <span className="text-sm text-slate-600">
-                        {company._count.branches} / {company.maxBranches}
-                      </span>
-                    </td>
-                    <td className="py-3 pr-3">
-                      <span className="text-sm text-slate-600">
-                        {company._count.users} / {company.maxDrivers}
-                      </span>
-                    </td>
-                    <td className="py-3 pr-3">
-                      <UsagePill used={company._count.lrRequests} max={company.maxLrPerMonth} />
-                    </td>
-                    <td className="py-3">
-                      <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${
-                        company.status === "active" ? "text-emerald-600" : "text-red-500"
-                      }`}>
-                        <span className={`h-1.5 w-1.5 rounded-full ${
-                          company.status === "active" ? "bg-emerald-500" : "bg-red-500"
-                        }`} />
-                        {company.status === "active" ? "Active" : "Suspended"}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </div>
         </div>
 
@@ -234,6 +163,75 @@ export default async function SuperAdminDashboardPage() {
               ))
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Top Companies by LR Volume - full width */}
+      <div className="mt-8 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-semibold text-slate-900">Top Companies by LR Volume</h2>
+          <Link
+            href="/super-admin/companies"
+            className="text-xs font-semibold text-violet-600 hover:underline"
+          >
+            View All →
+          </Link>
+        </div>
+        <p className="text-xs text-slate-400">Top 5</p>
+
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-slate-100 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                <th className="pb-3 pr-3">#</th>
+                <th className="pb-3 pr-3">Company Name</th>
+                <th className="pb-3 pr-3">Branches</th>
+                <th className="pb-3 pr-3">Drivers</th>
+                <th className="pb-3 pr-3">LRs This Month</th>
+                <th className="pb-3">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {topCompanies.map((company, i) => (
+                <tr key={company.id} className="border-b border-slate-50 last:border-0">
+                  <td className="py-3 pr-3 text-xs font-bold text-slate-300">
+                    {String(i + 1).padStart(2, "0")}
+                  </td>
+                  <td className="py-3 pr-3">
+                    <Link
+                      href={`/super-admin/companies/${company.id}`}
+                      className="text-sm font-semibold text-slate-800 hover:text-violet-700"
+                    >
+                      {company.name}
+                    </Link>
+                  </td>
+                  <td className="py-3 pr-3">
+                    <span className="text-sm text-slate-600">
+                      {company._count.branches} / {company.maxBranches}
+                    </span>
+                  </td>
+                  <td className="py-3 pr-3">
+                    <span className="text-sm text-slate-600">
+                      {company._count.users} / {company.maxDrivers}
+                    </span>
+                  </td>
+                  <td className="py-3 pr-3">
+                    <UsagePill used={company._count.lrRequests} max={company.maxLrPerMonth} />
+                  </td>
+                  <td className="py-3">
+                    <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${
+                      company.status === "active" ? "text-emerald-600" : "text-red-500"
+                    }`}>
+                      <span className={`h-1.5 w-1.5 rounded-full ${
+                        company.status === "active" ? "bg-emerald-500" : "bg-red-500"
+                      }`} />
+                      {company.status === "active" ? "Active" : "Suspended"}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
