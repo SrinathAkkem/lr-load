@@ -1,16 +1,15 @@
 import { cn } from "@/lib/utils";
 
-export function RonoLogo({ className }: { className?: string }) {
+export function RonoLogo({
+  className,
+  logoSrc = "/uploads/logos/RonoHubLogo.svg",
+}: {
+  className?: string;
+  logoSrc?: string;
+}) {
   return (
     <div className={cn("flex items-center gap-2", className)}>
-      <div className="relative flex h-8 w-8 items-center justify-center">
-        <span className="absolute h-4 w-4 rounded-full bg-pink-400 opacity-90" style={{ left: 2, top: 4 }} />
-        <span className="absolute h-4 w-4 rounded-full bg-cyan-400 opacity-90" style={{ left: 10, top: 0 }} />
-        <span className="absolute h-4 w-4 rounded-full bg-amber-400 opacity-90" style={{ left: 14, top: 8 }} />
-      </div>
-      <span className="text-lg font-bold tracking-tight">
-        rono<span className="font-normal">hub</span>
-      </span>
+      <img src={logoSrc} alt="Rono logo" className="h-8 w-8 object-contain" />
     </div>
   );
 }
