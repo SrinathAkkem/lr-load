@@ -80,67 +80,69 @@ export default async function CompaniesListPage({
 
   return (
     <div className="p-6 md:p-8">
-      <div className="mb-4">
-        <h1 className="text-lg font-bold text-slate-900">All Onboarded Companies</h1>
-      </div>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+      {/* Header with totals and Add Company */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-4 text-sm">
-          <span className="rounded-full bg-violet-50 px-3 py-1 font-semibold text-violet-700">
+          <span className="font-semibold text-slate-700">
             {activeCount + suspendedCount} total
           </span>
-          <span className="flex items-center gap-1 text-emerald-600">
+          <span className="flex items-center gap-1.5 text-emerald-600">
             <span className="h-2 w-2 rounded-full bg-emerald-500" />
             {activeCount} Active
           </span>
-          <span className="flex items-center gap-1 text-rose-600">
-            <span className="h-2 w-2 rounded-full bg-rose-500" />
+          <span className="flex items-center gap-1.5 text-red-500">
+            <span className="h-2 w-2 rounded-full bg-red-500" />
             {suspendedCount} Suspended
           </span>
         </div>
         <AddCompanyButton />
       </div>
 
-      <form
-        action="/super-admin/companies"
-        method="GET"
-        className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl border bg-white p-3 shadow-sm"
-      >
-        <input
-          name="search"
-          defaultValue={search}
-          placeholder="Search by name or code…"
-          className="min-w-[260px] flex-1 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm outline-none focus:border-violet-300 focus:bg-white focus:ring-2 focus:ring-violet-100"
-        />
-        <select
-          name="status"
-          defaultValue={status}
-          className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700"
-        >
-          <option value="all">All Status</option>
-          <option value="active">Active</option>
-          <option value="suspended">Suspended</option>
-        </select>
-        <button
-          type="submit"
-          className="rounded-full bg-violet-600 px-5 py-2 text-sm font-semibold text-white shadow transition hover:bg-violet-700"
-        >
-          Apply
-        </button>
-      </form>
+      {/* Section title + Filter bar */}
+      <div className="mt-6 rounded-2xl border border-slate-100 bg-white shadow-sm">
+        <div className="border-b border-slate-100 px-6 py-4">
+          <h2 className="text-base font-semibold text-slate-900">All Onboarded Companies</h2>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <span className="text-xs font-medium text-slate-500">Filter by:</span>
+            <form action="/super-admin/companies" method="GET" className="flex flex-wrap items-center gap-2">
+              <select
+                name="status"
+                defaultValue={status}
+                className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-violet-300 focus:ring-1 focus:ring-violet-100"
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="suspended">Suspended</option>
+              </select>
+              <input
+                name="search"
+                defaultValue={search}
+                placeholder="Search by name or code…"
+                className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs outline-none focus:border-violet-300 focus:ring-1 focus:ring-violet-100 min-w-[180px]"
+              />
+              <button
+                type="submit"
+                className="rounded-lg bg-violet-600 px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-violet-700"
+              >
+                Apply
+              </button>
+            </form>
+          </div>
+        </div>
 
-      <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
+        {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="border-b bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500">
+            <thead className="border-b border-slate-100 text-left">
               <tr>
-                <th className="p-4">Company Name</th>
-                <th className="p-4">Code</th>
-                <th className="p-4">Branches</th>
-                <th className="p-4">Drivers</th>
-                <th className="p-4">LRs This Month</th>
-                <th className="p-4">Monthly Limit</th>
-                <th className="p-4">Status</th>
-                <th className="p-4 text-right">Actions</th>
+                <th className="px-6 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Company Name</th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Code</th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Branches</th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Drivers</th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">LRs This Month</th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Monthly Limit</th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Status</th>
+                <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-400">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -148,180 +150,127 @@ export default async function CompaniesListPage({
                 <tr>
                   <td
                     colSpan={8}
-                    className="p-10 text-center text-sm text-slate-400"
+                    className="px-6 py-12 text-center text-sm text-slate-400"
                   >
                     No companies match these filters.
                   </td>
                 </tr>
               ) : (
-                companies.map((company) => {
-                  const branchPct = company.maxBranches > 0
-                    ? (company._count.branches / company.maxBranches) * 100
-                    : 0;
-                  const driverPct = company.maxDrivers > 0
-                    ? (company._count.users / company.maxDrivers) * 100
-                    : 0;
-                  const lrPct = company.maxLrPerMonth > 0
-                    ? (company._count.lrRequests / company.maxLrPerMonth) * 100
-                    : 0;
-
-                  return (
-                    <tr
-                      key={company.id}
-                      className="border-b last:border-0 hover:bg-slate-50"
-                    >
-                      <td className="p-4">
-                        <p className="font-semibold text-slate-900">
+                companies.map((company) => (
+                  <tr
+                    key={company.id}
+                    className="border-b border-slate-50 last:border-0 transition hover:bg-slate-50/50"
+                  >
+                    <td className="px-6 py-3.5">
+                      <Link href={`/super-admin/companies/${company.id}`} className="block">
+                        <p className="font-semibold text-slate-900 hover:text-violet-700 transition">
                           {company.name}
                         </p>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-[11px] text-slate-400">
                           {company.contactPhone}
                         </p>
-                      </td>
-                      <td className="p-4">
-                        <span className="rounded-full bg-violet-50 px-2 py-1 text-xs font-bold text-violet-700">
-                          {company.lrCode}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <UsageCell used={company._count.branches} max={company.maxBranches} pct={branchPct} color="blue" />
-                      </td>
-                      <td className="p-4">
-                        <UsageCell used={company._count.users} max={company.maxDrivers} pct={driverPct} color="violet" />
-                      </td>
-                      <td className="p-4">
-                        <UsageCell used={company._count.lrRequests} max={company.maxLrPerMonth} pct={lrPct} color="amber" />
-                      </td>
-                      <td className="p-4 font-medium text-slate-700">
-                        {company.maxLrPerMonth}
-                      </td>
-                      <td className="p-4">
-                        <span
-                          className={`inline-flex items-center gap-1 text-xs font-semibold ${
+                      </Link>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span className="rounded bg-violet-50 px-2 py-0.5 text-[11px] font-bold text-violet-700">
+                        {company.lrCode}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5 text-slate-600">
+                      {company._count.branches} / {company.maxBranches}
+                    </td>
+                    <td className="px-4 py-3.5 text-slate-600">
+                      {company._count.users} / {company.maxDrivers}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <UsageText used={company._count.lrRequests} max={company.maxLrPerMonth} />
+                    </td>
+                    <td className="px-4 py-3.5 font-medium text-slate-700">
+                      {company.maxLrPerMonth}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${
+                        company.status === "active" ? "text-emerald-600" : "text-red-500"
+                      }`}>
+                        <span className={`h-1.5 w-1.5 rounded-full ${
+                          company.status === "active" ? "bg-emerald-500" : "bg-red-500"
+                        }`} />
+                        {company.status === "active" ? "Active" : "Suspended"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Link
+                          href={`/super-admin/companies/${company.id}`}
+                          className="rounded-md border border-violet-200 px-3 py-1 text-[11px] font-semibold text-violet-700 transition hover:bg-violet-50"
+                        >
+                          Edit Limits
+                        </Link>
+                        <Link
+                          href={`/super-admin/companies/${company.id}`}
+                          className={`rounded-md border px-3 py-1 text-[11px] font-semibold transition ${
                             company.status === "active"
-                              ? "text-emerald-600"
-                              : "text-red-600"
+                              ? "border-red-200 text-red-600 hover:bg-red-50"
+                              : "border-emerald-200 text-emerald-600 hover:bg-emerald-50"
                           }`}
                         >
-                          <span
-                            className={`h-1.5 w-1.5 rounded-full ${
-                              company.status === "active"
-                                ? "bg-emerald-500"
-                                : "bg-red-500"
-                            }`}
-                          />
-                          {company.status === "active" ? "Active" : "Suspended"}
-                        </span>
-                      </td>
-                      <td className="p-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Link
-                            href={`/super-admin/companies/${company.id}`}
-                            className="rounded-lg border border-violet-200 bg-violet-50 px-3 py-1.5 text-xs font-semibold text-violet-700 transition hover:bg-violet-100"
-                          >
-                            Edit Limits
-                          </Link>
-                          <SuspendButton companyId={company.id} currentStatus={company.status} />
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
+                          {company.status === "active" ? "Suspend" : "Activate"}
+                        </Link>
+                      </div>
+                    </td>
+                  </tr>
+                ))
               )}
             </tbody>
           </table>
         </div>
-      </div>
 
-      {totalPages > 1 && (
-        <div className="mt-4 flex items-center justify-between text-sm">
-          <p className="text-slate-500">
-            Showing {(page - 1) * perPage + 1}–{Math.min(page * perPage, totalCount)} of {totalCount} companies
-          </p>
-          <div className="flex items-center gap-1">
-            {page > 1 && (
-              <Link
-                href={`/super-admin/companies?page=${page - 1}${search ? `&search=${search}` : ""}${status !== "all" ? `&status=${status}` : ""}`}
-                className="rounded-lg border px-3 py-1.5 text-xs font-semibold hover:bg-slate-50"
-              >
-                ←
-              </Link>
-            )}
-            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map((p) => (
-              <Link
-                key={p}
-                href={`/super-admin/companies?page=${p}${search ? `&search=${search}` : ""}${status !== "all" ? `&status=${status}` : ""}`}
-                className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${
-                  p === page ? "bg-violet-600 text-white" : "border hover:bg-slate-50"
-                }`}
-              >
-                {p}
-              </Link>
-            ))}
-            {page < totalPages && (
-              <Link
-                href={`/super-admin/companies?page=${page + 1}${search ? `&search=${search}` : ""}${status !== "all" ? `&status=${status}` : ""}`}
-                className="rounded-lg border px-3 py-1.5 text-xs font-semibold hover:bg-slate-50"
-              >
-                →
-              </Link>
-            )}
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between border-t border-slate-100 px-6 py-3">
+            <p className="text-xs text-slate-400">
+              Showing {(page - 1) * perPage + 1}–{Math.min(page * perPage, totalCount)} of {totalCount} companies
+            </p>
+            <div className="flex items-center gap-1">
+              {page > 1 && (
+                <Link
+                  href={`/super-admin/companies?page=${page - 1}${search ? `&search=${search}` : ""}${status !== "all" ? `&status=${status}` : ""}`}
+                  className="rounded-md border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                >
+                  ←
+                </Link>
+              )}
+              {Array.from({ length: Math.min(totalPages, 3) }, (_, i) => i + 1).map((p) => (
+                <Link
+                  key={p}
+                  href={`/super-admin/companies?page=${p}${search ? `&search=${search}` : ""}${status !== "all" ? `&status=${status}` : ""}`}
+                  className={`rounded-md px-2.5 py-1 text-xs font-medium ${
+                    p === page
+                      ? "bg-violet-600 text-white"
+                      : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  {p}
+                </Link>
+              ))}
+              {page < totalPages && (
+                <Link
+                  href={`/super-admin/companies?page=${page + 1}${search ? `&search=${search}` : ""}${status !== "all" ? `&status=${status}` : ""}`}
+                  className="rounded-md border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                >
+                  →
+                </Link>
+              )}
+            </div>
           </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function UsageCell({ used, max, pct, color }: { used: number; max: number; pct: number; color: "blue" | "violet" | "amber" }) {
-  const barColor = pct >= 90
-    ? "bg-red-500"
-    : pct >= 75
-      ? "bg-amber-500"
-      : color === "blue"
-        ? "bg-blue-500"
-        : color === "violet"
-          ? "bg-violet-500"
-          : "bg-amber-500";
-
-  const textColor = pct >= 90
-    ? "text-red-700"
-    : pct >= 75
-      ? "text-amber-700"
-      : "text-slate-700";
-
-  return (
-    <div className="min-w-[80px]">
-      <p className={`text-xs font-semibold ${textColor}`}>
-        {used} <span className="text-slate-400">/ {max}</span>
-      </p>
-      <div className="mt-1 h-1.5 rounded-full bg-slate-100">
-        <div
-          className={`h-1.5 rounded-full transition-all ${barColor}`}
-          style={{ width: `${Math.min(100, pct)}%` }}
-        />
+        )}
       </div>
     </div>
   );
 }
 
-function SuspendButton({ companyId, currentStatus }: { companyId: string; currentStatus: string }) {
-  if (currentStatus === "suspended") {
-    return (
-      <Link
-        href={`/super-admin/companies/${companyId}`}
-        className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100"
-      >
-        Activate
-      </Link>
-    );
-  }
-  return (
-    <Link
-      href={`/super-admin/companies/${companyId}`}
-      className="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100"
-    >
-      Suspend
-    </Link>
-  );
+function UsageText({ used, max }: { used: number; max: number }) {
+  const pct = max > 0 ? (used / max) * 100 : 0;
+  const color = pct >= 90 ? "text-red-600 font-semibold" : pct >= 75 ? "text-amber-600" : "text-slate-600";
+  return <span className={`text-sm ${color}`}>{used} / {max}</span>;
 }

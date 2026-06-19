@@ -1,9 +1,8 @@
 import { prisma } from "@/lib/db/prisma";
 import { StatCard } from "@/components/rono/brand";
-import { Building2, Truck, FileText, Activity } from "lucide-react";
+import { Building2, Truck, FileText } from "lucide-react";
 import Link from "next/link";
 import {
-  formatCurrency,
   getDailyLrCounts,
   getMonthlyLrCounts,
 } from "@/lib/services/lr-service";
@@ -15,7 +14,7 @@ export default async function SuperAdminDashboardPage() {
   const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
   const monthEnd = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1);
 
-  const [companies, totalDrivers, totalLrs, monthLrCount, daily, monthly] =
+  const [companies, totalDrivers, totalLrs, monthLrCount, daily, monthly, newDriversThisMonth] =
     await Promise.all([
       prisma.company.findMany({
         orderBy: { createdAt: "desc" },
@@ -36,17 +35,17 @@ export default async function SuperAdminDashboardPage() {
       }),
       getDailyLrCounts(null, 7),
       getMonthlyLrCounts(null, 12),
+      prisma.user.count({
+        where: {
+          role: "driver",
+          status: "active",
+          createdAt: { gte: monthStart, lt: monthEnd },
+        },
+      }),
     ]);
 
   const activeCompanies = companies.filter((c) => c.status === "active");
   const suspendedCompanies = companies.filter((c) => c.status === "suspended");
-  const newDriversThisMonth = await prisma.user.count({
-    where: {
-      role: "driver",
-      status: "active",
-      createdAt: { gte: monthStart, lt: monthEnd },
-    },
-  });
 
   const dailyAvg = daily.length > 0
     ? Math.round(daily.reduce((s, d) => s + d.count, 0) / daily.length)
@@ -62,15 +61,12 @@ export default async function SuperAdminDashboardPage() {
     include: { company: true, driver: true },
   });
 
+  const monthName = new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" });
+
   return (
     <div className="p-6 md:p-8">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-slate-500">
-          Platform overview · {companies.length} companies onboarded
-        </p>
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      {/* 3 Stat Cards */}
+      <div className="grid gap-5 md:grid-cols-3">
         <StatCard
           title="Total Companies"
           value={companies.length}
@@ -92,57 +88,55 @@ export default async function SuperAdminDashboardPage() {
           icon={<FileText className="h-5 w-5 text-amber-600" />}
           accent="amber"
         />
-        <StatCard
-          title="Month Total"
-          value={monthLrCount.toLocaleString("en-IN")}
-          subtitle={`Daily avg: ${dailyAvg}`}
-          icon={<Activity className="h-5 w-5 text-emerald-600" />}
-          accent="emerald"
-        />
       </div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <LrVolumeChart
-            daily={daily}
-            monthly={monthly}
-            title="LR Volume"
-          />
-        </div>
-
-        <div className="space-y-4">
-          <div className="rounded-2xl border bg-gradient-to-br from-violet-600 to-indigo-600 p-5 text-white shadow-sm">
-            <h2 className="text-xs font-semibold uppercase tracking-wide text-violet-100">
-              Month Total
-            </h2>
-            <p className="mt-1 text-3xl font-bold">{monthLrCount.toLocaleString("en-IN")}</p>
-            <p className="text-sm text-violet-200">LR Volume — {new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" })}</p>
+      {/* LR Volume Chart with MONTH TOTAL / DAILY AVG */}
+      <div className="mt-8">
+        <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+          <div className="flex items-start justify-between">
+            <div>
+              <h2 className="text-base font-semibold text-slate-900">LR Volume — {monthName}</h2>
+            </div>
+            <div className="flex items-center gap-6">
+              <div className="text-right">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Month Total</p>
+                <p className="text-2xl font-bold text-slate-900">{monthLrCount.toLocaleString("en-IN")}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Daily Avg</p>
+                <p className="text-2xl font-bold text-slate-900">{dailyAvg}</p>
+              </div>
+            </div>
           </div>
-          <div className="rounded-2xl border bg-white p-5 shadow-sm">
-            <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Daily Average
-            </h2>
-            <p className="mt-1 text-3xl font-bold text-slate-900">{dailyAvg}</p>
-            <p className="text-sm text-slate-500">LRs per day this week</p>
+          <div className="mt-4">
+            <LrVolumeChart
+              daily={daily}
+              monthly={monthly}
+              title=""
+            />
           </div>
         </div>
       </div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border bg-white p-6 shadow-sm">
+      {/* Top Companies + Recent Activity side by side */}
+      <div className="mt-8 grid gap-6 lg:grid-cols-5">
+        {/* Top Companies by LR Volume - takes 3 cols */}
+        <div className="lg:col-span-3 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Top Companies by LR Volume</h2>
+            <h2 className="text-base font-semibold text-slate-900">Top Companies by LR Volume</h2>
             <Link
               href="/super-admin/companies"
-              className="text-sm font-semibold text-violet-600 hover:underline"
+              className="text-xs font-semibold text-violet-600 hover:underline"
             >
               View All →
             </Link>
           </div>
+          <p className="text-xs text-slate-400">Top 5</p>
+
           <div className="mt-4 overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="border-b text-left text-xs uppercase tracking-wider text-slate-500">
-                <tr>
+              <thead>
+                <tr className="border-b border-slate-100 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                   <th className="pb-3 pr-3">#</th>
                   <th className="pb-3 pr-3">Company Name</th>
                   <th className="pb-3 pr-3">Branches</th>
@@ -152,90 +146,87 @@ export default async function SuperAdminDashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {topCompanies.map((company, i) => {
-                  const lrPct = company.maxLrPerMonth > 0
-                    ? (company._count.lrRequests / company.maxLrPerMonth) * 100
-                    : 0;
-                  const driverPct = company.maxDrivers > 0
-                    ? (company._count.users / company.maxDrivers) * 100
-                    : 0;
-                  const branchPct = company.maxBranches > 0
-                    ? (company._count.branches / company.maxBranches) * 100
-                    : 0;
-                  return (
-                    <tr key={company.id} className="border-b last:border-0">
-                      <td className="py-3 pr-3 font-bold text-slate-400">
-                        {String(i + 1).padStart(2, "0")}
-                      </td>
-                      <td className="py-3 pr-3">
-                        <Link
-                          href={`/super-admin/companies/${company.id}`}
-                          className="font-semibold text-slate-900 hover:text-violet-700"
-                        >
-                          {company.name}
-                        </Link>
-                      </td>
-                      <td className="py-3 pr-3">
-                        <UsageMini used={company._count.branches} max={company.maxBranches} pct={branchPct} />
-                      </td>
-                      <td className="py-3 pr-3">
-                        <UsageMini used={company._count.users} max={company.maxDrivers} pct={driverPct} />
-                      </td>
-                      <td className="py-3 pr-3">
-                        <UsageMini used={company._count.lrRequests} max={company.maxLrPerMonth} pct={lrPct} />
-                      </td>
-                      <td className="py-3">
-                        <span
-                          className={`inline-flex items-center gap-1 text-xs font-semibold ${
-                            company.status === "active"
-                              ? "text-emerald-600"
-                              : "text-red-600"
-                          }`}
-                        >
-                          <span
-                            className={`h-1.5 w-1.5 rounded-full ${
-                              company.status === "active"
-                                ? "bg-emerald-500"
-                                : "bg-red-500"
-                            }`}
-                          />
-                          {company.status === "active" ? "Active" : "Suspended"}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
+                {topCompanies.map((company, i) => (
+                  <tr key={company.id} className="border-b border-slate-50 last:border-0">
+                    <td className="py-3 pr-3 text-xs font-bold text-slate-300">
+                      {String(i + 1).padStart(2, "0")}
+                    </td>
+                    <td className="py-3 pr-3">
+                      <Link
+                        href={`/super-admin/companies/${company.id}`}
+                        className="text-sm font-semibold text-slate-800 hover:text-violet-700"
+                      >
+                        {company.name}
+                      </Link>
+                    </td>
+                    <td className="py-3 pr-3">
+                      <span className="text-sm text-slate-600">
+                        {company._count.branches} / {company.maxBranches}
+                      </span>
+                    </td>
+                    <td className="py-3 pr-3">
+                      <span className="text-sm text-slate-600">
+                        {company._count.users} / {company.maxDrivers}
+                      </span>
+                    </td>
+                    <td className="py-3 pr-3">
+                      <UsagePill used={company._count.lrRequests} max={company.maxLrPerMonth} />
+                    </td>
+                    <td className="py-3">
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${
+                        company.status === "active" ? "text-emerald-600" : "text-red-500"
+                      }`}>
+                        <span className={`h-1.5 w-1.5 rounded-full ${
+                          company.status === "active" ? "bg-emerald-500" : "bg-red-500"
+                        }`} />
+                        {company.status === "active" ? "Active" : "Suspended"}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
         </div>
 
-        <div className="rounded-2xl border bg-white p-6 shadow-sm">
+        {/* Daily Recent Activity - takes 2 cols */}
+        <div className="lg:col-span-2 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Daily Recent Activity</h2>
+            <h2 className="text-base font-semibold text-slate-900">Daily Recent Activity</h2>
             <Link
               href="/super-admin/audit"
-              className="text-sm font-semibold text-violet-600 hover:underline"
+              className="text-xs font-semibold text-violet-600 hover:underline"
             >
               See all
             </Link>
           </div>
-          <div className="mt-4 space-y-3">
+
+          <div className="mt-4 space-y-0">
             {recentActivity.length === 0 ? (
-              <p className="text-sm text-slate-500">No recent activity.</p>
+              <p className="text-sm text-slate-400">No recent activity.</p>
             ) : (
-              recentActivity.map((lr) => (
+              recentActivity.map((lr, i) => (
                 <div
                   key={lr.id}
-                  className="flex items-start gap-3 rounded-xl border border-slate-100 p-3"
+                  className={cn(
+                    "flex items-start gap-3 py-3",
+                    i < recentActivity.length - 1 && "border-b border-slate-50",
+                  )}
                 >
-                  <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-violet-500" />
-                  <div className="flex-1">
-                    <p className="text-sm">
-                      <span className="font-semibold">{lr.company.name}</span>{" "}
-                      — LR {lr.trackingId} {lr.status === "pending" ? "submitted" : lr.status} by {lr.driver.name}
+                  <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-violet-400" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-slate-700">
+                      <span className="font-semibold">{lr.company.name}</span>
+                      {" "}
+                      {lr.status === "pending"
+                        ? `— LR submitted by ${lr.driver.name}.`
+                        : lr.status === "approved"
+                          ? `— LR ${lr.trackingId} approved.`
+                          : lr.status === "delivered"
+                            ? `— LR ${lr.trackingId} delivered.`
+                            : `— LR ${lr.trackingId} ${lr.status}.`}
                     </p>
-                    <p className="text-xs text-slate-400">
+                    <p className="mt-0.5 text-[11px] text-slate-400">
                       {timeAgo(lr.createdAt)}
                     </p>
                   </div>
@@ -249,21 +240,18 @@ export default async function SuperAdminDashboardPage() {
   );
 }
 
-function UsageMini({ used, max, pct }: { used: number; max: number; pct: number }) {
-  const tone = pct >= 90 ? "bg-red-500" : pct >= 75 ? "bg-amber-500" : "bg-violet-500";
+function UsagePill({ used, max }: { used: number; max: number }) {
+  const pct = max > 0 ? (used / max) * 100 : 0;
+  const color = pct >= 90 ? "text-red-600" : pct >= 75 ? "text-amber-600" : "text-slate-600";
   return (
-    <div className="min-w-[80px]">
-      <p className="text-xs font-medium text-slate-700">
-        {used} <span className="text-slate-400">/ {max}</span>
-      </p>
-      <div className="mt-1 h-1.5 rounded-full bg-slate-100">
-        <div
-          className={`h-1.5 rounded-full ${tone} transition-all`}
-          style={{ width: `${Math.min(100, pct)}%` }}
-        />
-      </div>
-    </div>
+    <span className={`text-sm font-medium ${color}`}>
+      {used} / {max}
+    </span>
   );
+}
+
+function cn(...classes: (string | false | undefined)[]) {
+  return classes.filter(Boolean).join(" ");
 }
 
 function timeAgo(date: Date): string {
@@ -273,7 +261,8 @@ function timeAgo(date: Date): string {
   if (mins < 1) return "Just now";
   if (mins < 60) return `${mins} min ago`;
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 24) return `${hours}h ${mins % 60}m ago`;
   const days = Math.floor(hours / 24);
+  if (days === 1) return `Yesterday, ${date.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true })}`;
   return `${days}d ago`;
 }

@@ -48,35 +48,57 @@ export function LrVolumeChart({
   const maxIndex = data.length - 1;
 
   return (
-    <div className="rounded-2xl border bg-white p-6 shadow-sm">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="font-semibold">{title}</h2>
-          <p className="text-xs text-slate-500">
-            {range === "7D"
-              ? "Last 7 days"
-              : range === "30D"
-                ? "Last 30 days"
-                : "Last 12 months"}
-          </p>
+    <div className={title ? "rounded-2xl border bg-white p-6 shadow-sm" : ""}>
+      {title && (
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-semibold">{title}</h2>
+            <p className="text-xs text-slate-500">
+              {range === "7D"
+                ? "Last 7 days"
+                : range === "30D"
+                  ? "Last 30 days"
+                  : "Last 12 months"}
+            </p>
+          </div>
+          <div className="flex gap-1 rounded-full border bg-slate-50 p-1">
+            {RANGES.map((r) => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => setRange(r)}
+                className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                  range === r
+                    ? "bg-violet-600 text-white shadow"
+                    : "text-slate-500 hover:text-slate-900"
+                }`}
+              >
+                {r}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="flex gap-1 rounded-full border bg-slate-50 p-1">
-          {RANGES.map((r) => (
-            <button
-              key={r}
-              type="button"
-              onClick={() => setRange(r)}
-              className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
-                range === r
-                  ? "bg-violet-600 text-white shadow"
-                  : "text-slate-500 hover:text-slate-900"
-              }`}
-            >
-              {r}
-            </button>
-          ))}
+      )}
+      {!title && (
+        <div className="flex justify-end">
+          <div className="flex gap-1 rounded-full border bg-slate-50 p-1">
+            {RANGES.map((r) => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => setRange(r)}
+                className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                  range === r
+                    ? "bg-violet-600 text-white shadow"
+                    : "text-slate-500 hover:text-slate-900"
+                }`}
+              >
+                {r}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="mt-6 h-56">
         {data.length === 0 ? (

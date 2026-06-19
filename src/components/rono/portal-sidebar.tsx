@@ -130,40 +130,41 @@ export function PortalSidebar({
 
   const isActive = (href: string) => {
     if (pathname === href) return true;
-    // Match nested routes (e.g. /company/lr/[id]) but not unrelated siblings.
     return pathname.startsWith(`${href}/`);
   };
 
   return (
-    <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col bg-gradient-to-b from-violet-900 via-violet-900 to-indigo-950 text-white">
-      <div className="border-b border-white/10 p-5">
+    <aside className="sticky top-0 flex h-screen w-[260px] shrink-0 flex-col border-r border-white/5 bg-gradient-to-b from-[#1e1145] via-[#1a0f3c] to-[#0f0a2a] text-white">
+      {/* Logo + Platform Box */}
+      <div className="p-5 pb-4">
         <Link href={variant === "super_admin" ? "/super-admin/dashboard" : "/company/dashboard"}>
           <RonoLogo className="text-white [&_span]:text-white" />
         </Link>
 
         {variant === "super_admin" ? (
-          <div className="mt-4 rounded-xl bg-white/10 p-3">
-            <p className="text-sm font-semibold">RonoHub Platform</p>
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-violet-200">
+          <div className="mt-5 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+            <p className="text-[13px] font-semibold text-white">RonoHub Platform</p>
+            <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.15em] text-violet-300">
               Super Admin
             </p>
           </div>
         ) : companyName ? (
-          <div className="mt-4 rounded-xl bg-white/10 p-3">
-            <p className="truncate text-sm font-semibold" title={companyName}>
+          <div className="mt-5 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+            <p className="truncate text-[13px] font-semibold text-white" title={companyName}>
               {companyName}
             </p>
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-violet-200">
+            <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.15em] text-violet-300">
               Company Admin{companyCode ? ` · ${companyCode}` : ""}
             </p>
           </div>
         ) : null}
       </div>
 
-      <nav className="flex-1 space-y-5 overflow-y-auto p-3">
+      {/* Navigation */}
+      <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-2">
         {groups.map((group) => (
-          <div key={group.label} className="space-y-1">
-            <p className="px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-violet-300">
+          <div key={group.label} className="space-y-0.5">
+            <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-violet-400/70">
               {group.label}
             </p>
             {group.items.map((item) => {
@@ -177,13 +178,16 @@ export function PortalSidebar({
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
+                    "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-200",
                     active
-                      ? "bg-white/15 text-white shadow-inner"
-                      : "text-violet-200 hover:bg-white/10 hover:text-white",
+                      ? "bg-white/[0.12] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
+                      : "text-violet-200/80 hover:bg-white/[0.06] hover:text-white",
                   )}
                 >
-                  <item.icon className="h-4 w-4 shrink-0" />
+                  {active && (
+                    <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-violet-400" />
+                  )}
+                  <item.icon className={cn("h-[18px] w-[18px] shrink-0", active ? "text-violet-300" : "text-violet-400/60")} />
                   <span className="flex-1 truncate">{item.title}</span>
                   {badgeValue ? (
                     <span className="rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-bold text-amber-900">
@@ -197,31 +201,32 @@ export function PortalSidebar({
         ))}
       </nav>
 
+      {/* User section */}
       <div className="border-t border-white/10 p-3" data-sidebar-user>
         <button
           type="button"
           onClick={() => setMenuOpen((v) => !v)}
-          className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition hover:bg-white/10"
+          className="flex w-full items-center gap-3 rounded-xl p-2.5 text-left transition hover:bg-white/[0.06]"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-violet-400 to-pink-400 text-sm font-bold text-white shadow">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-violet-400 to-pink-400 text-xs font-bold text-white shadow-sm">
             {initials || "U"}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold">{userName}</p>
-            <p className="truncate text-[10px] font-semibold uppercase tracking-widest text-violet-300">
+            <p className="truncate text-[13px] font-semibold text-white">{userName}</p>
+            <p className="truncate text-[10px] font-bold uppercase tracking-[0.15em] text-violet-300/80">
               {userRole}
             </p>
           </div>
           <ChevronRight
             className={cn(
-              "h-4 w-4 text-violet-300 transition-transform",
+              "h-3.5 w-3.5 text-violet-400/60 transition-transform",
               menuOpen && "rotate-90",
             )}
           />
         </button>
 
         {menuOpen && (
-          <div className="mt-2 overflow-hidden rounded-xl bg-white/10 p-1 text-sm shadow-inner">
+          <div className="mt-2 overflow-hidden rounded-xl border border-white/10 bg-white/5 p-1 text-sm">
             {variant === "company_admin" && (
               <Link
                 href="/company/profile"
@@ -246,7 +251,7 @@ export function PortalSidebar({
               type="button"
               onClick={handleLogout}
               disabled={loggingOut}
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-rose-200 transition hover:bg-white/10 disabled:opacity-60"
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-rose-300 transition hover:bg-white/10 disabled:opacity-60"
             >
               <LogOut className="h-4 w-4" />
               {loggingOut ? "Signing out..." : "Sign out"}

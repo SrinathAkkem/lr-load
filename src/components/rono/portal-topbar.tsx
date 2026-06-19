@@ -181,41 +181,36 @@ export function PortalTopbar({ variant, userName, userRole }: TopbarProps) {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <header className="sticky top-0 z-30 flex flex-wrap items-center gap-3 border-b border-slate-200 bg-white/85 px-4 py-3 backdrop-blur md:px-8">
-      <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">
-          {variant === "super_admin" ? "Super Admin" : "Company Admin"}
-        </p>
-        <h1 className="truncate text-lg font-bold text-slate-900 md:text-xl">
-          {title}
-        </h1>
-      </div>
+    <header className="sticky top-0 z-30 flex items-center gap-4 border-b border-slate-100 bg-white px-6 py-3 md:px-8">
+      <h1 className="text-base font-semibold text-slate-900 md:text-lg">
+        {title}
+      </h1>
 
       <form
         onSubmit={submitSearch}
-        className="relative order-3 w-full max-w-md md:order-2 md:w-auto md:flex-1"
+        className="relative mx-auto hidden max-w-sm flex-1 md:block"
       >
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-300" />
         <input
           type="search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={placeholder}
-          className="w-full rounded-full border border-slate-200 bg-slate-50 pl-9 pr-4 py-2 text-sm text-slate-700 outline-none transition focus:border-violet-300 focus:bg-white focus:ring-2 focus:ring-violet-100"
+          className="w-full rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-4 py-2 text-sm text-slate-600 outline-none transition placeholder:text-slate-400 focus:border-violet-300 focus:bg-white focus:ring-2 focus:ring-violet-50"
         />
       </form>
 
-      <div className="order-2 ml-auto flex items-center gap-2 md:order-3">
+      <div className="ml-auto flex items-center gap-3">
         <div className="relative" ref={popRef}>
           <button
             type="button"
             onClick={() => setNotifsOpen((v) => !v)}
-            className="relative flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-violet-300 hover:text-violet-600"
+            className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:border-violet-200 hover:text-violet-600"
             aria-label="Notifications"
           >
             <Bell className="h-4 w-4" />
             {unreadCount > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex min-h-[18px] min-w-[18px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
+              <span className="absolute -right-0.5 -top-0.5 flex min-h-[16px] min-w-[16px] items-center justify-center rounded-full bg-rose-500 px-0.5 text-[9px] font-bold text-white">
                 {unreadCount > 9 ? "9+" : unreadCount}
               </span>
             )}
@@ -266,16 +261,16 @@ export function PortalTopbar({ variant, userName, userRole }: TopbarProps) {
               ? "/super-admin/settings"
               : "/company/profile"
           }
-          className="flex items-center gap-2.5 rounded-full border border-slate-200 bg-white px-2 py-1 pr-4 text-left transition hover:border-violet-300"
+          className="flex items-center gap-2.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-left transition hover:border-violet-200"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-pink-500 text-xs font-bold text-white">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-pink-500 text-[10px] font-bold text-white">
             {initials || "U"}
           </span>
           <span className="hidden md:block">
-            <span className="block text-sm font-semibold leading-4 text-slate-800">
+            <span className="block text-[13px] font-semibold leading-4 text-slate-800">
               {userName}
             </span>
-            <span className="block text-[10px] uppercase tracking-widest text-slate-400">
+            <span className="block text-[10px] font-medium uppercase tracking-wider text-slate-400">
               {userRole}
             </span>
           </span>

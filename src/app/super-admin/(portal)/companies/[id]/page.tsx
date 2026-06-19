@@ -105,43 +105,58 @@ export default function CompanyDetailPage() {
   if (loading) return <div className="p-8 text-sm text-slate-500">Loading…</div>;
   if (!company) return <div className="p-8">Company not found</div>;
 
+  const onboardedDate = new Date(company.createdAt).toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+
   return (
     <div className="p-6 md:p-8">
-      <Link
-        href="/super-admin/companies"
-        className="inline-flex items-center gap-1 text-sm font-medium text-slate-500 transition hover:text-slate-900"
-      >
-        <ChevronLeft className="h-4 w-4" />
-        Back to Companies
-      </Link>
-
-      <div className="mt-4 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-violet-600">
-            Company
-          </p>
-          <h2 className="text-2xl font-bold text-slate-900">{company.name}</h2>
-          <p className="mt-1 text-sm text-slate-500">
-            <span className="font-mono">{company.lrCode}</span> · GST{" "}
-            <span className="font-mono">{company.gstNumber}</span> ·{" "}
-            {company.contactPhone}
-          </p>
-        </div>
-
-        <span
-          className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
-            company.status === "active"
-              ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
-              : "bg-rose-50 text-rose-700 ring-1 ring-rose-200"
-          }`}
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-2 text-sm text-slate-500">
+        <Link href="/super-admin/companies" className="hover:text-violet-600 transition">Companies</Link>
+        <span>/</span>
+        <span className="font-medium text-slate-800">{company.name}</span>
+        <Link
+          href="/super-admin/companies"
+          className="ml-auto inline-flex items-center gap-1 text-sm font-medium text-slate-500 transition hover:text-slate-900"
         >
-          {company.status === "active" ? (
-            <ShieldCheck className="h-3 w-3" />
-          ) : (
-            <ShieldX className="h-3 w-3" />
-          )}
-          {company.status === "active" ? "Active" : "Suspended"}
-        </span>
+          <ChevronLeft className="h-4 w-4" />
+          Back to Companies
+        </Link>
+      </div>
+
+      {/* Company Banner */}
+      <div className="mt-4 rounded-2xl border border-slate-100 bg-gradient-to-r from-violet-50 to-indigo-50 p-5">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-600 text-xs font-bold text-white">
+            {company.lrCode}
+          </span>
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">{company.name}</h2>
+            <div className="mt-1 flex flex-wrap items-center gap-4 text-xs text-slate-500">
+              <span>Code: <span className="font-semibold text-slate-700">{company.lrCode}</span></span>
+              <span>GST: <span className="font-mono font-semibold text-slate-700">{company.gstNumber}</span></span>
+              <span>{company.contactPhone}</span>
+              <span>Onboarded: {onboardedDate}</span>
+            </div>
+          </div>
+          <span
+            className={`ml-auto inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
+              company.status === "active"
+                ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+                : "bg-rose-50 text-rose-700 ring-1 ring-rose-200"
+            }`}
+          >
+            {company.status === "active" ? (
+              <ShieldCheck className="h-3 w-3" />
+            ) : (
+              <ShieldX className="h-3 w-3" />
+            )}
+            {company.status === "active" ? "Active" : "Suspended"}
+          </span>
+        </div>
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-3">
@@ -259,9 +274,9 @@ export default function CompanyDetailPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-sm text-rose-800 shadow-sm">
-            <p className="font-semibold">Suspend Company Access</p>
-            <p className="mt-1 text-xs leading-relaxed">
+          <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 shadow-sm">
+            <p className="font-semibold text-rose-800">Suspend Company Access</p>
+            <p className="mt-2 text-xs leading-relaxed text-rose-700">
               Suspending will immediately block all drivers and the company
               admin from logging in. All LR data is preserved. You can
               reactivate the company at any time from this page.
@@ -270,7 +285,7 @@ export default function CompanyDetailPage() {
               type="button"
               onClick={toggleStatus}
               disabled={togglingStatus}
-              className={`mt-4 w-full rounded-lg px-4 py-2 text-sm font-semibold text-white transition disabled:opacity-60 ${
+              className={`mt-4 w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition disabled:opacity-60 ${
                 company.status === "active"
                   ? "bg-red-600 hover:bg-red-700"
                   : "bg-emerald-600 hover:bg-emerald-700"
