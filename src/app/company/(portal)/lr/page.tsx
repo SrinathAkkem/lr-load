@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { StatusBadge, formatINR } from "@/components/rono/status-badge";
 import type { LRRequest, LRStatus } from "@/lib/types";
@@ -21,39 +21,57 @@ const FILTERS: ReadonlyArray<{ key: "all" | LRStatus; label: string }> = [
 ];
 
 export default function CompanyLRPage() {
-  const [lrs, setLrs] = useState<EnrichedLR[]>([]);
+  const [allLrs, setAllLrs] = useState<EnrichedLR[]>([]);
   const [filter, setFilter] = useState<(typeof FILTERS)[number]["key"]>("all");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [selectedLr, setSelectedLr] = useState<EnrichedLR | null>(null);
   const [actionBusy, setActionBusy] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const detailRef = useRef<HTMLDivElement>(null);
+
+  function selectLr(lr: EnrichedLR) {
+    setSelectedLr(lr);
+    setRejectReason("");
+    setTimeout(() => {
+      detailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+  }
 
   useEffect(() => {
     let cancelled = false;
     const id = setTimeout(async () => {
       setLoading(true);
       const params = new URLSearchParams();
-      if (filter !== "all") params.set("status", filter);
       if (search.trim()) params.set("search", search.trim());
       const res = await fetch(`/api/lr?${params}`);
       const data = await res.json();
-      if (!cancelled && data.success) setLrs(data.data);
+      if (!cancelled && data.success) {
+        setAllLrs(data.data);
+        if (data.data.length > 0 && !selectedLr) {
+          setSelectedLr(data.data[0]);
+        }
+      }
       if (!cancelled) setLoading(false);
     }, 150);
     return () => {
       cancelled = true;
       clearTimeout(id);
     };
-  }, [filter, search]);
+  }, [search]);
 
   const counts = useMemo(() => {
-    const map: Record<string, number> = { all: lrs.length };
-    for (const lr of lrs) {
+    const map: Record<string, number> = { all: allLrs.length };
+    for (const lr of allLrs) {
       map[lr.status] = (map[lr.status] ?? 0) + 1;
     }
     return map;
-  }, [lrs]);
+  }, [allLrs]);
+
+  const lrs = useMemo(() => {
+    if (filter === "all") return allLrs;
+    return allLrs.filter((lr) => lr.status === filter);
+  }, [allLrs, filter]);
 
   async function handleApprove(lrId: string) {
     setActionBusy(lrId);
@@ -62,7 +80,7 @@ export default function CompanyLRPage() {
       const data = await res.json().catch(() => ({}));
       if (data.success) {
         toast.success("LR approved");
-        setLrs((prev) => prev.map((lr) => lr.id === lrId ? { ...lr, status: "approved" as LRStatus } : lr));
+        setAllLrs((prev) => prev.map((lr) => lr.id === lrId ? { ...lr, status: "approved" as LRStatus } : lr));
         if (selectedLr?.id === lrId) setSelectedLr({ ...selectedLr, status: "approved" as LRStatus });
       } else {
         toast.error(data.error ?? "Failed to approve");
@@ -87,7 +105,7 @@ export default function CompanyLRPage() {
       const data = await res.json().catch(() => ({}));
       if (data.success) {
         toast.success("LR rejected");
-        setLrs((prev) => prev.map((lr) => lr.id === lrId ? { ...lr, status: "rejected" as LRStatus } : lr));
+        setAllLrs((prev) => prev.map((lr) => lr.id === lrId ? { ...lr, status: "rejected" as LRStatus } : lr));
         if (selectedLr?.id === lrId) setSelectedLr({ ...selectedLr, status: "rejected" as LRStatus });
         setRejectReason("");
       } else {
@@ -119,7 +137,7 @@ export default function CompanyLRPage() {
           <h2 className="text-base font-semibold text-slate-900">All LR Requests</h2>
           <div className="flex items-center gap-2">
             <span className="rounded-full bg-violet-50 px-3 py-1 text-[11px] font-semibold text-violet-700">
-              {lrs.length} total
+              {counts.all} total
             </span>
             <span className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-medium text-slate-600">
               Date Range ▼
@@ -191,7 +209,7 @@ export default function CompanyLRPage() {
                 lrs.slice(0, 5).map((lr) => (
                   <tr
                     key={lr.id}
-                    onClick={() => setSelectedLr(lr)}
+                    onClick={() => selectLr(lr)}
                     className={`cursor-pointer border-b border-slate-50 last:border-0 transition ${
                       selectedLr?.id === lr.id ? "bg-violet-50/50" : "hover:bg-slate-50/50"
                     }`}
@@ -245,7 +263,7 @@ export default function CompanyLRPage() {
                             Approve
                           </button>
                           <button
-                            onClick={() => { setSelectedLr(lr); setRejectReason(""); }}
+                            onClick={() => selectLr(lr)}
                             disabled={actionBusy === lr.id}
                             className="rounded-md bg-red-500 px-3 py-1.5 text-[11px] font-semibold text-white shadow-sm transition hover:bg-red-600 disabled:opacity-60"
                           >
@@ -285,7 +303,7 @@ export default function CompanyLRPage() {
 
       {/* LR Detail Panel */}
       {selectedLr && (
-        <div className="mt-6">
+        <div ref={detailRef} className="mt-6">
           <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
             LR Detail — {selectedLr.trackingId} ({selectedLr.status === "pending" ? "Pending Approval" : selectedLr.status.toUpperCase()})
           </p>
