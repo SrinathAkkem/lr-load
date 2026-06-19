@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Upload, LogOut, Building2 } from "lucide-react";
+import { Upload, LogOut, Building2, KeyRound } from "lucide-react";
 
 interface FormState {
   name: string;
@@ -16,6 +16,12 @@ interface FormState {
   logoUrl: string;
   stampUrl: string;
   lrCode: string;
+}
+
+interface PasswordForm {
+  current: string;
+  next: string;
+  confirm: string;
 }
 
 const INITIAL: FormState = {
@@ -36,6 +42,12 @@ export default function CompanyProfilePage() {
   const [uploadingStamp, setUploadingStamp] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
   const stampInputRef = useRef<HTMLInputElement>(null);
+  const [pw, setPw] = useState<PasswordForm>({
+    current: "",
+    next: "",
+    confirm: "",
+  });
+  const [pwBusy, setPwBusy] = useState(false);
 
   useEffect(() => {
     fetch("/api/company/profile")
@@ -116,15 +128,43 @@ export default function CompanyProfilePage() {
     router.push("/company/login");
   }
 
+  async function changePassword() {
+    if (pw.next.length < 8) {
+      toast.error("New password must be at least 8 characters");
+      return;
+    }
+    if (pw.next !== pw.confirm) {
+      toast.error("New passwords don't match");
+      return;
+    }
+    setPwBusy(true);
+    try {
+      const res = await fetch("/api/auth/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          currentPassword: pw.current || undefined,
+          newPassword: pw.next,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success("Password updated");
+        setPw({ current: "", next: "", confirm: "" });
+      } else {
+        toast.error(data.error ?? "Couldn't update password");
+      }
+    } finally {
+      setPwBusy(false);
+    }
+  }
+
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Company Profile</h1>
-          <p className="text-slate-500">
-            These details appear on every LR PDF and the public QR landing.
-          </p>
-        </div>
+    <div className="p-6 md:p-8">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-slate-500">
+          These details appear on every LR PDF and the public QR landing.
+        </p>
         <Button variant="outline" onClick={logout} className="text-red-600">
           <LogOut className="mr-1.5 h-4 w-4" />
           Logout
@@ -225,6 +265,56 @@ export default function CompanyProfilePage() {
                   : form.logoUrl
                     ? "Replace Logo"
                     : "Upload Logo"}
+              </Button>
+            </div>
+
+            <div className="rounded-2xl border bg-white p-6 shadow-sm">
+              <div className="flex items-center gap-2">
+                <KeyRound className="h-4 w-4 text-violet-600" />
+                <h3 className="text-sm font-semibold">Account Password</h3>
+              </div>
+              <p className="mt-1 text-xs text-slate-500">
+                Set or change the password used for sign-in. OTP login still
+                works alongside the password.
+              </p>
+
+              <div className="mt-4 space-y-3">
+                <div>
+                  <Label className="text-xs">Current Password</Label>
+                  <Input
+                    type="password"
+                    value={pw.current}
+                    onChange={(e) => setPw({ ...pw, current: e.target.value })}
+                    className="mt-1"
+                    placeholder="Leave blank if none set yet"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">New Password</Label>
+                  <Input
+                    type="password"
+                    value={pw.next}
+                    onChange={(e) => setPw({ ...pw, next: e.target.value })}
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Confirm New Password</Label>
+                  <Input
+                    type="password"
+                    value={pw.confirm}
+                    onChange={(e) => setPw({ ...pw, confirm: e.target.value })}
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+
+              <Button
+                onClick={changePassword}
+                disabled={pwBusy}
+                className="mt-4 w-full bg-violet-600 hover:bg-violet-700"
+              >
+                {pwBusy ? "Updating…" : "Update Password"}
               </Button>
             </div>
 

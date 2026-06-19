@@ -6,13 +6,18 @@ import {
 } from "@/lib/api/auth-middleware";
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { prisma } from "@/lib/db/prisma";
-import { toBranch, toUser } from "@/lib/db/serialize";
+import { toBranch, toCompany, toUser } from "@/lib/db/serialize";
 import { inviteDriverSchema } from "@/lib/validations/lr";
+import type { Prisma } from "@prisma/client";
 
 export async function GET(req: NextRequest) {
   const session = await getAuthFromRequest(req);
   if (!session) return unauthorized();
-  if (session.role !== "company_admin" || !session.companyId) return forbidden();
+
+  const url = new URL(req.url);
+  const search = url.searchParams.get("search")?.trim().toLowerCase() ?? "";
+  const statusFilter = url.searchParams.get("status");
+  const companyFilter = url.searchParams.get("companyId");
 
   const monthStart = new Date(
     new Date().getFullYear(),
@@ -25,11 +30,32 @@ export async function GET(req: NextRequest) {
     1,
   );
 
+  const where: Prisma.UserWhereInput = { role: "driver" };
+  if (session.role === "company_admin") {
+    if (!session.companyId) return forbidden();
+    where.companyId = session.companyId;
+  } else if (session.role === "super_admin") {
+    if (companyFilter) where.companyId = companyFilter;
+  } else {
+    return forbidden();
+  }
+
+  if (statusFilter && ["active", "invited", "inactive"].includes(statusFilter)) {
+    where.status = statusFilter as Prisma.UserWhereInput["status"];
+  }
+  if (search) {
+    where.OR = [
+      { name: { contains: search } },
+      { mobile: { contains: search } },
+    ];
+  }
+
   const drivers = await prisma.user.findMany({
-    where: { companyId: session.companyId, role: "driver" },
+    where,
     orderBy: { createdAt: "desc" },
     include: {
       branch: true,
+      ...(session.role === "super_admin" ? { company: true } : {}),
       driverLrs: {
         where: { createdAt: { gte: monthStart, lt: monthEnd } },
         select: { id: true },
@@ -41,6 +67,13 @@ export async function GET(req: NextRequest) {
     drivers.map((d) => ({
       ...toUser(d),
       branch: d.branch ? toBranch(d.branch) : null,
+      company:
+        session.role === "super_admin" && (d as typeof d & { company: unknown }).company
+          ? toCompany(
+              (d as typeof d & { company: Parameters<typeof toCompany>[0] })
+                .company,
+            )
+          : null,
       lrsThisMonth: d.driverLrs.length,
     })),
   );

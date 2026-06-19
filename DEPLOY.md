@@ -495,9 +495,33 @@ single-source-of-truth.
 - [ ] `NEXT_PUBLIC_APP_URL` set to the public HTTPS domain.
 - [ ] `AUTH_SECRET` generated with `crypto.randomBytes(48)` and never reused.
 - [ ] Hashed super-admin password (already enforced — `bcryptjs`).
+- [ ] Hashed company-admin passwords. The seed sets `rono@123` for demo
+      tenants — rotate them on first login from the company profile page or
+      via `/api/auth/change-password`.
 - [ ] Replace the demo `123456` OTP backdoor in `verify-otp/route.ts` with an
       SMS provider (MSG91 / Twilio / AWS SNS) before public launch.
 - [ ] `UPLOAD_DIR` outside the deploy artifact, or an external bucket (S3).
 - [ ] `npm run build` succeeds in CI; reject otherwise.
-- [ ] `prisma migrate deploy` (or paste the diff SQL) is part of every release.
+- [ ] `prisma migrate deploy` (or paste the diff SQL — including the new
+      `AuditLog` table from `prisma/sql/01-schema.sql`) is part of every
+      release.
 - [ ] `/api/health` returns 200 from outside the network.
+
+### What's in `AuditLog`
+
+The platform records administrative actions to the `AuditLog` table for
+compliance and incident review. The audit log is visible to super admins at
+`/super-admin/audit`. Recorded events include:
+
+| Action                  | Emitted by                          |
+|-------------------------|--------------------------------------|
+| `company.create`        | Super admin onboarding a tenant      |
+| `company.activate`      | Super admin un-suspending a company  |
+| `company.suspend`       | Super admin suspending a company     |
+| `company.limits.update` | Super admin changing quota          |
+| `branch.update`         | Company admin editing a branch       |
+| `branch.delete`         | Company admin removing an empty branch |
+| `driver.invite`         | Company admin inviting a driver      |
+| `lr.approve`            | Company admin approving an LR        |
+| `lr.reject`             | Company admin rejecting an LR        |
+| `auth.password.change`  | Any password update                  |

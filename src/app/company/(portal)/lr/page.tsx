@@ -54,15 +54,10 @@ export default function CompanyLRPage() {
   }, [lrs]);
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">LR Management</h1>
-          <p className="text-sm text-slate-500">
-            Approve or reject driver-submitted lorry receipts
-          </p>
-        </div>
-      </div>
+    <div className="p-6 md:p-8">
+      <p className="text-sm text-slate-500">
+        Approve or reject driver-submitted lorry receipts.
+      </p>
 
       <div className="mt-6 flex flex-wrap gap-2">
         {FILTERS.map((f) => (
@@ -96,64 +91,79 @@ export default function CompanyLRPage() {
       </div>
 
       <div className="mt-6 overflow-hidden rounded-2xl border bg-white shadow-sm">
-        <table className="w-full text-sm">
-          <thead className="border-b bg-slate-50 text-left text-xs uppercase text-slate-500">
-            <tr>
-              <th className="p-4">LR Number</th>
-              <th className="p-4">Route</th>
-              <th className="p-4">Driver</th>
-              <th className="p-4">Branch</th>
-              <th className="p-4">Freight</th>
-              <th className="p-4">Status</th>
-              <th className="p-4 text-right">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading && lrs.length === 0 ? (
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[820px] text-sm">
+            <thead className="border-b bg-slate-50 text-left text-xs uppercase text-slate-500">
               <tr>
-                <td colSpan={7} className="p-10 text-center text-sm text-slate-400">
-                  Loading…
-                </td>
+                <th className="p-4">LR Number</th>
+                <th className="p-4">Route</th>
+                <th className="p-4">Driver</th>
+                <th className="p-4">Branch</th>
+                <th className="p-4">Freight</th>
+                <th className="p-4">Status</th>
+                <th className="p-4 text-right">Action</th>
               </tr>
-            ) : lrs.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="p-10 text-center text-sm text-slate-400">
-                  No LRs match your filters.
-                </td>
-              </tr>
-            ) : (
-              lrs.map((lr) => (
-                <tr key={lr.id} className="border-b last:border-b-0 hover:bg-slate-50">
-                  <td className="p-4">
-                    <Link
-                      href={`/company/lr/${lr.id}`}
-                      className="font-semibold text-violet-700 hover:underline"
-                    >
-                      {lr.trackingId}
-                    </Link>
-                  </td>
-                  <td className="p-4">
-                    {lr.originCity} → {lr.destinationCity}
-                  </td>
-                  <td className="p-4">{lr.driver?.name ?? "—"}</td>
-                  <td className="p-4 text-slate-500">{lr.branch?.name ?? "—"}</td>
-                  <td className="p-4 font-medium">{formatINR(lr.freightAmount)}</td>
-                  <td className="p-4">
-                    <StatusBadge status={lr.status} />
-                  </td>
-                  <td className="p-4 text-right">
-                    <Link
-                      href={`/company/lr/${lr.id}`}
-                      className="text-sm font-semibold text-violet-600 hover:underline"
-                    >
-                      Open →
-                    </Link>
+            </thead>
+            <tbody>
+              {loading && lrs.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={7}
+                    className="p-10 text-center text-sm text-slate-400"
+                  >
+                    Loading…
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : lrs.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={7}
+                    className="p-10 text-center text-sm text-slate-400"
+                  >
+                    No LRs match your filters.
+                  </td>
+                </tr>
+              ) : (
+                lrs.map((lr) => (
+                  <tr
+                    key={lr.id}
+                    className="border-b last:border-b-0 hover:bg-slate-50"
+                  >
+                    <td className="p-4">
+                      <Link
+                        href={`/company/lr/${lr.id}`}
+                        className="font-semibold text-violet-700 hover:underline"
+                      >
+                        {lr.trackingId}
+                      </Link>
+                    </td>
+                    <td className="p-4">
+                      {lr.originCity} → {lr.destinationCity}
+                    </td>
+                    <td className="p-4">{lr.driver?.name ?? "—"}</td>
+                    <td className="p-4 text-slate-500">
+                      {lr.branch?.name ?? "—"}
+                    </td>
+                    <td className="p-4 font-medium">
+                      {formatINR(lr.freightAmount)}
+                    </td>
+                    <td className="p-4">
+                      <StatusBadge status={lr.status} />
+                    </td>
+                    <td className="p-4 text-right">
+                      <Link
+                        href={`/company/lr/${lr.id}`}
+                        className="text-sm font-semibold text-violet-600 hover:underline"
+                      >
+                        Open →
+                      </Link>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

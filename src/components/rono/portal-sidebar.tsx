@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { RonoLogo } from "@/components/rono/brand";
 import {
@@ -11,100 +12,247 @@ import {
   Users,
   BarChart3,
   Settings,
-  ClipboardList,
   GitBranch,
+  ScrollText,
+  UserCircle2,
+  LogOut,
+  ChevronRight,
 } from "lucide-react";
 
 type NavItem = {
   title: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
-  badge?: number;
+  badgeKey?: "pendingLrs";
 };
 
-const superAdminNav: NavItem[] = [
-  { title: "Dashboard", href: "/super-admin/dashboard", icon: LayoutDashboard },
-  { title: "Companies", href: "/super-admin/companies", icon: Building2 },
+type NavGroup = {
+  label: string;
+  items: NavItem[];
+};
+
+const superAdminNav: NavGroup[] = [
+  {
+    label: "Main Menu",
+    items: [
+      { title: "Dashboard", href: "/super-admin/dashboard", icon: LayoutDashboard },
+      { title: "Companies", href: "/super-admin/companies", icon: Building2 },
+      { title: "All Drivers", href: "/super-admin/drivers", icon: Users },
+    ],
+  },
+  {
+    label: "System",
+    items: [
+      { title: "Settings", href: "/super-admin/settings", icon: Settings },
+      { title: "Audit Log", href: "/super-admin/audit", icon: ScrollText },
+    ],
+  },
 ];
 
-const companyAdminNav: NavItem[] = [
-  { title: "Dashboard", href: "/company/dashboard", icon: LayoutDashboard },
-  { title: "LR Management", href: "/company/lr", icon: FileText, badge: 12 },
-  { title: "Branch Management", href: "/company/branches", icon: GitBranch },
-  { title: "Driver Management", href: "/company/drivers", icon: Users },
-  { title: "Reports", href: "/company/reports", icon: BarChart3 },
-  { title: "Company Profile", href: "/company/profile", icon: Settings },
+const companyAdminNav: NavGroup[] = [
+  {
+    label: "Menu",
+    items: [
+      { title: "Dashboard", href: "/company/dashboard", icon: LayoutDashboard },
+      { title: "LR Management", href: "/company/lr", icon: FileText, badgeKey: "pendingLrs" },
+      { title: "Branch Management", href: "/company/branches", icon: GitBranch },
+      { title: "Driver Management", href: "/company/drivers", icon: Users },
+      { title: "Reports", href: "/company/reports", icon: BarChart3 },
+    ],
+  },
+  {
+    label: "Company",
+    items: [
+      { title: "Company Profile", href: "/company/profile", icon: Settings },
+    ],
+  },
 ];
+
+interface SidebarBadges {
+  pendingLrs?: number;
+}
+
+interface SidebarProps {
+  variant: "super_admin" | "company_admin";
+  userName: string;
+  userRole: string;
+  companyName?: string;
+  companyCode?: string;
+  badges?: SidebarBadges;
+}
 
 export function PortalSidebar({
   variant,
   userName,
   userRole,
   companyName,
-}: {
-  variant: "super_admin" | "company_admin";
-  userName: string;
-  userRole: string;
-  companyName?: string;
-}) {
+  companyCode,
+  badges,
+}: SidebarProps) {
   const pathname = usePathname();
-  const nav = variant === "super_admin" ? superAdminNav : companyAdminNav;
+  const router = useRouter();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const groups = variant === "super_admin" ? superAdminNav : companyAdminNav;
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target?.closest("[data-sidebar-user]") == null) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("click", handler);
+    return () => document.removeEventListener("click", handler);
+  }, [menuOpen]);
+
+  const initials = userName
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+  async function handleLogout() {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } finally {
+      const target =
+        variant === "super_admin" ? "/super-admin/login" : "/company/login";
+      router.push(target);
+      router.refresh();
+    }
+  }
+
+  const isActive = (href: string) => {
+    if (pathname === href) return true;
+    // Match nested routes (e.g. /company/lr/[id]) but not unrelated siblings.
+    return pathname.startsWith(`${href}/`);
+  };
 
   return (
-    <aside className="flex h-screen w-64 flex-col bg-gradient-to-b from-violet-900 to-indigo-950 text-white">
+    <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col bg-gradient-to-b from-violet-900 via-violet-900 to-indigo-950 text-white">
       <div className="border-b border-white/10 p-5">
-        <RonoLogo className="text-white [&_span]:text-white" />
-        {companyName && (
+        <Link href={variant === "super_admin" ? "/super-admin/dashboard" : "/company/dashboard"}>
+          <RonoLogo className="text-white [&_span]:text-white" />
+        </Link>
+
+        {variant === "super_admin" ? (
           <div className="mt-4 rounded-xl bg-white/10 p-3">
-            <p className="text-sm font-semibold">{companyName}</p>
-            <p className="text-xs text-violet-200">COMPANY ADMIN</p>
+            <p className="text-sm font-semibold">RonoHub Platform</p>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-violet-200">
+              Super Admin
+            </p>
           </div>
-        )}
+        ) : companyName ? (
+          <div className="mt-4 rounded-xl bg-white/10 p-3">
+            <p className="truncate text-sm font-semibold" title={companyName}>
+              {companyName}
+            </p>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-violet-200">
+              Company Admin{companyCode ? ` · ${companyCode}` : ""}
+            </p>
+          </div>
+        ) : null}
       </div>
 
-      <nav className="flex-1 space-y-1 p-3">
-        <p className="px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-violet-300">
-          Main Menu
-        </p>
-        {nav.map((item) => {
-          const active = pathname.startsWith(item.href);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
-                active
-                  ? "bg-white/15 text-white"
-                  : "text-violet-200 hover:bg-white/10 hover:text-white",
-              )}
-            >
-              <item.icon className="h-4 w-4" />
-              <span className="flex-1">{item.title}</span>
-              {item.badge && (
-                <span className="rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-bold text-amber-900">
-                  {item.badge}
-                </span>
-              )}
-            </Link>
-          );
-        })}
+      <nav className="flex-1 space-y-5 overflow-y-auto p-3">
+        {groups.map((group) => (
+          <div key={group.label} className="space-y-1">
+            <p className="px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-violet-300">
+              {group.label}
+            </p>
+            {group.items.map((item) => {
+              const active = isActive(item.href);
+              const badgeValue =
+                item.badgeKey && badges?.[item.badgeKey]
+                  ? badges[item.badgeKey]
+                  : undefined;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
+                    active
+                      ? "bg-white/15 text-white shadow-inner"
+                      : "text-violet-200 hover:bg-white/10 hover:text-white",
+                  )}
+                >
+                  <item.icon className="h-4 w-4 shrink-0" />
+                  <span className="flex-1 truncate">{item.title}</span>
+                  {badgeValue ? (
+                    <span className="rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-bold text-amber-900">
+                      {badgeValue}
+                    </span>
+                  ) : null}
+                </Link>
+              );
+            })}
+          </div>
+        ))}
       </nav>
 
-      <div className="border-t border-white/10 p-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-violet-500 text-sm font-bold">
-            {userName
-              .split(" ")
-              .map((n) => n[0])
-              .join("")
-              .slice(0, 2)}
+      <div className="border-t border-white/10 p-3" data-sidebar-user>
+        <button
+          type="button"
+          onClick={() => setMenuOpen((v) => !v)}
+          className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition hover:bg-white/10"
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-violet-400 to-pink-400 text-sm font-bold text-white shadow">
+            {initials || "U"}
           </div>
-          <div>
-            <p className="text-sm font-semibold">{userName}</p>
-            <p className="text-xs text-violet-300">{userRole}</p>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold">{userName}</p>
+            <p className="truncate text-[10px] font-semibold uppercase tracking-widest text-violet-300">
+              {userRole}
+            </p>
           </div>
-        </div>
+          <ChevronRight
+            className={cn(
+              "h-4 w-4 text-violet-300 transition-transform",
+              menuOpen && "rotate-90",
+            )}
+          />
+        </button>
+
+        {menuOpen && (
+          <div className="mt-2 overflow-hidden rounded-xl bg-white/10 p-1 text-sm shadow-inner">
+            {variant === "company_admin" && (
+              <Link
+                href="/company/profile"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-violet-100 transition hover:bg-white/10"
+              >
+                <UserCircle2 className="h-4 w-4" />
+                Company Profile
+              </Link>
+            )}
+            {variant === "super_admin" && (
+              <Link
+                href="/super-admin/settings"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-violet-100 transition hover:bg-white/10"
+              >
+                <Settings className="h-4 w-4" />
+                Account Settings
+              </Link>
+            )}
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-rose-200 transition hover:bg-white/10 disabled:opacity-60"
+            >
+              <LogOut className="h-4 w-4" />
+              {loggingOut ? "Signing out..." : "Sign out"}
+            </button>
+          </div>
+        )}
       </div>
     </aside>
   );

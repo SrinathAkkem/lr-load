@@ -1,7 +1,9 @@
 import { PortalSidebar } from "@/components/rono/portal-sidebar";
+import { PortalTopbar } from "@/components/rono/portal-topbar";
 import { getSession } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 import { getCompanyById } from "@/lib/services/lr-service";
+import { prisma } from "@/lib/db/prisma";
 
 export default async function CompanyPortalLayout({
   children,
@@ -17,15 +19,32 @@ export default async function CompanyPortalLayout({
     ? await getCompanyById(session.companyId)
     : null;
 
+  // Live "pending LRs" badge for the sidebar — keeps the chip in sync with the
+  // actual queue rather than a hardcoded number.
+  const pendingLrs = session.companyId
+    ? await prisma.lRRequest.count({
+        where: { companyId: session.companyId, status: "pending" },
+      })
+    : 0;
+
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex h-screen overflow-hidden bg-slate-50">
       <PortalSidebar
         variant="company_admin"
         userName={session.name}
         userRole="Company Admin"
         companyName={company?.name}
+        companyCode={company?.lrCode}
+        badges={{ pendingLrs }}
       />
-      <main className="flex-1 overflow-auto">{children}</main>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <PortalTopbar
+          variant="company_admin"
+          userName={session.name}
+          userRole="Company Admin"
+        />
+        <main className="flex-1 overflow-y-auto">{children}</main>
+      </div>
     </div>
   );
 }

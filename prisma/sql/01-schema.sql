@@ -133,6 +133,25 @@ CREATE TABLE `Otp` (
     PRIMARY KEY (`mobile`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable: append-only audit trail of admin actions.
+CREATE TABLE `AuditLog` (
+    `id` VARCHAR(191) NOT NULL,
+    `actorId` VARCHAR(64) NULL,
+    `actorName` VARCHAR(255) NOT NULL,
+    `actorRole` ENUM('super_admin', 'company_admin', 'driver') NOT NULL,
+    `companyId` VARCHAR(64) NULL,
+    `action` VARCHAR(64) NOT NULL,
+    `target` VARCHAR(255) NULL,
+    `metadata` JSON NULL,
+    `ip` VARCHAR(64) NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    INDEX `AuditLog_createdAt_idx`(`createdAt`),
+    INDEX `AuditLog_companyId_createdAt_idx`(`companyId`, `createdAt`),
+    INDEX `AuditLog_action_idx`(`action`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- AddForeignKey
 ALTER TABLE `Branch` ADD CONSTRAINT `Branch_companyId_fkey` FOREIGN KEY (`companyId`) REFERENCES `Company`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 

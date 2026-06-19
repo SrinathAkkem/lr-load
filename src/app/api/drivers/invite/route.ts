@@ -8,6 +8,7 @@ import { jsonError, jsonOk } from "@/lib/api/response";
 import { prisma } from "@/lib/db/prisma";
 import { toUser } from "@/lib/db/serialize";
 import { inviteDriverSchema } from "@/lib/validations/lr";
+import { recordAuditEvent } from "@/lib/services/audit-log";
 
 /**
  * Invite a driver by mobile number. The created `User` row starts in
@@ -62,5 +63,17 @@ export async function POST(req: NextRequest) {
       status: "invited",
     },
   });
+
+  await recordAuditEvent({
+    actorId: session.userId,
+    actorName: session.name,
+    actorRole: session.role,
+    companyId: session.companyId,
+    action: "driver.invite",
+    target: driver.name,
+    metadata: { mobile: driver.mobile, branchId: parsed.data.branchId },
+    ip: req.headers.get("x-forwarded-for") ?? null,
+  });
+
   return jsonOk(toUser(driver), 201);
 }

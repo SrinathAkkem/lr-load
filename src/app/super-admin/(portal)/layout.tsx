@@ -1,4 +1,5 @@
 import { PortalSidebar } from "@/components/rono/portal-sidebar";
+import { PortalTopbar } from "@/components/rono/portal-topbar";
 import { getSession } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 
@@ -13,13 +14,20 @@ export default async function SuperAdminPortalLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex h-screen overflow-hidden bg-slate-50">
       <PortalSidebar
         variant="super_admin"
         userName={session.name}
         userRole="Super Admin"
       />
-      <main className="flex-1 overflow-auto">{children}</main>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <PortalTopbar
+          variant="super_admin"
+          userName={session.name}
+          userRole="Super Admin"
+        />
+        <main className="flex-1 overflow-y-auto">{children}</main>
+      </div>
     </div>
   );
 }

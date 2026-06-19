@@ -34,14 +34,11 @@ export default async function SuperAdminDashboardPage() {
     : 0;
 
   return (
-    <div className="p-8">
-      <header className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-          <p className="text-slate-500">
-            Platform overview for RonoHub Super Admin
-          </p>
-        </div>
+    <div className="p-6 md:p-8">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-slate-500">
+          Platform overview · {companies.length} companies onboarded
+        </p>
         <Link
           href="/super-admin/companies"
           className="inline-flex items-center gap-1.5 rounded-full bg-violet-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-700"
@@ -49,7 +46,7 @@ export default async function SuperAdminDashboardPage() {
           <Sparkles className="h-3.5 w-3.5" />
           Manage Companies
         </Link>
-      </header>
+      </div>
 
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         <StatCard

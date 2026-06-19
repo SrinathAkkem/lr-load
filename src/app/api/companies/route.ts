@@ -7,6 +7,7 @@ import {
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { prisma } from "@/lib/db/prisma";
 import { toCompany } from "@/lib/db/serialize";
+import { recordAuditEvent } from "@/lib/services/audit-log";
 
 export async function GET(req: NextRequest) {
   const session = await getAuthFromRequest(req);
@@ -116,6 +117,17 @@ export async function POST(req: NextRequest) {
     });
 
     return created;
+  });
+
+  await recordAuditEvent({
+    actorId: session.userId,
+    actorName: session.name,
+    actorRole: session.role,
+    companyId: company.id,
+    action: "company.create",
+    target: company.name,
+    metadata: { lrCode: company.lrCode },
+    ip: req.headers.get("x-forwarded-for") ?? null,
   });
 
   return jsonOk(toCompany(company), 201);

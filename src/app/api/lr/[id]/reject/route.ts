@@ -8,6 +8,7 @@ import { jsonError, jsonOk } from "@/lib/api/response";
 import { prisma } from "@/lib/db/prisma";
 import { rejectLR } from "@/lib/services/lr-service";
 import { rejectLRSchema } from "@/lib/validations/lr";
+import { recordAuditEvent } from "@/lib/services/audit-log";
 
 export async function PUT(
   req: NextRequest,
@@ -20,7 +21,7 @@ export async function PUT(
   const { id } = await params;
   const lr = await prisma.lRRequest.findUnique({
     where: { id },
-    select: { companyId: true },
+    select: { companyId: true, trackingId: true },
   });
   if (!lr) return jsonError("LR not found", 404);
   if (lr.companyId !== session.companyId) return forbidden();
@@ -33,6 +34,16 @@ export async function PUT(
 
   try {
     const updated = await rejectLR(id, parsed.data.reason);
+    await recordAuditEvent({
+      actorId: session.userId,
+      actorName: session.name,
+      actorRole: session.role,
+      companyId: session.companyId,
+      action: "lr.reject",
+      target: lr.trackingId,
+      metadata: { reason: parsed.data.reason },
+      ip: req.headers.get("x-forwarded-for") ?? null,
+    });
     return jsonOk(updated);
   } catch (e) {
     return jsonError(e instanceof Error ? e.message : "Reject failed");

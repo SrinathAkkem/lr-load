@@ -83,11 +83,21 @@ export default async function CompanyDashboardPage() {
     : 0;
 
   return (
-    <div className="p-8">
-      <header className="mb-8">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <p className="text-slate-500">{company?.name}</p>
-      </header>
+    <div className="p-6 md:p-8">
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="text-sm text-slate-500">
+            {company?.name} · LR Code {company?.lrCode}
+          </p>
+        </div>
+        {stats.totalLrs >= (company?.maxLrPerMonth ?? Infinity) - 30 && company ? (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
+            ⚠ Only {Math.max(0, company.maxLrPerMonth - stats.totalLrs)} LRs
+            remaining this month — contact your platform admin to increase the
+            limit.
+          </div>
+        ) : null}
+      </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard

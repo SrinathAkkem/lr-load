@@ -140,14 +140,11 @@ export default async function CompanyReportsPage({
   if (branchId) exportQuery.set("branchId", branchId);
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Reports</h1>
-          <p className="text-slate-500">
-            {from.toLocaleDateString("en-IN")} — {toRaw.toLocaleDateString("en-IN")}
-          </p>
-        </div>
+    <div className="p-6 md:p-8">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-slate-500">
+          {from.toLocaleDateString("en-IN")} — {toRaw.toLocaleDateString("en-IN")}
+        </p>
         <div className="flex flex-wrap items-center gap-2">
           <a
             href={`/api/reports/csv?${exportQuery.toString()}`}

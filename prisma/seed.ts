@@ -98,6 +98,7 @@ async function main() {
 
   console.log("→ seeding users");
   const superAdminPasswordHash = await bcrypt.hash("admin123", 10);
+  const companyAdminPasswordHash = await bcrypt.hash("rono@123", 10);
   await prisma.user.createMany({
     data: [
       {
@@ -112,6 +113,8 @@ async function main() {
       {
         id: "user_admin_vlp",
         mobile: "9876543210",
+        email: "admin@vlp.ronohub.com",
+        password: companyAdminPasswordHash,
         role: "company_admin",
         companyId: "comp_vlp",
         name: "Rajesh Kumar",
@@ -120,6 +123,8 @@ async function main() {
       {
         id: "user_admin_abc",
         mobile: "9876543211",
+        email: "admin@abc.ronohub.com",
+        password: companyAdminPasswordHash,
         role: "company_admin",
         companyId: "comp_abc",
         name: "Rajan Sharma",

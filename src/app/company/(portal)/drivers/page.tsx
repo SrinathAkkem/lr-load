@@ -131,14 +131,11 @@ export default function DriversPage() {
   );
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Driver Management</h1>
-          <p className="text-sm text-slate-500">
-            Invite new drivers, manage branches, and deactivate ex-employees.
-          </p>
-        </div>
+    <div className="p-6 md:p-8">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-slate-500">
+          Invite new drivers, manage branches, and deactivate ex-employees.
+        </p>
         <Button
           className="bg-violet-600 hover:bg-violet-700"
           onClick={() => setShowModal(true)}
@@ -176,7 +173,8 @@ export default function DriversPage() {
       </div>
 
       <div className="mt-6 overflow-hidden rounded-2xl border bg-white shadow-sm">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[760px] text-sm">
           <thead className="border-b bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
             <tr>
               <th className="p-4">Driver</th>
@@ -225,6 +223,7 @@ export default function DriversPage() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {showModal && (

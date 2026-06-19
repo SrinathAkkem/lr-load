@@ -185,3 +185,23 @@ model Otp {
 
   @@index([expiresAt])
 }
+
+// Append-only audit log of impactful platform actions: super-admin company
+// changes, company admin LR approvals/rejections, driver invites, etc. Used
+// by the Audit Log screen and is part of the compliance story.
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?  @db.VarChar(64)
+  actorName  String   @db.VarChar(255)
+  actorRole  UserRole
+  companyId  String?  @db.VarChar(64)
+  action     String   @db.VarChar(64)
+  target     String?  @db.VarChar(255)
+  metadata   Json?
+  ip         String?  @db.VarChar(64)
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([companyId, createdAt])
+  @@index([action])
+}
