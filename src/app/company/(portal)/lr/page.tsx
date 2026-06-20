@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { StatusBadge, formatINR } from "@/components/rono/status-badge";
 import type { LRRequest, LRStatus } from "@/lib/types";
-import { Search, Download, CheckCircle, XCircle, Package, MapPin } from "lucide-react";
+import { Search, CheckCircle, XCircle, Package, MapPin } from "lucide-react";
 import { toast } from "sonner";
 
 type EnrichedLR = LRRequest & {
@@ -28,6 +28,12 @@ export default function CompanyLRPage() {
   const [selectedLr, setSelectedLr] = useState<EnrichedLR | null>(null);
   const [actionBusy, setActionBusy] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [page, setPage] = useState(1);
+  const [branches, setBranches] = useState<{ id: string; name: string }[]>([]);
+  const [branchFilter, setBranchFilter] = useState("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const perPage = 10;
   const detailRef = useRef<HTMLDivElement>(null);
 
   function selectLr(lr: EnrichedLR) {
@@ -39,11 +45,21 @@ export default function CompanyLRPage() {
   }
 
   useEffect(() => {
+    fetch("/api/branches")
+      .then((r) => r.json())
+      .then((d) => { if (d.success) setBranches(d.data ?? []); })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
     const id = setTimeout(async () => {
       setLoading(true);
       const params = new URLSearchParams();
       if (search.trim()) params.set("search", search.trim());
+      if (branchFilter !== "all") params.set("branchId", branchFilter);
+      if (dateFrom) params.set("from", dateFrom);
+      if (dateTo) params.set("to", dateTo);
       const res = await fetch(`/api/lr?${params}`);
       const data = await res.json();
       if (!cancelled && data.success) {
@@ -58,7 +74,7 @@ export default function CompanyLRPage() {
       cancelled = true;
       clearTimeout(id);
     };
-  }, [search]);
+  }, [search, branchFilter, dateFrom, dateTo]);
 
   const counts = useMemo(() => {
     const map: Record<string, number> = { all: allLrs.length };
@@ -72,6 +88,16 @@ export default function CompanyLRPage() {
     if (filter === "all") return allLrs;
     return allLrs.filter((lr) => lr.status === filter);
   }, [allLrs, filter]);
+
+  const totalPages = Math.ceil(lrs.length / perPage);
+  const pagedLrs = useMemo(() => {
+    const start = (page - 1) * perPage;
+    return lrs.slice(start, start + perPage);
+  }, [lrs, page]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filter, search, branchFilter, dateFrom, dateTo]);
 
   async function handleApprove(lrId: string) {
     setActionBusy(lrId);
@@ -116,6 +142,29 @@ export default function CompanyLRPage() {
     }
   }
 
+  async function handleDownloadPdf(lrId: string, trackingId: string) {
+    try {
+      const res = await fetch(`/api/lr/${lrId}/pdf`);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({ error: "Download failed" }));
+        toast.error(data.error ?? "Failed to download PDF");
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${trackingId}.pdf`.replace(/\//g, "-");
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success("PDF downloaded");
+    } catch {
+      toast.error("Network error while downloading PDF");
+    }
+  }
+
   const driverInitials = (name: string) =>
     name.split(/\s+/).map(n => n[0]).join("").slice(0, 2).toUpperCase();
 
@@ -139,12 +188,30 @@ export default function CompanyLRPage() {
             <span className="rounded-full bg-violet-50 px-3 py-1 text-[11px] font-semibold text-violet-700">
               {counts.all} total
             </span>
-            <span className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-medium text-slate-600">
-              Date Range ▼
-            </span>
-            <span className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-medium text-slate-600">
-              Branch: All ▼
-            </span>
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-medium text-slate-600 outline-none focus:border-violet-300"
+              title="From date"
+            />
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-medium text-slate-600 outline-none focus:border-violet-300"
+              title="To date"
+            />
+            <select
+              value={branchFilter}
+              onChange={(e) => setBranchFilter(e.target.value)}
+              className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-medium text-slate-600 outline-none focus:border-violet-300"
+            >
+              <option value="all">Branch: All</option>
+              {branches.map((b) => (
+                <option key={b.id} value={b.id}>{b.name}</option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -203,10 +270,10 @@ export default function CompanyLRPage() {
             <tbody>
               {loading && lrs.length === 0 ? (
                 <tr><td colSpan={8} className="px-6 py-12 text-center text-sm text-slate-400">Loading…</td></tr>
-              ) : lrs.length === 0 ? (
+              ) :                 lrs.length === 0 ? (
                 <tr><td colSpan={8} className="px-6 py-12 text-center text-sm text-slate-400">No LRs match your filters.</td></tr>
               ) : (
-                lrs.slice(0, 5).map((lr) => (
+                pagedLrs.map((lr) => (
                   <tr
                     key={lr.id}
                     onClick={() => selectLr(lr)}
@@ -273,7 +340,7 @@ export default function CompanyLRPage() {
                       ) : lr.status === "approved" || lr.status === "delivered" ? (
                         <div className="flex items-center justify-end gap-1.5">
                           <Link href={`/company/lr/${lr.id}`} className="rounded-md border border-slate-200 px-3 py-1.5 text-[11px] font-semibold text-slate-600 hover:bg-slate-50">View</Link>
-                          <a href={`/api/lr/${lr.id}/pdf`} className="rounded-md border border-violet-200 bg-violet-50 px-3 py-1.5 text-[11px] font-semibold text-violet-700 hover:bg-violet-100">PDF</a>
+                          <button onClick={() => handleDownloadPdf(lr.id, lr.trackingId)} className="rounded-md border border-violet-200 bg-violet-50 px-3 py-1.5 text-[11px] font-semibold text-violet-700 hover:bg-violet-100">PDF</button>
                         </div>
                       ) : (
                         <Link href={`/company/lr/${lr.id}`} className="rounded-md border border-slate-200 px-3 py-1.5 text-[11px] font-semibold text-slate-600 hover:bg-slate-50">View</Link>
@@ -288,15 +355,60 @@ export default function CompanyLRPage() {
 
         {/* Pagination */}
         <div className="flex items-center justify-between border-t border-slate-100 px-6 py-3">
-          <p className="text-xs text-slate-400">Showing 1–{Math.min(5, lrs.length)} of {lrs.length} LRs</p>
+          <p className="text-xs text-slate-400">
+            Showing {lrs.length === 0 ? 0 : (page - 1) * perPage + 1}–{Math.min(page * perPage, lrs.length)} of {lrs.length} LRs
+          </p>
           <div className="flex items-center gap-1">
-            <span className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-400">←</span>
-            <span className="rounded-md bg-violet-600 px-2.5 py-1 text-xs font-semibold text-white">1</span>
-            <span className="rounded-md border border-slate-200 px-2.5 py-1 text-xs text-slate-600">2</span>
-            <span className="rounded-md border border-slate-200 px-2.5 py-1 text-xs text-slate-600">3</span>
-            <span className="px-1 text-xs text-slate-400">...</span>
-            <span className="rounded-md border border-slate-200 px-2.5 py-1 text-xs text-slate-600">{Math.ceil(lrs.length / 5) || 1}</span>
-            <span className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-400">→</span>
+            <button
+              onClick={() => setPage(Math.max(1, page - 1))}
+              disabled={page <= 1}
+              className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-600 disabled:opacity-40 hover:bg-slate-50"
+            >
+              ←
+            </button>
+            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+              let p: number;
+              if (totalPages <= 5) {
+                p = i + 1;
+              } else if (page <= 3) {
+                p = i + 1;
+              } else if (page >= totalPages - 2) {
+                p = totalPages - 4 + i;
+              } else {
+                p = page - 2 + i;
+              }
+              return (
+                <button
+                  key={p}
+                  onClick={() => setPage(p)}
+                  className={`rounded-md px-2.5 py-1 text-xs font-medium ${
+                    p === page
+                      ? "bg-violet-600 text-white"
+                      : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  {p}
+                </button>
+              );
+            })}
+            {totalPages > 5 && page < totalPages - 2 && (
+              <>
+                <span className="px-1 text-xs text-slate-400">...</span>
+                <button
+                  onClick={() => setPage(totalPages)}
+                  className="rounded-md border border-slate-200 px-2.5 py-1 text-xs text-slate-600 hover:bg-slate-50"
+                >
+                  {totalPages}
+                </button>
+              </>
+            )}
+            <button
+              onClick={() => setPage(Math.min(totalPages, page + 1))}
+              disabled={page >= totalPages}
+              className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-600 disabled:opacity-40 hover:bg-slate-50"
+            >
+              →
+            </button>
           </div>
         </div>
       </div>

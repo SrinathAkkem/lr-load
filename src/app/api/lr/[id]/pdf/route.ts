@@ -33,16 +33,21 @@ export async function GET(
     return jsonError("Forbidden", 403);
   }
 
-  const appUrl =
-    process.env.NEXT_PUBLIC_APP_URL ?? new URL(req.url).origin;
-  const bytes = await generateLrPdf(lr, { appUrl });
+  try {
+    const appUrl =
+      process.env.NEXT_PUBLIC_APP_URL ?? new URL(req.url).origin;
+    const bytes = await generateLrPdf(lr, { appUrl });
 
-  const filename = `${lr.lrNumber ?? lr.trackingId}.pdf`.replace(/\//g, "-");
-  return new NextResponse(Buffer.from(bytes), {
-    headers: {
-      "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="${filename}"`,
-      "Cache-Control": "private, max-age=0, must-revalidate",
-    },
-  });
+    const filename = `${lr.lrNumber ?? lr.trackingId}.pdf`.replace(/\//g, "-");
+    return new NextResponse(Buffer.from(bytes), {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Cache-Control": "private, max-age=0, must-revalidate",
+      },
+    });
+  } catch (err) {
+    console.error("[PDF Generation Error]", err);
+    return jsonError("Failed to generate PDF. Please try again.", 500);
+  }
 }

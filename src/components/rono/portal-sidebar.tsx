@@ -17,6 +17,7 @@ import {
   UserCircle2,
   LogOut,
   ChevronRight,
+  CreditCard,
 } from "lucide-react";
 
 type NavItem = {
@@ -63,6 +64,7 @@ const companyAdminNav: NavGroup[] = [
   {
     label: "Company",
     items: [
+      { title: "Billing & Plans", href: "/company/billing", icon: CreditCard },
       { title: "Company Profile", href: "/company/profile", icon: Settings },
     ],
   },

@@ -18,6 +18,9 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const status = searchParams.get("status");
   const search = searchParams.get("search")?.trim();
+  const branchId = searchParams.get("branchId");
+  const from = searchParams.get("from");
+  const to = searchParams.get("to");
 
   const where: Prisma.LRRequestWhereInput = {};
   if (session.role === "driver") {
@@ -28,6 +31,22 @@ export async function GET(req: NextRequest) {
 
   if (status && status !== "all") {
     where.status = status as Prisma.LRRequestWhereInput["status"];
+  }
+
+  if (branchId && branchId !== "all") {
+    where.branchId = branchId;
+  }
+
+  if (from || to) {
+    where.createdAt = {};
+    if (from) {
+      where.createdAt.gte = new Date(from);
+    }
+    if (to) {
+      const toDate = new Date(to);
+      toDate.setHours(23, 59, 59, 999);
+      where.createdAt.lte = toDate;
+    }
   }
 
   if (search) {
