@@ -111,3 +111,76 @@ export async function PUT(
     return jsonError(e instanceof Error ? e.message : "Action failed");
   }
 }
+
+/**
+ * General LR field update — only the owning driver can edit, and only
+ * while the LR is pending or rejected.
+ */
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const session = await getAuthFromRequest(req);
+  if (!session) return unauthorized();
+
+  const { id } = await params;
+  const lr = await loadLRWithRelations(id);
+  if (!lr) return jsonError("LR not found", 404);
+
+  if (session.role !== "driver" || lr.driverId !== session.userId) {
+    return forbidden();
+  }
+  if (lr.status !== "pending" && lr.status !== "rejected") {
+    return jsonError("Only pending or rejected LRs can be edited");
+  }
+
+  const body = await req.json().catch(() => ({}));
+
+  const ALLOWED_FIELDS = [
+    "consignorName", "consignorAddress",
+    "consigneeName", "consigneeAddress", "consigneePhone",
+    "originCity", "destinationCity", "vehicleNumber",
+    "goodsDescription", "noOfPackages", "weightKg",
+    "declaredValue", "freightAmount", "paymentMode",
+    "specialInstructions", "signatureUrl", "photos",
+  ] as const;
+
+  const data: Record<string, unknown> = {};
+  for (const key of ALLOWED_FIELDS) {
+    if (body[key] !== undefined) {
+      if (["noOfPackages"].includes(key)) {
+        data[key] = Number(body[key]);
+      } else if (["weightKg", "declaredValue", "freightAmount"].includes(key)) {
+        data[key] = Number(body[key]);
+      } else {
+        data[key] = body[key];
+      }
+    }
+  }
+
+  if (Object.keys(data).length === 0) {
+    return jsonError("No valid fields to update");
+  }
+
+  // If LR was rejected, resubmitting resets it to pending
+  if (lr.status === "rejected") {
+    data.status = "pending";
+    data.rejectionReason = null;
+  }
+
+  try {
+    const updated = await prisma.lRRequest.update({
+      where: { id },
+      data,
+      include: { driver: true, branch: true, company: true },
+    });
+    return jsonOk({
+      ...toLR(updated),
+      driver: toUser(updated.driver),
+      branch: toBranch(updated.branch),
+      company: toCompany(updated.company),
+    });
+  } catch (e) {
+    return jsonError(e instanceof Error ? e.message : "Update failed");
+  }
+}
