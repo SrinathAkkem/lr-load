@@ -107,17 +107,17 @@ export function AddCompanyButton() {
             onSubmit={handleSubmit}
             className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl"
           >
-            <div className="flex items-center justify-between border-b p-5">
+            <div className="flex items-center justify-between border-b border-[#e8edf5] p-5">
               <div>
-                <h2 className="text-lg font-bold">Onboard a new company</h2>
-                <p className="text-xs text-slate-500">
+                <h2 className="text-lg font-extrabold text-[#2d2d4e]">Onboard a new company</h2>
+                <p className="text-xs font-semibold text-[#6b7280]">
                   Creates the company, default LR counter, and a company admin user.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => !busy && setOpen(false)}
-                className="rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                className="rounded-full p-1 text-[#6b7280] hover:bg-[#fafbff] hover:text-[#2d2d4e]"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -206,7 +206,7 @@ export function AddCompanyButton() {
               </Field>
             </div>
 
-            <div className="flex items-center justify-end gap-3 border-t bg-slate-50 p-5">
+            <div className="flex items-center justify-end gap-3 border-t border-[#e8edf5] bg-[#fafbff] p-5">
               <Button
                 type="button"
                 variant="outline"

@@ -68,7 +68,7 @@ export function ReportsFilters({
   return (
     <form
       onSubmit={handleSubmit}
-      className="mt-6 grid gap-3 rounded-2xl border bg-white p-5 shadow-sm md:grid-cols-6"
+      className="mt-6 grid gap-3 rounded-2xl border-0 bg-white p-5 shadow-sm md:grid-cols-6"
     >
       <FilterField label="From">
         <Input type="date" name="from" defaultValue={initial.from} />

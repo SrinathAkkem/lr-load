@@ -26,8 +26,8 @@ export default async function SuperAdminSettingsPage() {
   return (
     <div className="p-6 md:p-8">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-violet-600">
-          <Settings className="h-5 w-5" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#f0ebfc] to-[#e8f5fd]">
+          <Settings className="h-5 w-5 text-[#7b4fd4]" />
         </div>
         <div>
           <h2 className="text-2xl font-bold text-slate-900">Settings</h2>
@@ -39,9 +39,9 @@ export default async function SuperAdminSettingsPage() {
 
       <div className="mt-8 grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
-          <div className="rounded-2xl border bg-white p-6 shadow-sm">
-            <h3 className="font-semibold text-slate-900">Account</h3>
-            <p className="text-xs text-slate-500">
+          <div className="rounded-2xl border-0 bg-white p-6 shadow-sm">
+            <h3 className="font-bold text-[#2d2d4e]">Account</h3>
+            <p className="text-xs font-semibold text-[#6b7280]">
               Identity used for sign-in and audit attribution.
             </p>
             <dl className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -80,9 +80,9 @@ export default async function SuperAdminSettingsPage() {
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-2xl border bg-white p-6 shadow-sm">
-            <h3 className="font-semibold text-slate-900">Platform info</h3>
-            <p className="text-xs text-slate-500">
+          <div className="rounded-2xl border-0 bg-white p-6 shadow-sm">
+            <h3 className="font-bold text-[#2d2d4e]">Platform info</h3>
+            <p className="text-xs font-semibold text-[#6b7280]">
               Read-only platform identifiers.
             </p>
             <dl className="mt-4 space-y-2 text-sm">
@@ -92,8 +92,8 @@ export default async function SuperAdminSettingsPage() {
             </dl>
           </div>
 
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-800 shadow-sm">
-            <p className="font-semibold">Need to onboard a new company?</p>
+          <div className="rounded-2xl border-0 bg-[#fef3e0] p-6 text-sm font-semibold text-[#2d2d4e] shadow-sm">
+            <p className="font-bold">Need to onboard a new company?</p>
             <p className="mt-1 text-xs">
               Use the <strong>Companies</strong> tab to create a tenant. The
               company gets its own LR code, quota, and admin login.

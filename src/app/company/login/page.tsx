@@ -113,10 +113,10 @@ export default function CompanyLoginPage() {
 
   if (redirecting) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-violet-900 via-violet-800 to-indigo-900">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#5a3dc8] via-[#4a2fb8] to-[#3a1fa0]">
         <div className="text-center">
-          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-violet-300 border-t-white" />
-          <p className="mt-4 text-sm font-medium text-violet-200">Loading dashboard...</p>
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-white/30 border-t-white" />
+          <p className="mt-4 text-sm font-semibold text-white/80">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -124,48 +124,44 @@ export default function CompanyLoginPage() {
 
   return (
     <div className="flex min-h-screen">
-      <aside className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-br from-violet-900 via-violet-800 to-indigo-900 p-12 text-white lg:flex">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-30"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 20% 20%, rgba(255,255,255,0.25), transparent 40%), radial-gradient(circle at 80% 70%, rgba(244,114,182,0.4), transparent 45%)",
-          }}
-        />
-        <div className="relative">
+      <aside className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-br from-[#5a3dc8] via-[#4a2fb8] to-[#3a1fa0] p-12 text-white lg:flex">
+        {/* Decorative circles */}
+        <div className="absolute -right-16 -top-20 h-64 w-64 rounded-full bg-white/5" />
+        <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-white/5" />
+        
+        <div className="relative z-10">
           <RonoLogo className="text-white [&_span]:text-white" />
         </div>
 
-        <div className="relative">
-          <h1 className="text-4xl font-bold leading-tight">
+        <div className="relative z-10">
+          <h1 className="text-4xl font-extrabold leading-tight">
             Run your transport company on autopilot.
           </h1>
-          <p className="mt-4 text-lg text-violet-200">
+          <p className="mt-4 text-lg font-semibold text-white/60">
             Approve LRs, manage drivers and track every shipment from a single
             dashboard. Powered by RonoHub.
           </p>
 
-          <ul className="mt-8 space-y-3 text-sm text-violet-100">
+          <ul className="mt-8 space-y-3 text-sm font-semibold text-white/80">
             <li className="flex items-start gap-2">
-              <ShieldCheck className="mt-0.5 h-4 w-4 text-emerald-300" />
+              <ShieldCheck className="mt-0.5 h-4 w-4 text-[#2ecc71]" />
               Audit-grade trail for every approval and rejection.
             </li>
             <li className="flex items-start gap-2">
-              <ShieldCheck className="mt-0.5 h-4 w-4 text-emerald-300" />
+              <ShieldCheck className="mt-0.5 h-4 w-4 text-[#2ecc71]" />
               Branded LR PDFs with QR codes auto-generated on approval.
             </li>
             <li className="flex items-start gap-2">
-              <ShieldCheck className="mt-0.5 h-4 w-4 text-emerald-300" />
+              <ShieldCheck className="mt-0.5 h-4 w-4 text-[#2ecc71]" />
               Per-company quotas managed by the platform admin.
             </li>
           </ul>
         </div>
 
-        <div className="relative flex gap-2">
-          <span className="h-1.5 w-8 rounded-full bg-white" />
-          <span className="h-1.5 w-1.5 rounded-full bg-white/40" />
-          <span className="h-1.5 w-1.5 rounded-full bg-white/40" />
+        <div className="relative z-10 flex gap-2">
+          <span className="h-2 w-6 rounded-full bg-white" />
+          <span className="h-2 w-2 rounded-full bg-white/30" />
+          <span className="h-2 w-2 rounded-full bg-white/30" />
         </div>
       </aside>
 
@@ -175,19 +171,19 @@ export default function CompanyLoginPage() {
             <RonoLogo />
           </div>
 
-          <h2 className="text-2xl font-bold text-slate-900">Welcome back 👋</h2>
-          <p className="mt-2 text-sm text-slate-500">
+          <h2 className="text-2xl font-extrabold text-[#2d2d4e]">Welcome back 👋</h2>
+          <p className="mt-2 text-sm font-semibold text-[#9ca3af]">
             Sign in to manage your fleet, branches, and lorry receipts.
           </p>
 
-          <div className="mt-6 inline-flex rounded-full border border-slate-200 bg-slate-100 p-1 text-sm font-semibold">
+          <div className="mt-6 inline-flex rounded-full border border-[#e8edf5] bg-[#fafbff] p-1 text-sm font-bold">
             <button
               type="button"
               onClick={() => setMode("password")}
               className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 transition ${
                 mode === "password"
-                  ? "bg-white text-violet-700 shadow"
-                  : "text-slate-500 hover:text-slate-700"
+                  ? "bg-gradient-to-r from-[#7b4fd4] to-[#3b9fe8] text-white shadow-md"
+                  : "text-[#9ca3af] hover:text-[#7b4fd4]"
               }`}
             >
               <KeyRound className="h-3.5 w-3.5" />
@@ -198,8 +194,8 @@ export default function CompanyLoginPage() {
               onClick={() => setMode("otp")}
               className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 transition ${
                 mode === "otp"
-                  ? "bg-white text-violet-700 shadow"
-                  : "text-slate-500 hover:text-slate-700"
+                  ? "bg-gradient-to-r from-[#7b4fd4] to-[#3b9fe8] text-white shadow-md"
+                  : "text-[#9ca3af] hover:text-[#7b4fd4]"
               }`}
             >
               <ShieldCheck className="h-3.5 w-3.5" />

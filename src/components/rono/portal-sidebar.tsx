@@ -136,26 +136,29 @@ export function PortalSidebar({
   };
 
   return (
-    <aside className="sticky top-0 flex h-screen w-[260px] shrink-0 flex-col border-r border-white/5 bg-gradient-to-b from-[#1e1145] via-[#1a0f3c] to-[#0f0a2a] text-white">
+    <aside className="relative sticky top-0 flex h-screen w-[260px] shrink-0 flex-col overflow-hidden border-r border-[#2d2d4e]/20 bg-gradient-to-br from-[#5a3dc8] via-[#4a2fb8] to-[#3a1fa0] text-white">
+      {/* Decorative circles */}
+      <div className="absolute -right-8 top-20 h-32 w-32 rounded-full bg-white/5" />
+      <div className="absolute -left-8 bottom-32 h-24 w-24 rounded-full bg-white/5" />
       {/* Logo + Platform Box */}
-      <div className="p-5 pb-4">
+      <div className="relative z-10 p-5 pb-4">
         <Link href={variant === "super_admin" ? "/super-admin/dashboard" : "/company/dashboard"}>
           <RonoLogo className="text-white [&_span]:text-white" />
         </Link>
 
         {variant === "super_admin" ? (
-          <div className="mt-5 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-            <p className="text-[13px] font-semibold text-white">RonoHub Platform</p>
-            <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.15em] text-violet-300">
+          <div className="mt-5 rounded-xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-sm">
+            <p className="text-[13px] font-bold text-white">RonoHub Platform</p>
+            <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.15em] text-white/60">
               Super Admin
             </p>
           </div>
         ) : companyName ? (
-          <div className="mt-5 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-            <p className="truncate text-[13px] font-semibold text-white" title={companyName}>
+          <div className="mt-5 rounded-xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-sm">
+            <p className="truncate text-[13px] font-bold text-white" title={companyName}>
               {companyName}
             </p>
-            <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.15em] text-violet-300">
+            <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.15em] text-white/60">
               Company Admin{companyCode ? ` · ${companyCode}` : ""}
             </p>
           </div>
@@ -163,10 +166,10 @@ export function PortalSidebar({
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-2">
+      <nav className="relative z-10 flex-1 space-y-6 overflow-y-auto px-3 py-2">
         {groups.map((group) => (
           <div key={group.label} className="space-y-0.5">
-            <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-violet-400/70">
+            <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#9ca3af]">
               {group.label}
             </p>
             {group.items.map((item) => {
@@ -180,19 +183,19 @@ export function PortalSidebar({
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-200",
+                    "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-semibold transition-all duration-200",
                     active
-                      ? "bg-white/[0.12] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
-                      : "text-violet-200/80 hover:bg-white/[0.06] hover:text-white",
+                      ? "bg-gradient-to-r from-[#7b4fd4] to-[#3b9fe8] text-white shadow-md"
+                      : "text-white/70 hover:bg-white/[0.08] hover:text-white",
                   )}
                 >
                   {active && (
-                    <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-violet-400" />
+                    <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-gradient-to-b from-white to-white/80" />
                   )}
-                  <item.icon className={cn("h-[18px] w-[18px] shrink-0", active ? "text-violet-300" : "text-violet-400/60")} />
+                  <item.icon className={cn("h-[18px] w-[18px] shrink-0", active ? "text-white" : "text-white/50")} />
                   <span className="flex-1 truncate">{item.title}</span>
                   {badgeValue ? (
-                    <span className="rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-bold text-amber-900">
+                    <span className="rounded-full bg-[#f5a623] px-2 py-0.5 text-[10px] font-bold text-white">
                       {badgeValue}
                     </span>
                   ) : null}
@@ -204,24 +207,24 @@ export function PortalSidebar({
       </nav>
 
       {/* User section */}
-      <div className="border-t border-white/10 p-3" data-sidebar-user>
+      <div className="relative z-10 border-t border-white/10 p-3" data-sidebar-user>
         <button
           type="button"
           onClick={() => setMenuOpen((v) => !v)}
-          className="flex w-full items-center gap-3 rounded-xl p-2.5 text-left transition hover:bg-white/[0.06]"
+          className="flex w-full items-center gap-3 rounded-xl p-2.5 text-left transition hover:bg-white/[0.08]"
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-violet-400 to-pink-400 text-xs font-bold text-white shadow-sm">
-            {initials || "U"}
-          </div>
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#7b4fd4] to-[#3b9fe8] text-xs font-bold text-white shadow-md">
+                {initials || "U"}
+              </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[13px] font-semibold text-white">{userName}</p>
-            <p className="truncate text-[10px] font-bold uppercase tracking-[0.15em] text-violet-300/80">
+            <p className="truncate text-[13px] font-bold text-white">{userName}</p>
+            <p className="truncate text-[10px] font-bold uppercase tracking-[0.15em] text-[#9ca3af]">
               {userRole}
             </p>
           </div>
           <ChevronRight
             className={cn(
-              "h-3.5 w-3.5 text-violet-400/60 transition-transform",
+              "h-3.5 w-3.5 text-white/50 transition-transform",
               menuOpen && "rotate-90",
             )}
           />
@@ -233,7 +236,7 @@ export function PortalSidebar({
               <Link
                 href="/company/profile"
                 onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-violet-100 transition hover:bg-white/10"
+                className="flex items-center gap-2 rounded-lg px-3 py-2 font-semibold text-white transition hover:bg-white/10"
               >
                 <UserCircle2 className="h-4 w-4" />
                 Company Profile
@@ -243,7 +246,7 @@ export function PortalSidebar({
               <Link
                 href="/super-admin/settings"
                 onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-violet-100 transition hover:bg-white/10"
+                className="flex items-center gap-2 rounded-lg px-3 py-2 font-semibold text-white transition hover:bg-white/10"
               >
                 <Settings className="h-4 w-4" />
                 Account Settings
@@ -253,7 +256,7 @@ export function PortalSidebar({
               type="button"
               onClick={handleLogout}
               disabled={loggingOut}
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-rose-300 transition hover:bg-white/10 disabled:opacity-60"
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left font-semibold text-[#e74c3c] transition hover:bg-white/10 disabled:opacity-60"
             >
               <LogOut className="h-4 w-4" />
               {loggingOut ? "Signing out..." : "Sign out"}

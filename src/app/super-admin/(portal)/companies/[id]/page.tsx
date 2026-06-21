@@ -114,10 +114,10 @@ export default function CompanyDetailPage() {
   return (
     <div className="p-6 md:p-8">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-slate-500">
-        <Link href="/super-admin/companies" className="hover:text-violet-600 transition">Companies</Link>
+      <div className="flex items-center gap-2 text-sm text-[#9ca3af]">
+        <Link href="/super-admin/companies" className="hover:text-[#7b4fd4] transition font-semibold">Companies</Link>
         <span>/</span>
-        <span className="font-medium text-slate-800">{company.name}</span>
+        <span className="font-bold text-[#2d2d4e]">{company.name}</span>
         <Link
           href="/super-admin/companies"
           className="ml-auto inline-flex items-center gap-1 text-sm font-medium text-slate-500 transition hover:text-slate-900"
@@ -128,25 +128,25 @@ export default function CompanyDetailPage() {
       </div>
 
       {/* Company Banner */}
-      <div className="mt-4 rounded-2xl border border-slate-100 bg-gradient-to-r from-violet-50 to-indigo-50 p-5">
+      <div className="mt-4 rounded-2xl border-0 bg-gradient-to-r from-[#f0ebfc] to-[#ebf5fd] p-5">
         <div className="flex flex-wrap items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-600 text-xs font-bold text-white">
+          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#7b4fd4] text-xs font-bold text-white">
             {company.lrCode}
           </span>
           <div>
-            <h2 className="text-lg font-bold text-slate-900">{company.name}</h2>
-            <div className="mt-1 flex flex-wrap items-center gap-4 text-xs text-slate-500">
-              <span>Code: <span className="font-semibold text-slate-700">{company.lrCode}</span></span>
-              <span>GST: <span className="font-mono font-semibold text-slate-700">{company.gstNumber}</span></span>
+            <h2 className="text-lg font-extrabold text-[#2d2d4e]">{company.name}</h2>
+            <div className="mt-1 flex flex-wrap items-center gap-4 text-xs font-semibold text-[#6b7280]">
+              <span>Code: <span className="font-bold text-[#2d2d4e]">{company.lrCode}</span></span>
+              <span>GST: <span className="font-mono font-bold text-[#2d2d4e]">{company.gstNumber}</span></span>
               <span>{company.contactPhone}</span>
               <span>Onboarded: {onboardedDate}</span>
             </div>
           </div>
           <span
-            className={`ml-auto inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
+            className={`ml-auto inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
               company.status === "active"
-                ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
-                : "bg-rose-50 text-rose-700 ring-1 ring-rose-200"
+                ? "bg-[#e8f8f0] text-[#2ecc71]"
+                : "bg-[#fdedec] text-[#e74c3c]"
             }`}
           >
             {company.status === "active" ? (
@@ -161,9 +161,9 @@ export default function CompanyDetailPage() {
 
       <div className="mt-8 grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
-          <div className="rounded-2xl border bg-white p-6 shadow-sm">
-            <h3 className="font-semibold text-slate-900">Platform Limits</h3>
-            <p className="text-sm text-slate-500">
+          <div className="rounded-2xl border-0 bg-white p-6 shadow-sm">
+            <h3 className="font-bold text-[#2d2d4e]">Platform Limits</h3>
+            <p className="text-sm font-semibold text-[#6b7280]">
               Changes take effect immediately and are recorded in the audit
               log.
             </p>
@@ -196,7 +196,6 @@ export default function CompanyDetailPage() {
               <Button
                 onClick={saveLimits}
                 disabled={savingLimits}
-                className="bg-violet-600 hover:bg-violet-700"
               >
                 {savingLimits ? "Saving…" : "Save Limits"}
               </Button>
@@ -216,26 +215,26 @@ export default function CompanyDetailPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border bg-white p-6 shadow-sm">
-            <h3 className="font-semibold text-slate-900">Company Information</h3>
+          <div className="rounded-2xl border-0 bg-white p-6 shadow-sm">
+            <h3 className="font-bold text-[#2d2d4e]">Company Information</h3>
             <dl className="mt-4 grid gap-3 sm:grid-cols-2">
               <Field label="Company Name" value={company.name} />
               <Field label="LR Code" value={company.lrCode} />
               <Field label="GST Number" value={company.gstNumber} />
               <Field label="Contact Phone" value={company.contactPhone} />
               <div className="sm:col-span-2">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">
                   Address
                 </p>
-                <p className="mt-1 text-sm text-slate-700">{company.address}</p>
+                <p className="mt-1 text-sm font-semibold text-[#2d2d4e]">{company.address}</p>
               </div>
             </dl>
           </div>
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-2xl border bg-white p-6 shadow-sm">
-            <h3 className="font-semibold text-slate-900">Usage This Month</h3>
+          <div className="rounded-2xl border-0 bg-white p-6 shadow-sm">
+            <h3 className="font-bold text-[#2d2d4e]">Usage This Month</h3>
             <div className="mt-4 space-y-4 text-sm">
               <UsageRow
                 label="Branches"
@@ -255,15 +254,15 @@ export default function CompanyDetailPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border bg-white p-6 shadow-sm">
-            <p className="font-semibold text-slate-900">Platform Access</p>
-            <p className="mt-1 text-sm text-slate-500">
+          <div className="rounded-2xl border-0 bg-white p-6 shadow-sm">
+            <p className="font-bold text-[#2d2d4e]">Platform Access</p>
+            <p className="mt-1 text-sm font-semibold text-[#6b7280]">
               {company.status === "active"
                 ? "All drivers and the company admin can sign in."
                 : "All drivers and the company admin are blocked from signing in."}
             </p>
             <div className="mt-4 flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <span className="text-xs font-bold uppercase tracking-wide text-[#6b7280]">
                 {company.status === "active" ? "Active" : "Suspended"}
               </span>
               <Switch
@@ -274,9 +273,9 @@ export default function CompanyDetailPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 shadow-sm">
-            <p className="font-semibold text-rose-800">Suspend Company Access</p>
-            <p className="mt-2 text-xs leading-relaxed text-rose-700">
+          <div className="rounded-2xl border-0 bg-[#fdedec] p-6 shadow-sm">
+            <p className="font-bold text-[#e74c3c]">Suspend Company Access</p>
+            <p className="mt-2 text-xs font-semibold leading-relaxed text-[#2d2d4e]">
               Suspending will immediately block all drivers and the company
               admin from logging in. All LR data is preserved. You can
               reactivate the company at any time from this page.
@@ -346,7 +345,7 @@ function LimitRow({
         <button
           type="button"
           onClick={() => bump(-1)}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-violet-300 hover:text-violet-600"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-[#e8edf5] text-[#6b7280] transition hover:border-[#7b4fd4] hover:text-[#7b4fd4]"
           aria-label="Decrease"
         >
           <Minus className="h-3.5 w-3.5" />
@@ -362,7 +361,7 @@ function LimitRow({
         <button
           type="button"
           onClick={() => bump(1)}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-violet-300 hover:text-violet-600"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-[#e8edf5] text-[#6b7280] transition hover:border-[#7b4fd4] hover:text-[#7b4fd4]"
           aria-label="Increase"
         >
           <Plus className="h-3.5 w-3.5" />
@@ -382,7 +381,7 @@ function UsageRow({
   max: number;
 }) {
   const pct = max > 0 ? Math.min(100, (used / max) * 100) : 0;
-  const tone = pct >= 90 ? "bg-rose-500" : pct >= 75 ? "bg-amber-500" : "bg-violet-500";
+  const tone = pct >= 90 ? "bg-[#e74c3c]" : pct >= 75 ? "bg-[#f5a623]" : "bg-gradient-to-r from-[#7b4fd4] to-[#3b9fe8]";
   return (
     <div>
       <div className="flex items-center justify-between">

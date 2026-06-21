@@ -167,10 +167,10 @@ export default function BranchesPage() {
       <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {loading && branches.length === 0 ? (
           Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-52 animate-pulse rounded-2xl border bg-white shadow-sm" />
+            <div key={i} className="h-52 animate-pulse rounded-2xl border-0 bg-white shadow-sm" />
           ))
         ) : visible.length === 0 && branches.length > 0 ? (
-          <div className="md:col-span-2 xl:col-span-3 rounded-2xl border border-dashed bg-white p-12 text-center text-sm text-slate-400">
+          <div className="md:col-span-2 xl:col-span-3 rounded-2xl border-0 border-dashed bg-white p-12 text-center text-sm text-slate-400">
             No branches match your search.
           </div>
         ) : (
@@ -178,7 +178,7 @@ export default function BranchesPage() {
             {visible.map((b) => (
               <div
                 key={b.id}
-                className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:border-violet-200 hover:shadow-md"
+                className="rounded-2xl border-0 border-slate-100 bg-white p-5 shadow-sm transition hover:border-violet-200 hover:shadow-md"
               >
                 {/* Branch header */}
                 <div className="flex items-start gap-3">

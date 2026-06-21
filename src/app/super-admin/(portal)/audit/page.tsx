@@ -18,7 +18,7 @@ const ACTION_LABELS: Record<string, { label: string; tone: string }> = {
   },
   "company.limits.update": {
     label: "Updated limits",
-    tone: "bg-violet-50 text-violet-700 ring-violet-200",
+    tone: "bg-[#f0ebfc] text-[#7b4fd4] ring-[#d4c5f9]",
   },
   "lr.approve": {
     label: "Approved LR",
@@ -60,8 +60,8 @@ export default async function SuperAdminAuditPage({
   return (
     <div className="p-6 md:p-8">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-violet-600">
-          <ScrollText className="h-5 w-5" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#f0ebfc] to-[#e8f5fd]">
+          <ScrollText className="h-5 w-5 text-[#7b4fd4]" />
         </div>
         <div>
           <h2 className="text-2xl font-bold text-slate-900">Audit Log</h2>
@@ -74,18 +74,18 @@ export default async function SuperAdminAuditPage({
       <form
         action="/super-admin/audit"
         method="GET"
-        className="mt-6 flex flex-wrap items-center gap-3 rounded-2xl border bg-white p-3 shadow-sm"
+        className="mt-6 flex flex-wrap items-center gap-3 rounded-2xl border-0 bg-white p-3 shadow-sm"
       >
         <input
           name="search"
           defaultValue={search}
           placeholder="Search by actor, target, or action..."
-          className="min-w-[260px] flex-1 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm outline-none focus:border-violet-300 focus:bg-white focus:ring-2 focus:ring-violet-100"
+          className="min-w-[260px] flex-1 rounded-full border border-[#e8edf5] bg-white px-4 py-2 text-sm font-semibold outline-none focus:border-[#7b4fd4] focus:bg-white focus:ring-2 focus:ring-[#f0ebfc]"
         />
         <select
           name="action"
           defaultValue={action ?? "all"}
-          className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700"
+          className="rounded-full border border-[#e8edf5] bg-white px-3 py-2 text-sm font-bold text-[#2d2d4e]"
         >
           <option value="all">All actions</option>
           {Object.entries(ACTION_LABELS).map(([key, v]) => (
@@ -96,16 +96,16 @@ export default async function SuperAdminAuditPage({
         </select>
         <button
           type="submit"
-          className="rounded-full bg-violet-600 px-5 py-2 text-sm font-semibold text-white shadow transition hover:bg-violet-700"
+          className="rounded-full bg-gradient-to-r from-[#7b4fd4] to-[#3b9fe8] px-5 py-2 text-sm font-bold text-white shadow-lg shadow-[#7b4fd4]/30 transition hover:shadow-xl"
         >
           Filter
         </button>
       </form>
 
-      <div className="mt-6 overflow-hidden rounded-2xl border bg-white shadow-sm">
+      <div className="mt-6 overflow-hidden rounded-2xl border-0 bg-white shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="border-b bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500">
+            <thead className="border-b border-[#e8edf5] bg-[#fafbff] text-left text-xs uppercase tracking-wider text-[#9ca3af] font-bold">
               <tr>
                 <th className="p-4">When</th>
                 <th className="p-4">Actor</th>
@@ -130,13 +130,13 @@ export default async function SuperAdminAuditPage({
                   return (
                     <tr
                       key={e.id}
-                      className="border-b last:border-0 hover:bg-slate-50"
+                      className="border-b border-[#e8edf5] last:border-0 hover:bg-[#fafbff]"
                     >
-                      <td className="p-4 align-top text-xs text-slate-500">
+                      <td className="p-4 align-top text-xs font-semibold text-[#6b7280]">
                         {new Date(e.createdAt).toLocaleString("en-IN")}
                       </td>
                       <td className="p-4 align-top">
-                        <p className="font-medium text-slate-900">
+                        <p className="font-bold text-[#2d2d4e]">
                           {e.actorName}
                         </p>
                         <p className="text-[11px] uppercase tracking-wider text-slate-400">

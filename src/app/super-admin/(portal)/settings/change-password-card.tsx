@@ -46,7 +46,7 @@ export function ChangePasswordCard() {
   return (
     <form
       onSubmit={submit}
-      className="rounded-2xl border bg-white p-6 shadow-sm"
+      className="rounded-2xl border-0 bg-white p-6 shadow-sm"
     >
       <h3 className="font-semibold text-slate-900">Change password</h3>
       <p className="text-xs text-slate-500">
@@ -92,7 +92,7 @@ export function ChangePasswordCard() {
       <Button
         type="submit"
         disabled={busy}
-        className="mt-5 bg-violet-600 hover:bg-violet-700"
+        className="mt-5"
       >
         {busy ? "Updating…" : "Update password"}
       </Button>

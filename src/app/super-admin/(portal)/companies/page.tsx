@@ -79,19 +79,19 @@ export default async function CompaniesListPage({
   const totalPages = Math.ceil(totalCount / perPage);
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-6 md:p-8 bg-[#f4f6fb]">
       {/* Header with totals and Add Company */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-4 text-sm">
-          <span className="font-semibold text-slate-700">
+          <span className="font-bold text-[#2d2d4e]">
             {activeCount + suspendedCount} total
           </span>
-          <span className="flex items-center gap-1.5 text-emerald-600">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+          <span className="flex items-center gap-1.5 font-bold text-[#2ecc71]">
+            <span className="h-2 w-2 rounded-full bg-[#2ecc71]" />
             {activeCount} Active
           </span>
-          <span className="flex items-center gap-1.5 text-red-500">
-            <span className="h-2 w-2 rounded-full bg-red-500" />
+          <span className="flex items-center gap-1.5 font-bold text-[#e74c3c]">
+            <span className="h-2 w-2 rounded-full bg-[#e74c3c]" />
             {suspendedCount} Suspended
           </span>
         </div>
@@ -99,16 +99,16 @@ export default async function CompaniesListPage({
       </div>
 
       {/* Section title + Filter bar */}
-      <div className="mt-6 rounded-2xl border border-slate-100 bg-white shadow-sm">
-        <div className="border-b border-slate-100 px-6 py-4">
-          <h2 className="text-base font-semibold text-slate-900">All Onboarded Companies</h2>
+      <div className="mt-6 rounded-2xl border-0 bg-white shadow-sm">
+        <div className="border-b border-[#e8edf5] px-6 py-4">
+          <h2 className="text-base font-bold text-[#2d2d4e]">All Onboarded Companies</h2>
           <div className="mt-3 flex flex-wrap items-center gap-3">
-            <span className="text-xs font-medium text-slate-500">Filter by:</span>
+            <span className="text-xs font-bold text-[#6b7280]">Filter by:</span>
             <form action="/super-admin/companies" method="GET" className="flex flex-wrap items-center gap-2">
               <select
                 name="status"
                 defaultValue={status}
-                className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-violet-300 focus:ring-1 focus:ring-violet-100"
+                className="rounded-lg border border-[#e8edf5] bg-white px-3 py-1.5 text-xs font-semibold text-[#2d2d4e] outline-none focus:border-[#7b4fd4] focus:ring-2 focus:ring-[#f0ebfc]"
               >
                 <option value="all">All Status</option>
                 <option value="active">Active</option>
@@ -118,11 +118,11 @@ export default async function CompaniesListPage({
                 name="search"
                 defaultValue={search}
                 placeholder="Search by name or code…"
-                className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs outline-none focus:border-violet-300 focus:ring-1 focus:ring-violet-100 min-w-[180px]"
+                className="rounded-lg border border-[#e8edf5] bg-white px-3 py-1.5 text-xs font-semibold outline-none focus:border-[#7b4fd4] focus:ring-2 focus:ring-[#f0ebfc] min-w-[180px]"
               />
               <button
                 type="submit"
-                className="rounded-lg bg-violet-600 px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-violet-700"
+                className="rounded-full bg-gradient-to-r from-[#7b4fd4] to-[#3b9fe8] px-4 py-1.5 text-xs font-bold text-white shadow-md shadow-[#7b4fd4]/30 transition hover:shadow-lg"
               >
                 Apply
               </button>
@@ -133,16 +133,16 @@ export default async function CompaniesListPage({
         {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="border-b border-slate-100 text-left">
+            <thead className="border-b border-[#e8edf5] text-left">
               <tr>
-                <th className="px-6 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Company Name</th>
-                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Code</th>
-                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Branches</th>
-                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Drivers</th>
-                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">LRs This Month</th>
-                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Monthly Limit</th>
-                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Status</th>
-                <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-400">Actions</th>
+                <th className="px-6 py-3 text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">Company Name</th>
+                <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">Code</th>
+                <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">Branches</th>
+                <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">Drivers</th>
+                <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">LRs This Month</th>
+                <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">Monthly Limit</th>
+                <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">Status</th>
+                <th className="px-4 py-3 text-right text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -150,7 +150,7 @@ export default async function CompaniesListPage({
                 <tr>
                   <td
                     colSpan={8}
-                    className="px-6 py-12 text-center text-sm text-slate-400"
+                    className="px-6 py-12 text-center text-sm font-semibold text-[#9ca3af]"
                   >
                     No companies match these filters.
                   </td>
@@ -159,41 +159,41 @@ export default async function CompaniesListPage({
                 companies.map((company) => (
                   <tr
                     key={company.id}
-                    className="border-b border-slate-50 last:border-0 transition hover:bg-slate-50/50"
+                    className="border-b border-[#e8edf5] last:border-0 transition hover:bg-[#fafbff]"
                   >
                     <td className="px-6 py-3.5">
                       <Link href={`/super-admin/companies/${company.id}`} className="block">
-                        <p className="font-semibold text-slate-900 hover:text-violet-700 transition">
+                        <p className="font-bold text-[#2d2d4e] hover:text-[#7b4fd4] transition">
                           {company.name}
                         </p>
-                        <p className="text-[11px] text-slate-400">
+                        <p className="text-[11px] font-semibold text-[#9ca3af]">
                           {company.contactPhone}
                         </p>
                       </Link>
                     </td>
                     <td className="px-4 py-3.5">
-                      <span className="rounded bg-violet-50 px-2 py-0.5 text-[11px] font-bold text-violet-700">
+                      <span className="rounded-full bg-[#f0ebfc] px-2.5 py-0.5 text-[11px] font-bold text-[#7b4fd4]">
                         {company.lrCode}
                       </span>
                     </td>
-                    <td className="px-4 py-3.5 text-slate-600">
+                    <td className="px-4 py-3.5 font-semibold text-[#6b7280]">
                       {company._count.branches} / {company.maxBranches}
                     </td>
-                    <td className="px-4 py-3.5 text-slate-600">
+                    <td className="px-4 py-3.5 font-semibold text-[#6b7280]">
                       {company._count.users} / {company.maxDrivers}
                     </td>
                     <td className="px-4 py-3.5">
                       <UsageText used={company._count.lrRequests} max={company.maxLrPerMonth} />
                     </td>
-                    <td className="px-4 py-3.5 font-medium text-slate-700">
+                    <td className="px-4 py-3.5 font-bold text-[#2d2d4e]">
                       {company.maxLrPerMonth}
                     </td>
                     <td className="px-4 py-3.5">
-                      <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${
-                        company.status === "active" ? "text-emerald-600" : "text-red-500"
+                      <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+                        company.status === "active" ? "bg-[#e8f8f0] text-[#2ecc71]" : "bg-[#fdedec] text-[#e74c3c]"
                       }`}>
                         <span className={`h-1.5 w-1.5 rounded-full ${
-                          company.status === "active" ? "bg-emerald-500" : "bg-red-500"
+                          company.status === "active" ? "bg-[#2ecc71]" : "bg-[#e74c3c]"
                         }`} />
                         {company.status === "active" ? "Active" : "Suspended"}
                       </span>
@@ -202,16 +202,16 @@ export default async function CompaniesListPage({
                       <div className="flex items-center justify-end gap-2">
                         <Link
                           href={`/super-admin/companies/${company.id}`}
-                          className="rounded-md border border-violet-200 px-3 py-1 text-[11px] font-semibold text-violet-700 transition hover:bg-violet-50"
+                          className="rounded-full border border-[#e8edf5] px-3 py-1 text-[11px] font-bold text-[#7b4fd4] transition hover:bg-[#f0ebfc]"
                         >
                           Edit Limits
                         </Link>
                         <Link
                           href={`/super-admin/companies/${company.id}`}
-                          className={`rounded-md border px-3 py-1 text-[11px] font-semibold transition ${
+                          className={`rounded-full border px-3 py-1 text-[11px] font-bold transition ${
                             company.status === "active"
-                              ? "border-red-200 text-red-600 hover:bg-red-50"
-                              : "border-emerald-200 text-emerald-600 hover:bg-emerald-50"
+                              ? "border-[#fdedec] text-[#e74c3c] hover:bg-[#fdedec]"
+                              : "border-[#e8f8f0] text-[#2ecc71] hover:bg-[#e8f8f0]"
                           }`}
                         >
                           {company.status === "active" ? "Suspend" : "Activate"}
@@ -227,15 +227,15 @@ export default async function CompaniesListPage({
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-slate-100 px-6 py-3">
-            <p className="text-xs text-slate-400">
+          <div className="flex items-center justify-between border-t border-[#e8edf5] px-6 py-3">
+            <p className="text-xs font-semibold text-[#9ca3af]">
               Showing {(page - 1) * perPage + 1}–{Math.min(page * perPage, totalCount)} of {totalCount} companies
             </p>
             <div className="flex items-center gap-1">
               {page > 1 && (
                 <Link
                   href={`/super-admin/companies?page=${page - 1}${search ? `&search=${search}` : ""}${status !== "all" ? `&status=${status}` : ""}`}
-                  className="rounded-md border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                  className="rounded-lg border border-[#e8edf5] px-2.5 py-1 text-xs font-bold text-[#6b7280] hover:bg-[#fafbff]"
                 >
                   ←
                 </Link>
@@ -244,10 +244,10 @@ export default async function CompaniesListPage({
                 <Link
                   key={p}
                   href={`/super-admin/companies?page=${p}${search ? `&search=${search}` : ""}${status !== "all" ? `&status=${status}` : ""}`}
-                  className={`rounded-md px-2.5 py-1 text-xs font-medium ${
+                  className={`rounded-lg px-2.5 py-1 text-xs font-bold ${
                     p === page
-                      ? "bg-violet-600 text-white"
-                      : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                      ? "bg-[#7b4fd4] text-white"
+                      : "border border-[#e8edf5] text-[#6b7280] hover:bg-[#fafbff]"
                   }`}
                 >
                   {p}
@@ -256,7 +256,7 @@ export default async function CompaniesListPage({
               {page < totalPages && (
                 <Link
                   href={`/super-admin/companies?page=${page + 1}${search ? `&search=${search}` : ""}${status !== "all" ? `&status=${status}` : ""}`}
-                  className="rounded-md border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                  className="rounded-lg border border-[#e8edf5] px-2.5 py-1 text-xs font-bold text-[#6b7280] hover:bg-[#fafbff]"
                 >
                   →
                 </Link>

@@ -181,8 +181,8 @@ export function PortalTopbar({ variant, userName, userRole }: TopbarProps) {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <header className="sticky top-0 z-30 flex items-center gap-4 border-b border-slate-100 bg-white px-6 py-3 md:px-8">
-      <h1 className="text-base font-semibold text-slate-900 md:text-lg">
+    <header className="sticky top-0 z-30 flex items-center gap-4 border-b border-[#e8edf5] bg-white px-6 py-3.5 md:px-8">
+      <h1 className="text-base font-extrabold text-[#2d2d4e] md:text-lg">
         {title}
       </h1>
 
@@ -190,13 +190,13 @@ export function PortalTopbar({ variant, userName, userRole }: TopbarProps) {
         onSubmit={submitSearch}
         className="relative mx-auto hidden max-w-sm flex-1 md:block"
       >
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-300" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9ca3af]" />
         <input
           type="search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={placeholder}
-          className="w-full rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-4 py-2 text-sm text-slate-600 outline-none transition placeholder:text-slate-400 focus:border-violet-300 focus:bg-white focus:ring-2 focus:ring-violet-50"
+          className="w-full rounded-lg border border-[#e8edf5] bg-[#fafbff] pl-9 pr-4 py-2 text-sm font-semibold text-[#2d2d4e] outline-none transition placeholder:text-[#9ca3af] focus:border-[#7b4fd4] focus:bg-white focus:ring-2 focus:ring-[#f0ebfc]"
         />
       </form>
 
@@ -205,30 +205,30 @@ export function PortalTopbar({ variant, userName, userRole }: TopbarProps) {
           <button
             type="button"
             onClick={() => setNotifsOpen((v) => !v)}
-            className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:border-violet-200 hover:text-violet-600"
+            className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-[#e8edf5] bg-white text-[#6b7280] transition hover:border-[#7b4fd4] hover:text-[#7b4fd4] hover:bg-gradient-to-br hover:from-[#f0ebfc] hover:to-[#e8f5fd]"
             aria-label="Notifications"
           >
             <Bell className="h-4 w-4" />
             {unreadCount > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex min-h-[16px] min-w-[16px] items-center justify-center rounded-full bg-rose-500 px-0.5 text-[9px] font-bold text-white">
+              <span className="absolute -right-0.5 -top-0.5 flex min-h-[16px] min-w-[16px] items-center justify-center rounded-full bg-gradient-to-br from-[#e74c3c] to-[#d43f2f] px-0.5 text-[9px] font-bold text-white shadow-sm">
                 {unreadCount > 9 ? "9+" : unreadCount}
               </span>
             )}
           </button>
 
           {notifsOpen && (
-            <div className="absolute right-0 top-12 z-40 w-80 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
-              <div className="flex items-center justify-between border-b px-4 py-3">
-                <p className="text-sm font-semibold text-slate-900">Notifications</p>
-                <span className="text-[11px] text-slate-400">
+            <div className="absolute right-0 top-12 z-40 w-80 overflow-hidden rounded-2xl border-0 bg-white shadow-lg">
+              <div className="flex items-center justify-between border-b border-[#e8edf5] px-4 py-3">
+                <p className="text-sm font-bold text-[#2d2d4e]">Notifications</p>
+                <span className="text-[11px] font-bold text-[#9ca3af]">
                   {unreadCount} unread
                 </span>
               </div>
               <div className="max-h-80 overflow-y-auto">
                 {loadingNotifs ? (
-                  <p className="p-6 text-center text-sm text-slate-400">Loading…</p>
+                  <p className="p-6 text-center text-sm font-semibold text-[#9ca3af]">Loading…</p>
                 ) : notifications.length === 0 ? (
-                  <p className="p-6 text-center text-sm text-slate-400">
+                  <p className="p-6 text-center text-sm font-semibold text-[#9ca3af]">
                     You&apos;re all caught up.
                   </p>
                 ) : (
@@ -236,15 +236,15 @@ export function PortalTopbar({ variant, userName, userRole }: TopbarProps) {
                     <div
                       key={n.id}
                       className={cn(
-                        "border-b border-slate-100 px-4 py-3 last:border-0",
-                        !n.read && "bg-violet-50/40",
+                        "border-b border-[#e8edf5] px-4 py-3 last:border-0",
+                        !n.read && "bg-[#f0ebfc]",
                       )}
                     >
-                      <p className="text-sm font-semibold text-slate-900">
+                      <p className="text-sm font-bold text-[#2d2d4e]">
                         {n.title}
                       </p>
-                      <p className="mt-0.5 text-xs text-slate-500">{n.message}</p>
-                      <p className="mt-1 text-[10px] uppercase tracking-wider text-slate-400">
+                      <p className="mt-0.5 text-xs font-semibold text-[#6b7280]">{n.message}</p>
+                      <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-[#9ca3af]">
                         {new Date(n.createdAt).toLocaleString("en-IN")}
                       </p>
                     </div>
@@ -261,16 +261,16 @@ export function PortalTopbar({ variant, userName, userRole }: TopbarProps) {
               ? "/super-admin/settings"
               : "/company/profile"
           }
-          className="flex items-center gap-2.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-left transition hover:border-violet-200"
+          className="flex items-center gap-2.5 rounded-lg border border-[#e8edf5] bg-white px-3 py-1.5 text-left transition hover:border-[#7b4fd4]"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-pink-500 text-[10px] font-bold text-white">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#7b4fd4] text-[10px] font-bold text-white">
             {initials || "U"}
           </span>
           <span className="hidden md:block">
-            <span className="block text-[13px] font-semibold leading-4 text-slate-800">
+            <span className="block text-[13px] font-bold leading-4 text-[#2d2d4e]">
               {userName}
             </span>
-            <span className="block text-[10px] font-medium uppercase tracking-wider text-slate-400">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-[#9ca3af]">
               {userRole}
             </span>
           </span>

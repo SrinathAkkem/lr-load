@@ -5,18 +5,22 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden",
+  "inline-flex items-center justify-center rounded-full border-0 px-2.5 py-0.5 text-[11px] font-bold w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1.5 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden",
   {
     variants: {
       variant: {
         default:
-          "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
+          "bg-[#f0ebfc] text-[#7b4fd4] [a&]:hover:bg-[#e5dcfa]",
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
+          "bg-[#ebf5fd] text-[#3b9fe8] [a&]:hover:bg-[#d6ebfa]",
         destructive:
-          "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/70",
+          "bg-[#fdedec] text-[#e74c3c] [a&]:hover:bg-[#fcdcda]",
+        success:
+          "bg-[#e8f8f0] text-[#2ecc71] [a&]:hover:bg-[#d4f4e5]",
+        warning:
+          "bg-[#fef3e0] text-[#f5a623] [a&]:hover:bg-[#fde9c7]",
         outline:
-          "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+          "border border-[#e8edf5] text-[#6b7280] [a&]:hover:bg-[#fafbff] [a&]:hover:text-[#7b4fd4]",
       },
     },
     defaultVariants: {
