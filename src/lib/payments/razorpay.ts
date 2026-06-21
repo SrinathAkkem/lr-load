@@ -1,4 +1,5 @@
 import Razorpay from "razorpay";
+import crypto from "crypto";
 
 let instance: Razorpay | null = null;
 
@@ -21,7 +22,6 @@ export function verifyPaymentSignature(
   paymentId: string,
   signature: string,
 ): boolean {
-  const crypto = require("crypto");
   const secret = process.env.RAZORPAY_KEY_SECRET!;
   const body = `${orderId}|${paymentId}`;
   const expectedSignature = crypto

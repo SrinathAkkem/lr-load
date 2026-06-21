@@ -74,7 +74,7 @@ export default function CompanyLRPage() {
       cancelled = true;
       clearTimeout(id);
     };
-  }, [search, branchFilter, dateFrom, dateTo]);
+   }, [search, branchFilter, dateFrom, dateTo, selectedLr]);
 
   const counts = useMemo(() => {
     const map: Record<string, number> = { all: allLrs.length };
