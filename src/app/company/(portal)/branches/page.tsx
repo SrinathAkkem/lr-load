@@ -21,7 +21,7 @@ interface Branch {
   name: string;
   city: string;
   state: string;
-  driverCount: number;
+  executiveCount: number;
   lrsThisMonth: number;
   freight: number;
   status?: string;
@@ -203,8 +203,8 @@ export default function BranchesPage() {
                 {/* Stats row */}
                 <div className="mt-5 flex items-center gap-4">
                   <div className="text-center">
-                    <p className="text-xl font-bold text-blue-600">{b.driverCount}</p>
-                    <p className="text-[10px] font-medium text-slate-500">Drivers</p>
+                    <p className="text-xl font-bold text-blue-600">{b.executiveCount}</p>
+                    <p className="text-[10px] font-medium text-slate-500">Executives</p>
                   </div>
                   <div className="text-center">
                     <p className="text-xl font-bold text-violet-600">{b.lrsThisMonth}</p>

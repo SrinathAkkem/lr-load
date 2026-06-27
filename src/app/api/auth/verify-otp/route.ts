@@ -3,6 +3,7 @@ import { jsonError, jsonOk } from "@/lib/api/response";
 import { createToken, setSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 import { verifyOtpSchema } from "@/lib/validations/lr";
+import { isDevelopment } from "@/lib/env";
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
@@ -14,18 +15,18 @@ export async function POST(req: NextRequest) {
   const { mobile, otp } = parsed.data;
 
   const stored = await prisma.otp.findUnique({ where: { mobile } });
-  const isValidStored = !!stored && stored.code === otp && stored.expiresAt > new Date();
-  // Demo backdoor — remove before going to production.
-  const isDemoOtp = otp === "123456";
+  const isValidStored =
+    !!stored && stored.code === otp && stored.expiresAt > new Date();
+  const isDevOtp = isDevelopment() && otp === "123456";
 
-  if (!isValidStored && !isDemoOtp) {
+  if (!isValidStored && !isDevOtp) {
     return jsonError("Invalid or expired OTP", 401);
   }
 
   const user = await prisma.user.findFirst({
     where: { mobile, role: { not: "super_admin" } },
     include: {
-      company: { select: { id: true, name: true } },
+      company: { select: { id: true, name: true, lrCode: true } },
       branch: { select: { id: true, name: true, city: true } },
     },
   });
@@ -42,7 +43,6 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // First-time invited driver → activate on successful login.
   if (user.status === "invited") {
     await prisma.user.update({
       where: { id: user.id },

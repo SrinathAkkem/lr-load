@@ -54,9 +54,9 @@ export async function getUserById(id: string): Promise<User | null> {
   return u ? toUser(u) : null;
 }
 
-export async function getDriversByCompany(companyId: string): Promise<User[]> {
+export async function getExecutivesByCompany(companyId: string): Promise<User[]> {
   const rows = await prisma.user.findMany({
-    where: { companyId, role: "driver" },
+    where: { companyId, role: "executive" },
     orderBy: { createdAt: "desc" },
   });
   return rows.map(toUser);
@@ -79,9 +79,9 @@ export async function getLRsForUser(
   role: string,
   companyId: string | null,
 ): Promise<LRRequest[]> {
-  if (role === "driver") {
+  if (role === "executive") {
     const rows = await prisma.lRRequest.findMany({
-      where: { driverId: userId },
+      where: { executiveId: userId },
       orderBy: { createdAt: "desc" },
     });
     return rows.map(toLR);
@@ -147,7 +147,7 @@ export async function generateLRNumber(companyId: string): Promise<string> {
   const company = await prisma.company.findUnique({ where: { id: companyId } });
   if (!company) throw new Error("Company not found");
 
-  // Atomic: upsert + increment in one round-trip so concurrent driver requests
+  // Atomic: upsert + increment in one round-trip so concurrent executive requests
   // can't grab the same serial.
   const serial = await prisma.lRSerial.upsert({
     where: { companyId },
@@ -163,7 +163,7 @@ export async function generateLRNumber(companyId: string): Promise<string> {
 }
 
 export async function createLR(
-  driverId: string,
+  executiveId: string,
   companyId: string,
   branchId: string,
   input: CreateLRInput,
@@ -190,7 +190,7 @@ export async function createLR(
       trackingId,
       companyId,
       branchId,
-      driverId,
+      executiveId,
       consignorName: input.consignorName,
       consignorAddress: input.consignorAddress,
       consigneeName: input.consigneeName,
@@ -219,13 +219,13 @@ export async function createLR(
     where: { companyId, role: "company_admin" },
     select: { id: true },
   });
-  const driver = await prisma.user.findUnique({ where: { id: driverId } });
+  const executive = await prisma.user.findUnique({ where: { id: executiveId } });
   if (admins.length > 0) {
     await prisma.notification.createMany({
       data: admins.map((admin) => ({
         userId: admin.id,
         title: "New LR Request",
-        message: `New LR request from ${driver?.name ?? "Driver"}`,
+        message: `New LR request from ${executive?.name ?? "Executive"}`,
         lrId: created.id,
       })),
     });
@@ -255,7 +255,7 @@ export async function approveLR(
 
   await prisma.notification.create({
     data: {
-      userId: lr.driverId,
+      userId: lr.executiveId,
       title: "Your LR is Approved!",
       message: `LR ${updated.lrNumber} has been approved. Download your PDF now.`,
       lrId: lr.id,
@@ -280,7 +280,7 @@ export async function rejectLR(
 
   await prisma.notification.create({
     data: {
-      userId: lr.driverId,
+      userId: lr.executiveId,
       title: "LR Rejected",
       message: `LR ${lr.trackingId} was rejected: ${reason}`,
       lrId: lr.id,
@@ -292,11 +292,11 @@ export async function rejectLR(
 
 export async function markDelivered(
   lrId: string,
-  driverId: string,
+  executiveId: string,
 ): Promise<LRRequest> {
   const lr = await prisma.lRRequest.findUnique({ where: { id: lrId } });
   if (!lr) throw new Error("LR not found");
-  if (lr.driverId !== driverId) throw new Error("Not authorized");
+  if (lr.executiveId !== executiveId) throw new Error("Not authorized");
   if (lr.status !== "approved" && lr.status !== "in_transit") {
     throw new Error("LR cannot be marked delivered");
   }

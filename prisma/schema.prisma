@@ -14,7 +14,7 @@ datasource db {
 enum UserRole {
   super_admin
   company_admin
-  driver
+  executive
 }
 
 enum UserStatus {
@@ -52,7 +52,7 @@ model Company {
   lrCode        String        @unique @db.VarChar(16)
   contactPhone  String        @db.VarChar(32)
   maxBranches   Int           @default(5)
-  maxDrivers    Int           @default(50)
+  maxExecutives Int           @default(50)
   maxLrPerMonth Int           @default(200)
   status        CompanyStatus @default(active)
   createdAt     DateTime      @default(now())
@@ -96,7 +96,7 @@ model User {
 
   company       Company?       @relation(fields: [companyId], references: [id], onDelete: SetNull)
   branch        Branch?        @relation(fields: [branchId], references: [id], onDelete: SetNull)
-  driverLrs     LRRequest[]    @relation("DriverLRs")
+  executiveLrs  LRRequest[]    @relation("ExecutiveLRs")
   notifications Notification[]
 
   @@index([companyId, role])
@@ -110,7 +110,7 @@ model LRRequest {
   trackingId          String      @unique @db.VarChar(64)
   companyId           String
   branchId            String
-  driverId            String
+  executiveId         String
 
   consignorName       String      @db.VarChar(255)
   consignorAddress    String      @db.Text
@@ -141,15 +141,15 @@ model LRRequest {
   approvedAt          DateTime?
   deliveredAt         DateTime?
 
-  company  Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  branch   Branch   @relation(fields: [branchId], references: [id], onDelete: Restrict)
-  driver   User     @relation("DriverLRs", fields: [driverId], references: [id], onDelete: Restrict)
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  branch    Branch  @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  executive User    @relation("ExecutiveLRs", fields: [executiveId], references: [id], onDelete: Restrict)
 
   notifications Notification[]
 
   @@index([companyId, status, createdAt])
   @@index([branchId])
-  @@index([driverId, createdAt])
+  @@index([executiveId, createdAt])
   @@index([status])
 }
 
@@ -187,8 +187,7 @@ model Otp {
 }
 
 // Append-only audit log of impactful platform actions: super-admin company
-// changes, company admin LR approvals/rejections, driver invites, etc. Used
-// by the Audit Log screen and is part of the compliance story.
+// changes, company admin LR approvals/rejections, executive invites, etc.
 model AuditLog {
   id         String   @id @default(cuid())
   actorId    String?  @db.VarChar(64)

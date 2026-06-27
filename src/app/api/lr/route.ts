@@ -23,8 +23,8 @@ export async function GET(req: NextRequest) {
   const to = searchParams.get("to");
 
   const where: Prisma.LRRequestWhereInput = {};
-  if (session.role === "driver") {
-    where.driverId = session.userId;
+  if (session.role === "executive") {
+    where.executiveId = session.userId;
   } else if (session.role === "company_admin" && session.companyId) {
     where.companyId = session.companyId;
   }
@@ -61,13 +61,13 @@ export async function GET(req: NextRequest) {
   const lrs = await prisma.lRRequest.findMany({
     where,
     orderBy: { createdAt: "desc" },
-    include: { driver: true, branch: true },
+    include: { executive: true, branch: true },
   });
 
   return jsonOk(
     lrs.map((lr) => ({
       ...toLR(lr),
-      driver: toUser(lr.driver),
+      executive: toUser(lr.executive),
       branch: toBranch(lr.branch),
     })),
   );
@@ -76,7 +76,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const session = await getAuthFromRequest(req);
   if (!session) return unauthorized();
-  if (session.role !== "driver") return forbidden();
+  if (session.role !== "executive") return forbidden();
 
   const body = await req.json().catch(() => ({}));
   const parsed = createLRSchema.safeParse(body);
@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (!session.companyId || !session.branchId) {
-    return jsonError("Driver not assigned to a branch", 400);
+    return jsonError("Executive not assigned to a branch", 400);
   }
 
   try {

@@ -25,7 +25,7 @@ export const createLRSchema = z.object({
   dispatchDate: z.string().min(1, "Dispatch date is required"),
   specialInstructions: z.string().optional(),
   photos: z.array(z.string()).max(5).optional().default([]),
-  signatureUrl: z.string().min(1, "Driver signature is required"),
+  signatureUrl: z.string().min(1, "Authorised signature is required"),
 });
 
 export const rejectLRSchema = z.object({
@@ -52,15 +52,18 @@ export const createBranchSchema = z.object({
   state: z.string().min(1),
 });
 
-export const inviteDriverSchema = z.object({
+export const inviteExecutiveSchema = z.object({
   mobile: z.string().regex(/^\d{10}$/),
   branchId: z.string().min(1),
   name: z.string().optional(),
 });
 
+/** @deprecated Use inviteExecutiveSchema */
+export const inviteDriverSchema = inviteExecutiveSchema;
+
 export const companyLimitsSchema = z.object({
   maxBranches: z.coerce.number().int().positive(),
-  maxDrivers: z.coerce.number().int().positive(),
+  maxExecutives: z.coerce.number().int().positive(),
   maxLrPerMonth: z.coerce.number().int().positive(),
 });
 

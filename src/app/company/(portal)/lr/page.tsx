@@ -8,7 +8,7 @@ import { Search, CheckCircle, XCircle, Package, MapPin } from "lucide-react";
 import { toast } from "sonner";
 
 type EnrichedLR = LRRequest & {
-  driver?: { name: string };
+  executive?: { name: string };
   branch?: { name: string };
 };
 
@@ -165,7 +165,7 @@ export default function CompanyLRPage() {
     }
   }
 
-  const driverInitials = (name: string) =>
+  const executiveInitials = (name: string) =>
     name.split(/\s+/).map(n => n[0]).join("").slice(0, 2).toUpperCase();
 
   return (
@@ -296,10 +296,10 @@ export default function CompanyLRPage() {
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-2">
                         <span className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-100 text-[10px] font-bold text-violet-700">
-                          {driverInitials(lr.driver?.name ?? "?")}
+                          {executiveInitials(lr.executive?.name ?? "?")}
                         </span>
                         <div>
-                          <p className="text-sm font-medium text-slate-800">{lr.driver?.name ?? "—"}</p>
+                          <p className="text-sm font-medium text-slate-800">{lr.executive?.name ?? "—"}</p>
                           <p className="text-[11px] text-slate-400">{lr.branch?.name ?? ""}</p>
                         </div>
                       </div>
@@ -492,7 +492,7 @@ export default function CompanyLRPage() {
               )}
               <div className="mt-3">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Submitted By</p>
-                <p className="mt-1 text-sm text-slate-700">{selectedLr.driver?.name} · {selectedLr.branch?.name}</p>
+                <p className="mt-1 text-sm text-slate-700">{selectedLr.executive?.name} · {selectedLr.branch?.name}</p>
               </div>
 
               {selectedLr.status === "pending" && (

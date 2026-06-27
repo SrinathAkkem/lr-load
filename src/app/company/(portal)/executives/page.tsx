@@ -39,7 +39,7 @@ export default function DriversPage() {
   const [removing, setRemoving] = useState<string | null>(null);
   const [inviteMobile, setInviteMobile] = useState("");
   const [inviteBranch, setInviteBranch] = useState("");
-  const [maxDrivers, setMaxDrivers] = useState(150);
+  const [maxExecutives, setMaxDrivers] = useState(150);
 
   useEffect(() => {
     refresh();
@@ -54,12 +54,12 @@ export default function DriversPage() {
     fetch("/api/company/profile")
       .then((r) => r.json())
       .then((d) => {
-        if (d?.success && d.data) setMaxDrivers(d.data.maxDrivers);
+        if (d?.success && d.data) setMaxDrivers(d.data.maxExecutives);
       });
   }, []);
 
   async function refresh() {
-    const res = await fetch("/api/drivers");
+    const res = await fetch("/api/executives");
     const d = await res.json();
     if (d.success) setDrivers(d.data);
   }
@@ -75,14 +75,14 @@ export default function DriversPage() {
     }
     setBusy(true);
     try {
-      const res = await fetch("/api/drivers/invite", {
+      const res = await fetch("/api/executives/invite", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mobile: inviteMobile, branchId: inviteBranch }),
       });
       const data = await res.json();
       if (data.success) {
-        toast.success("Invite sent — driver can now log in via OTP");
+        toast.success("Invite sent — executive can now log in via OTP");
         setInviteMobile("");
         refresh();
       } else {
@@ -97,7 +97,7 @@ export default function DriversPage() {
     if (!confirm(`Deactivate ${name}? They won't be able to log in or create LRs.`)) return;
     setRemoving(id);
     try {
-      const res = await fetch(`/api/drivers/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/executives/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (data.success) { toast.success(`${name} deactivated`); refresh(); }
       else toast.error(data.error ?? "Failed");
@@ -128,18 +128,18 @@ export default function DriversPage() {
           <div className="flex-1 min-w-0">
             <h3 className="text-sm font-bold text-violet-900">Invite a New Driver</h3>
             <p className="text-xs text-violet-700/70">
-              Enter the driver&apos;s mobile number. They will receive an OTP to set up their account and join this company.
+              Enter the executivedriver&apos;sapos;s mobile number. They will receive an OTP to set up their account and join this company.
             </p>
           </div>
           <div className="flex items-center gap-3 text-right">
             <div>
-              <p className="text-3xl font-bold text-violet-700">{drivers.length} / {maxDrivers}</p>
-              <p className="text-[10px] font-medium text-violet-500">drivers used</p>
+              <p className="text-3xl font-bold text-violet-700">{drivers.length} / {maxExecutives}</p>
+              <p className="text-[10px] font-medium text-violet-500">executives used</p>
             </div>
             <div className="h-1.5 w-16 rounded-full bg-violet-200">
               <div
                 className="h-1.5 rounded-full bg-violet-600"
-                style={{ width: `${Math.min(100, (drivers.length / maxDrivers) * 100)}%` }}
+                style={{ width: `${Math.min(100, (drivers.length / maxExecutives) * 100)}%` }}
               />
             </div>
           </div>
@@ -216,7 +216,7 @@ export default function DriversPage() {
             <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder="Search driver name or number…"
+              placeholder="Search executive name or number…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-xs outline-none focus:border-violet-300 focus:bg-white focus:ring-1 focus:ring-violet-100"

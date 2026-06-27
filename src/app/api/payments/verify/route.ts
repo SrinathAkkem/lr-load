@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
       data: {
         maxLrPerMonth: plan.maxLrPerMonth,
         maxBranches: plan.maxBranches,
-        maxDrivers: plan.maxDrivers,
+        maxExecutives: plan.maxExecutives,
       },
     });
 
@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
           paymentId: razorpay_payment_id,
           maxLrPerMonth: plan.maxLrPerMonth,
           maxBranches: plan.maxBranches,
-          maxDrivers: plan.maxDrivers,
+          maxExecutives: plan.maxExecutives,
         },
       },
     });
@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
           name: plan.name,
           maxLrPerMonth: plan.maxLrPerMonth,
           maxBranches: plan.maxBranches,
-          maxDrivers: plan.maxDrivers,
+          maxExecutives: plan.maxExecutives,
         },
       },
     });

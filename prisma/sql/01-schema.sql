@@ -10,7 +10,7 @@ CREATE TABLE `Company` (
     `lrCode` VARCHAR(16) NOT NULL,
     `contactPhone` VARCHAR(32) NOT NULL,
     `maxBranches` INTEGER NOT NULL DEFAULT 5,
-    `maxDrivers` INTEGER NOT NULL DEFAULT 50,
+    `maxExecutives` INTEGER NOT NULL DEFAULT 50,
     `maxLrPerMonth` INTEGER NOT NULL DEFAULT 200,
     `status` ENUM('active', 'suspended') NOT NULL DEFAULT 'active',
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -40,7 +40,7 @@ CREATE TABLE `User` (
     `mobile` VARCHAR(15) NOT NULL,
     `email` VARCHAR(255) NULL,
     `password` VARCHAR(255) NULL,
-    `role` ENUM('super_admin', 'company_admin', 'driver') NOT NULL,
+    `role` ENUM('super_admin', 'company_admin', 'executive') NOT NULL,
     `companyId` VARCHAR(191) NULL,
     `branchId` VARCHAR(191) NULL,
     `name` VARCHAR(255) NOT NULL,
@@ -63,7 +63,7 @@ CREATE TABLE `LRRequest` (
     `trackingId` VARCHAR(64) NOT NULL,
     `companyId` VARCHAR(191) NOT NULL,
     `branchId` VARCHAR(191) NOT NULL,
-    `driverId` VARCHAR(191) NOT NULL,
+    `executiveId` VARCHAR(191) NOT NULL,
     `consignorName` VARCHAR(255) NOT NULL,
     `consignorAddress` TEXT NOT NULL,
     `consigneeName` VARCHAR(255) NOT NULL,
@@ -95,7 +95,7 @@ CREATE TABLE `LRRequest` (
     UNIQUE INDEX `LRRequest_qrCode_key`(`qrCode`),
     INDEX `LRRequest_companyId_status_createdAt_idx`(`companyId`, `status`, `createdAt`),
     INDEX `LRRequest_branchId_idx`(`branchId`),
-    INDEX `LRRequest_driverId_createdAt_idx`(`driverId`, `createdAt`),
+    INDEX `LRRequest_executiveId_createdAt_idx`(`executiveId`, `createdAt`),
     INDEX `LRRequest_status_idx`(`status`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -138,7 +138,7 @@ CREATE TABLE `AuditLog` (
     `id` VARCHAR(191) NOT NULL,
     `actorId` VARCHAR(64) NULL,
     `actorName` VARCHAR(255) NOT NULL,
-    `actorRole` ENUM('super_admin', 'company_admin', 'driver') NOT NULL,
+    `actorRole` ENUM('super_admin', 'company_admin', 'executive') NOT NULL,
     `companyId` VARCHAR(64) NULL,
     `action` VARCHAR(64) NOT NULL,
     `target` VARCHAR(255) NULL,
@@ -168,7 +168,7 @@ ALTER TABLE `LRRequest` ADD CONSTRAINT `LRRequest_companyId_fkey` FOREIGN KEY (`
 ALTER TABLE `LRRequest` ADD CONSTRAINT `LRRequest_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `LRRequest` ADD CONSTRAINT `LRRequest_driverId_fkey` FOREIGN KEY (`driverId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `LRRequest` ADD CONSTRAINT `LRRequest_executiveId_fkey` FOREIGN KEY (`executiveId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Notification` ADD CONSTRAINT `Notification_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

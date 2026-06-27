@@ -31,7 +31,7 @@ const TITLE_MAP: Array<{ match: RegExp; title: string; placeholder: string }> = 
   {
     match: /^\/super-admin\/dashboard/,
     title: "Dashboard",
-    placeholder: "Search companies, drivers...",
+    placeholder: "Search companies, executives...",
   },
   {
     match: /^\/super-admin\/companies\/[^/]+/,
@@ -45,8 +45,8 @@ const TITLE_MAP: Array<{ match: RegExp; title: string; placeholder: string }> = 
   },
   {
     match: /^\/super-admin\/drivers/,
-    title: "All Drivers",
-    placeholder: "Search drivers by name or mobile...",
+    title: "All Executives",
+    placeholder: "Search executives by name or mobile...",
   },
   {
     match: /^\/super-admin\/settings/,
@@ -62,7 +62,7 @@ const TITLE_MAP: Array<{ match: RegExp; title: string; placeholder: string }> = 
   {
     match: /^\/company\/dashboard/,
     title: "Dashboard",
-    placeholder: "Search LRs, drivers...",
+    placeholder: "Search LRs, executives...",
   },
   {
     match: /^\/company\/lr\/[^/]+/,
@@ -81,7 +81,7 @@ const TITLE_MAP: Array<{ match: RegExp; title: string; placeholder: string }> = 
   },
   {
     match: /^\/company\/drivers/,
-    title: "Driver Management",
+    title: "Executive Management",
     placeholder: "Search by name or mobile...",
   },
   {

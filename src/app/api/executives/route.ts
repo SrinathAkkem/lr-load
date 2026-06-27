@@ -7,7 +7,7 @@ import {
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { prisma } from "@/lib/db/prisma";
 import { toBranch, toCompany, toUser } from "@/lib/db/serialize";
-import { inviteDriverSchema } from "@/lib/validations/lr";
+import { inviteExecutiveSchema } from "@/lib/validations/lr";
 import type { Prisma } from "@prisma/client";
 
 export async function GET(req: NextRequest) {
@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
     1,
   );
 
-  const where: Prisma.UserWhereInput = { role: "driver" };
+  const where: Prisma.UserWhereInput = { role: "executive" };
   if (session.role === "company_admin") {
     if (!session.companyId) return forbidden();
     where.companyId = session.companyId;
@@ -50,31 +50,31 @@ export async function GET(req: NextRequest) {
     ];
   }
 
-  const drivers = await prisma.user.findMany({
+  const executives = await prisma.user.findMany({
     where,
     orderBy: { createdAt: "desc" },
     include: {
       branch: true,
       ...(session.role === "super_admin" ? { company: true } : {}),
-      driverLrs: {
+      executiveLrs: {
         where: { createdAt: { gte: monthStart, lt: monthEnd } },
         select: { id: true },
       },
     },
   });
 
-  const driverIds = drivers.map((d) => d.id);
+  const executiveIds = executives.map((d) => d.id);
   const latestLrs = await prisma.lRRequest.groupBy({
-    by: ["driverId"],
-    where: { driverId: { in: driverIds } },
+    by: ["executiveId"],
+    where: { executiveId: { in: executiveIds } },
     _max: { createdAt: true },
   });
   const lastActiveMap = new Map(
-    latestLrs.map((l) => [l.driverId, l._max.createdAt]),
+    latestLrs.map((l) => [l.executiveId, l._max.createdAt]),
   );
 
   return jsonOk(
-    drivers.map((d) => ({
+    executives.map((d) => ({
       ...toUser(d),
       branch: d.branch ? toBranch(d.branch) : null,
       company:
@@ -84,7 +84,7 @@ export async function GET(req: NextRequest) {
                 .company,
             )
           : null,
-      lrsThisMonth: d.driverLrs.length,
+      lrsThisMonth: d.executiveLrs.length,
       lastActive: lastActiveMap.get(d.id)?.toISOString() ?? null,
     })),
   );
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
   if (session.role !== "company_admin" || !session.companyId) return forbidden();
 
   const body = await req.json().catch(() => ({}));
-  const parsed = inviteDriverSchema.safeParse(body);
+  const parsed = inviteExecutiveSchema.safeParse(body);
   if (!parsed.success) {
     return jsonError(parsed.error.errors[0]?.message ?? "Invalid input");
   }
@@ -107,10 +107,10 @@ export async function POST(req: NextRequest) {
   if (!company) return jsonError("Company not found", 404);
 
   const existingCount = await prisma.user.count({
-    where: { companyId: session.companyId, role: "driver" },
+    where: { companyId: session.companyId, role: "executive" },
   });
-  if (existingCount >= company.maxDrivers) {
-    return jsonError("Driver limit reached");
+  if (existingCount >= company.maxExecutives) {
+    return jsonError("Executive limit reached");
   }
 
   const duplicate = await prisma.user.findUnique({
@@ -123,15 +123,15 @@ export async function POST(req: NextRequest) {
   });
   if (!branch) return jsonError("Branch does not belong to this company", 400);
 
-  const driver = await prisma.user.create({
+  const executive = await prisma.user.create({
     data: {
       mobile: parsed.data.mobile,
-      role: "driver",
+      role: "executive",
       companyId: session.companyId,
       branchId: parsed.data.branchId,
-      name: `Driver ${parsed.data.mobile.slice(-4)}`,
+      name: `Executive ${parsed.data.mobile.slice(-4)}`,
       status: "invited",
     },
   });
-  return jsonOk(toUser(driver), 201);
+  return jsonOk(toUser(executive), 201);
 }

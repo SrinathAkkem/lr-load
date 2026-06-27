@@ -41,7 +41,7 @@ export function ApproveRejectActions({ id }: { id: string }) {
       });
       const data = await res.json().catch(() => ({}));
       if (data.success) {
-        toast.success("LR rejected — driver notified");
+        toast.success("LR rejected — executive notified");
         setShowReject(false);
         setReason("");
         router.refresh();
@@ -62,7 +62,7 @@ export function ApproveRejectActions({ id }: { id: string }) {
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             rows={3}
-            placeholder="Reason for rejection (visible to driver)"
+            placeholder="Reason for rejection (visible to executive)"
             className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-100"
           />
           <div className="flex gap-2">

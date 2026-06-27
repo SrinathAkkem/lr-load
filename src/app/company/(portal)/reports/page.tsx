@@ -63,24 +63,24 @@ export default async function CompanyReportsPage({
     prisma.branch.findMany({ where: { companyId }, orderBy: { name: "asc" }, select: { id: true, name: true, city: true } }),
     prisma.lRRequest.findMany({
       where,
-      select: { status: true, paymentMode: true, freightAmount: true, originCity: true, destinationCity: true, driverId: true, branchId: true, createdAt: true },
+      select: { status: true, paymentMode: true, freightAmount: true, originCity: true, destinationCity: true, executiveId: true, branchId: true, createdAt: true },
     }),
   ]);
 
-  const topDrivers = await prisma.lRRequest.groupBy({
-    by: ["driverId"],
+  const topExecutives = await prisma.lRRequest.groupBy({
+    by: ["executiveId"],
     where: { companyId, createdAt: { gte: from, lte: to }, status: { not: "rejected" } },
     _count: { _all: true },
     _sum: { freightAmount: true },
     orderBy: { _sum: { freightAmount: "desc" } },
     take: 5,
   });
-  const driverIds = topDrivers.map((d) => d.driverId);
-  const driverInfo = await prisma.user.findMany({
-    where: { id: { in: driverIds } },
+  const executiveIds = topExecutives.map((d) => d.executiveId);
+  const executiveInfo = await prisma.user.findMany({
+    where: { id: { in: executiveIds } },
     select: { id: true, name: true, branch: { select: { name: true } } },
   });
-  const driverMap = new Map(driverInfo.map((d) => [d.id, d]));
+  const executiveMap = new Map(executiveInfo.map((d) => [d.id, d]));
 
   const totalCount = lrs.length;
   const freightTotal = lrs.reduce((s, lr) => s + Number(lr.freightAmount.toString()), 0);
@@ -249,7 +249,7 @@ export default async function CompanyReportsPage({
         </div>
       </div>
 
-      {/* Freight by Payment Mode + Top Drivers */}
+      {/* Freight by Payment Mode + Top Executives */}
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         {/* Freight by Payment Mode */}
         <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
@@ -288,14 +288,14 @@ export default async function CompanyReportsPage({
           </div>
         </div>
 
-        {/* Top Drivers by LR Volume */}
+        {/* Top Executives by LR Volume */}
         <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold text-slate-900">Top Drivers by LR Volume</h2>
+            <h2 className="text-base font-semibold text-slate-900">Top Executives by LR Volume</h2>
             <span className="rounded-full bg-violet-50 px-3 py-1 text-[11px] font-semibold text-violet-700">This Month</span>
           </div>
 
-          {topDrivers.length === 0 ? (
+          {topExecutives.length === 0 ? (
             <p className="mt-4 text-sm text-slate-400">No data for this period.</p>
           ) : (
             <div className="mt-4 overflow-x-auto">
@@ -310,22 +310,22 @@ export default async function CompanyReportsPage({
                   </tr>
                 </thead>
                 <tbody>
-                  {topDrivers.map((td, i) => {
-                    const driver = driverMap.get(td.driverId);
-                    const inits = driver?.name.split(/\s+/).map(n => n[0]).join("").slice(0, 2).toUpperCase() ?? "??";
+                  {topExecutives.map((td, i) => {
+                    const executive = executiveMap.get(td.executiveId);
+                    const inits = executive?.name.split(/\s+/).map(n => n[0]).join("").slice(0, 2).toUpperCase() ?? "??";
                     const colors = ["bg-violet-500", "bg-blue-500", "bg-emerald-500", "bg-amber-500", "bg-pink-500"];
                     return (
-                      <tr key={td.driverId} className="border-b border-slate-50 last:border-0">
+                      <tr key={td.executiveId} className="border-b border-slate-50 last:border-0">
                         <td className="py-3 pr-3 text-xs font-bold text-slate-300">{String(i + 1).padStart(2, "0")}</td>
                         <td className="py-3 pr-3">
                           <div className="flex items-center gap-2">
                             <span className={`flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold text-white ${colors[i]}`}>{inits}</span>
-                            <span className="font-medium text-slate-800">{driver?.name ?? "Unknown"}</span>
+                            <span className="font-medium text-slate-800">{executive?.name ?? "Unknown"}</span>
                           </div>
                         </td>
                         <td className="py-3 pr-3">
                           <span className="rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-semibold text-violet-700">
-                            {driver?.branch?.name ?? "—"}
+                            {executive?.branch?.name ?? "—"}
                           </span>
                         </td>
                         <td className="py-3 pr-3 font-bold text-violet-700">{td._count?._all ?? 0}</td>
@@ -351,7 +351,7 @@ export default async function CompanyReportsPage({
           <div>
             <h3 className="text-sm font-bold">Export Full Report as PDF</h3>
             <p className="text-xs text-violet-300">
-              Includes all LR details, route summary, freight breakdown and driver leaderboard for the selected period.
+              Includes all LR details, route summary, freight breakdown and executive leaderboard for the selected period.
             </p>
           </div>
         </div>

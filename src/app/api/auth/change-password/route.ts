@@ -25,8 +25,8 @@ const schema = z.object({
 export async function POST(req: NextRequest) {
   const session = await getAuthFromRequest(req);
   if (!session) return unauthorized();
-  if (session.role === "driver") {
-    return jsonError("Drivers sign in with OTP only", 403);
+  if (session.role === "executive") {
+    return jsonError("Executives sign in with OTP only", 403);
   }
 
   const body = await req.json().catch(() => ({}));

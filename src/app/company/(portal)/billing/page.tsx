@@ -39,7 +39,7 @@ interface Plan {
   description: string;
   maxLrPerMonth: number;
   maxBranches: number;
-  maxDrivers: number;
+  maxExecutives: number;
   priceMonthly: number;
   priceYearly: number;
 }
@@ -208,7 +208,7 @@ export default function BillingPage() {
                 </li>
                 <li className="flex items-center gap-2 text-sm text-slate-600">
                   <Users className="h-4 w-4 text-emerald-500" />
-                  <span>{plan.maxDrivers} drivers</span>
+                  <span>{plan.maxExecutives} drivers</span>
                 </li>
                 <li className="flex items-center gap-2 text-sm text-slate-600">
                   <Check className="h-4 w-4 text-emerald-500" />

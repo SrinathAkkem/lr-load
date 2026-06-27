@@ -32,7 +32,7 @@ export default async function CompanyDashboardPage() {
     daily,
     monthly,
     payments,
-    activeDriverCount,
+    activeExecutiveCount,
     branchCount,
   ] = await Promise.all([
     getCompanyById(companyId),
@@ -42,27 +42,27 @@ export default async function CompanyDashboardPage() {
       where: { companyId },
       orderBy: { createdAt: "desc" },
       take: 5,
-      include: { driver: true },
+      include: { executive: true },
     }),
     getDailyLrCounts(companyId, 7),
     getMonthlyLrCounts(companyId, 12),
     getPaymentModeBreakdown(companyId),
     prisma.user.count({
-      where: { companyId, role: "driver", status: { in: ["active", "invited"] } },
+      where: { companyId, role: "executive", status: { in: ["active", "invited"] } },
     }),
     prisma.branch.count({ where: { companyId } }),
   ]);
 
   const recentLrs = recentRows.map((lr) => ({
     ...toLR(lr),
-    driverName: lr.driver.name,
+    executiveName: lr.executive.name,
   }));
 
   const lrUsagePct = company
     ? Math.min(100, Math.round((stats.totalLrs / company.maxLrPerMonth) * 100))
     : 0;
-  const driverUsagePct = company
-    ? Math.min(100, Math.round((activeDriverCount / company.maxDrivers) * 100))
+  const executiveUsagePct = company
+    ? Math.min(100, Math.round((activeExecutiveCount / company.maxExecutives) * 100))
     : 0;
   const branchUsagePct = company
     ? Math.min(100, Math.round((branchCount / company.maxBranches) * 100))
@@ -248,10 +248,10 @@ export default async function CompanyDashboardPage() {
                           <>LR <span className="font-semibold">{lr.trackingId}</span> approved. {lr.originCity} → {lr.destinationCity}.</>
                         )}
                         {lr.status === "pending" && (
-                          <>Driver <span className="font-semibold">{lr.driverName}</span> submitted LR. Awaiting approval.</>
+                          <>Driver <span className="font-semibold">{lr.executiveName}</span> submitted LR. Awaiting approval.</>
                         )}
                         {lr.status === "delivered" && (
-                          <>LR <span className="font-semibold">{lr.trackingId}</span> marked delivered by driver.</>
+                          <>LR <span className="font-semibold">{lr.trackingId}</span> marked delivered by executive.</>
                         )}
                         {lr.status === "rejected" && (
                           <>LR <span className="font-semibold">{lr.trackingId}</span> rejected — incorrect vehicle number.</>
@@ -284,10 +284,10 @@ export default async function CompanyDashboardPage() {
               color="bg-blue-500"
             />
             <QuotaBar
-              label="Drivers"
-              current={activeDriverCount}
-              max={company?.maxDrivers ?? 0}
-              pct={driverUsagePct}
+              label="Executives"
+              current={activeExecutiveCount}
+              max={company?.maxExecutives ?? 0}
+              pct={executiveUsagePct}
               color="bg-blue-500"
             />
             <QuotaBar

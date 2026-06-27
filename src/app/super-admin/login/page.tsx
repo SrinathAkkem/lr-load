@@ -65,7 +65,7 @@ export default function SuperAdminLoginPage() {
             The smarter way to manage<br />transport LRs at scale.
           </h1>
           <p className="text-base font-semibold text-white/60">
-            Control every company, driver and LR from one place.
+            Control every company, executive and LR from one place.
           </p>
           <p className="text-sm font-semibold text-white/60">
             Super Admin Portal — Powered by RonoHub.
@@ -82,7 +82,7 @@ export default function SuperAdminLoginPage() {
       <div className="flex flex-1 items-center justify-center bg-[#f4f6fb] p-8">
         <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-6">
           <div>
-            <h2 className="text-2xl font-extrabold text-[#2d2d4e]">Welcome back 👋</h2>
+            <h2 className="text-2xl font-extrabold text-[#2d2d4e]">Welcome back</h2>
             <p className="mt-2 text-sm font-semibold leading-relaxed text-[#6b7280]">
               Sign in to access the Super Admin Portal. This portal is for RonoHub administrators only.
             </p>

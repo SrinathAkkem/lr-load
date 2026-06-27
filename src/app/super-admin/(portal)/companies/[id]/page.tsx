@@ -13,7 +13,7 @@ import { ChevronLeft, Minus, Plus, ShieldCheck, ShieldX } from "lucide-react";
 
 interface CompanyDetail extends Company {
   branchCount?: number;
-  driverCount?: number;
+  executiveCount?: number;
   lrsThisMonth?: number;
 }
 
@@ -23,7 +23,7 @@ export default function CompanyDetailPage() {
   const [company, setCompany] = useState<CompanyDetail | null>(null);
   const [limits, setLimits] = useState({
     maxBranches: 10,
-    maxDrivers: 150,
+    maxExecutives: 150,
     maxLrPerMonth: 500,
   });
   const [loading, setLoading] = useState(true);
@@ -37,7 +37,7 @@ export default function CompanyDetailPage() {
       setCompany(data.data);
       setLimits({
         maxBranches: data.data.maxBranches,
-        maxDrivers: data.data.maxDrivers,
+        maxExecutives: data.data.maxExecutives,
         maxLrPerMonth: data.data.maxLrPerMonth,
       });
     }
@@ -177,11 +177,11 @@ export default function CompanyDetailPage() {
                 onChange={(v) => setLimits({ ...limits, maxBranches: v })}
               />
               <LimitRow
-                label="Max Drivers"
+                label="Max Executives"
                 description="Total drivers across all branches"
-                used={company.driverCount}
-                value={limits.maxDrivers}
-                onChange={(v) => setLimits({ ...limits, maxDrivers: v })}
+                used={company.executiveCount}
+                value={limits.maxExecutives}
+                onChange={(v) => setLimits({ ...limits, maxExecutives: v })}
               />
               <LimitRow
                 label="Max LRs per Month"
@@ -205,7 +205,7 @@ export default function CompanyDetailPage() {
                 onClick={() => {
                   setLimits({
                     maxBranches: company.maxBranches,
-                    maxDrivers: company.maxDrivers,
+                    maxExecutives: company.maxExecutives,
                     maxLrPerMonth: company.maxLrPerMonth,
                   });
                 }}
@@ -242,9 +242,9 @@ export default function CompanyDetailPage() {
                 max={company.maxBranches}
               />
               <UsageRow
-                label="Drivers"
-                used={company.driverCount ?? 0}
-                max={company.maxDrivers}
+                label="Executives"
+                used={company.executiveCount ?? 0}
+                max={company.maxExecutives}
               />
               <UsageRow
                 label="LRs Issued"

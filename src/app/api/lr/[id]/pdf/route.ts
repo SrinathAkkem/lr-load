@@ -21,8 +21,8 @@ export async function GET(
   if (!lr) return jsonError("LR not found", 404);
 
   if (
-    session.role === "driver" &&
-    lr.driverId !== session.userId
+    session.role === "executive" &&
+    lr.executiveId !== session.userId
   ) {
     return jsonError("Forbidden", 403);
   }

@@ -36,11 +36,11 @@ export async function GET(
     where: { id },
     include: {
       branches: { orderBy: { createdAt: "asc" } },
-      users: { where: { role: "driver" }, orderBy: { createdAt: "desc" } },
+      users: { where: { role: "executive" }, orderBy: { createdAt: "desc" } },
       _count: {
         select: {
           branches: true,
-          users: { where: { role: "driver" } },
+          users: { where: { role: "executive" } },
           lrRequests: {
             where: { createdAt: { gte: monthStart, lt: monthEnd } },
           },
@@ -53,10 +53,10 @@ export async function GET(
   return jsonOk({
     ...toCompany(company),
     branchCount: company._count.branches,
-    driverCount: company._count.users,
+    executiveCount: company._count.users,
     lrsThisMonth: company._count.lrRequests,
     branches: company.branches.map(toBranch),
-    drivers: company.users.map(toUser),
+    executives: company.users.map(toUser),
   });
 }
 
@@ -73,12 +73,12 @@ export async function PUT(
 
   const data: {
     maxBranches?: number;
-    maxDrivers?: number;
+    maxExecutives?: number;
     maxLrPerMonth?: number;
     status?: "active" | "suspended";
   } = {};
   if (body.maxBranches !== undefined) data.maxBranches = Number(body.maxBranches);
-  if (body.maxDrivers !== undefined) data.maxDrivers = Number(body.maxDrivers);
+  if (body.maxExecutives !== undefined) data.maxExecutives = Number(body.maxExecutives);
   if (body.maxLrPerMonth !== undefined) {
     data.maxLrPerMonth = Number(body.maxLrPerMonth);
   }

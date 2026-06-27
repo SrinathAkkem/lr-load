@@ -57,7 +57,7 @@ export default async function CompaniesListPage({
         _count: {
           select: {
             branches: true,
-            users: { where: { role: "driver" } },
+            users: { where: { role: "executive" } },
             lrRequests: {
               where: { createdAt: { gte: monthStart, lt: monthEnd } },
             },
@@ -138,7 +138,7 @@ export default async function CompaniesListPage({
                 <th className="px-6 py-3 text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">Company Name</th>
                 <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">Code</th>
                 <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">Branches</th>
-                <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">Drivers</th>
+                <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">Executives</th>
                 <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">LRs This Month</th>
                 <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">Monthly Limit</th>
                 <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">Status</th>
@@ -180,7 +180,7 @@ export default async function CompaniesListPage({
                       {company._count.branches} / {company.maxBranches}
                     </td>
                     <td className="px-4 py-3.5 font-semibold text-[#6b7280]">
-                      {company._count.users} / {company.maxDrivers}
+                      {company._count.users} / {company.maxExecutives}
                     </td>
                     <td className="px-4 py-3.5">
                       <UsageText used={company._count.lrRequests} max={company.maxLrPerMonth} />

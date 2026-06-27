@@ -32,9 +32,9 @@ export function MobileShell({
 export function DriverBottomNav() {
   const pathname = usePathname();
   const items = [
-    { href: "/mobile/driver/home", icon: Home, label: "Home" },
-    { href: "/mobile/driver/lrs", icon: FileText, label: "My LRs" },
-    { href: "/mobile/driver/profile", icon: User, label: "Profile" },
+    { href: "/mobile/executive/home", icon: Home, label: "Home" },
+    { href: "/mobile/executive/lrs", icon: FileText, label: "My LRs" },
+    { href: "/mobile/executive/profile", icon: User, label: "Profile" },
   ];
 
   return (

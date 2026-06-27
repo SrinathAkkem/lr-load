@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
       },
       orderBy: { createdAt: "desc" },
       take: 200,
-      include: { driver: true, branch: true },
+      include: { executive: true, branch: true },
     }),
   ]);
 
@@ -216,7 +216,7 @@ export async function GET(req: NextRequest) {
     { label: "LR No.", w: 90 },
     { label: "Date", w: 60 },
     { label: "Route", w: 130 },
-    { label: "Driver", w: 90 },
+    { label: "Executive", w: 90 },
     { label: "Status", w: 60 },
     { label: "Freight", w: 70 },
   ];
@@ -264,7 +264,7 @@ export async function GET(req: NextRequest) {
         truncate(lr.lrNumber ?? lr.trackingId, 12),
         lr.createdAt.toISOString().slice(5, 10),
         truncate(`${lr.originCity} → ${lr.destinationCity}`, 22),
-        truncate(lr.driver.name, 14),
+        truncate(lr.executive.name, 14),
         lr.status,
         formatCurrency(Number(lr.freightAmount.toString())),
       ],

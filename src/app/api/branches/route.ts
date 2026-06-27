@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
     orderBy: { createdAt: "asc" },
     include: {
       _count: {
-        select: { users: { where: { role: "driver" } } },
+        select: { users: { where: { role: "executive" } } },
       },
       lrRequests: {
         where: { createdAt: { gte: monthStart, lt: monthEnd } },
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
   return jsonOk(
     branches.map((b) => ({
       ...toBranch(b),
-      driverCount: b._count.users,
+      executiveCount: b._count.users,
       lrsThisMonth: b.lrRequests.length,
       freight: b.lrRequests.reduce(
         (sum, lr) => sum + Number(lr.freightAmount.toString()),

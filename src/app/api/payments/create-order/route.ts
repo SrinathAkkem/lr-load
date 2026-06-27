@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
           name: plan.name,
           maxLrPerMonth: plan.maxLrPerMonth,
           maxBranches: plan.maxBranches,
-          maxDrivers: plan.maxDrivers,
+          maxExecutives: plan.maxExecutives,
         },
         prefill: {
           name: session.name,

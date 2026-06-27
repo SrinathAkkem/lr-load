@@ -23,15 +23,15 @@ type SessionLike = {
 async function loadLRWithRelations(lrId: string) {
   return prisma.lRRequest.findUnique({
     where: { id: lrId },
-    include: { driver: true, branch: true, company: true },
+    include: { executive: true, branch: true, company: true },
   });
 }
 
 function checkAccess(
   session: SessionLike,
-  lr: { driverId: string; companyId: string },
+  lr: { executiveId: string; companyId: string },
 ) {
-  if (session.role === "driver" && lr.driverId !== session.userId) {
+  if (session.role === "executive" && lr.executiveId !== session.userId) {
     return forbidden();
   }
   if (
@@ -59,7 +59,7 @@ export async function GET(
 
   return jsonOk({
     ...toLR(lr),
-    driver: toUser(lr.driver),
+    executive: toUser(lr.executive),
     branch: toBranch(lr.branch),
     company: toCompany(lr.company),
   });
@@ -101,7 +101,7 @@ export async function PUT(
     }
 
     if (action === "delivered") {
-      if (session.role !== "driver") return forbidden();
+      if (session.role !== "executive") return forbidden();
       const updated = await markDelivered(id, session.userId);
       return jsonOk(updated);
     }
@@ -113,7 +113,7 @@ export async function PUT(
 }
 
 /**
- * General LR field update — only the owning driver can edit, and only
+ * General LR field update — only the owning executive can edit, and only
  * while the LR is pending or rejected.
  */
 export async function PATCH(
@@ -127,7 +127,7 @@ export async function PATCH(
   const lr = await loadLRWithRelations(id);
   if (!lr) return jsonError("LR not found", 404);
 
-  if (session.role !== "driver" || lr.driverId !== session.userId) {
+  if (session.role !== "executive" || lr.executiveId !== session.userId) {
     return forbidden();
   }
   if (lr.status !== "pending" && lr.status !== "rejected") {
@@ -172,11 +172,11 @@ export async function PATCH(
     const updated = await prisma.lRRequest.update({
       where: { id },
       data,
-      include: { driver: true, branch: true, company: true },
+      include: { executive: true, branch: true, company: true },
     });
     return jsonOk({
       ...toLR(updated),
-      driver: toUser(updated.driver),
+      executive: toUser(updated.executive),
       branch: toBranch(updated.branch),
       company: toCompany(updated.company),
     });

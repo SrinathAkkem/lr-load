@@ -12,7 +12,7 @@ export async function GET() {
       description: plan.description,
       maxLrPerMonth: plan.maxLrPerMonth,
       maxBranches: plan.maxBranches,
-      maxDrivers: plan.maxDrivers,
+      maxExecutives: plan.maxExecutives,
       priceMonthly: plan.priceMonthly,
       priceYearly: plan.priceYearly,
     })),

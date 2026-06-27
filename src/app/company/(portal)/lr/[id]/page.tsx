@@ -29,7 +29,7 @@ export default async function CompanyLRDetailPage({
 
   const lrRow = await prisma.lRRequest.findUnique({
     where: { id },
-    include: { driver: true, branch: true, company: true },
+    include: { executive: true, branch: true, company: true },
   });
   if (!lrRow || lrRow.companyId !== session.companyId) notFound();
 
@@ -52,7 +52,7 @@ export default async function CompanyLRDetailPage({
           </p>
           <h1 className="text-3xl font-bold">{lr.trackingId}</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Submitted {formatDate(lr.createdAt)} · Driver: {lrRow.driver.name}
+            Submitted {formatDate(lr.createdAt)} · Executive: {lrRow.executive.name}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -168,12 +168,12 @@ export default async function CompanyLRDetailPage({
           )}
 
           {lr.signatureUrl && (
-            <Card title="Driver Signature">
+            <Card title="Authorised Signature">
               <div className="rounded-xl border bg-white p-4">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={lr.signatureUrl}
-                  alt="Driver signature"
+                  alt="Authorised signature"
                   className="mx-auto h-32 object-contain"
                 />
               </div>
@@ -182,9 +182,9 @@ export default async function CompanyLRDetailPage({
         </div>
 
         <div className="space-y-6">
-          <Card title="Driver">
-            <p className="font-semibold">{lrRow.driver.name}</p>
-            <p className="text-sm text-slate-500">+91 {lrRow.driver.mobile}</p>
+          <Card title="Executive">
+            <p className="font-semibold">{lrRow.executive.name}</p>
+            <p className="text-sm text-slate-500">+91 {lrRow.executive.mobile}</p>
             <p className="mt-2 text-xs uppercase tracking-wide text-slate-400">
               Branch
             </p>

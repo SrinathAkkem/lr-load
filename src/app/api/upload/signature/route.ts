@@ -8,14 +8,14 @@ import { jsonError, jsonOk } from "@/lib/api/response";
 import { saveUpload } from "@/lib/storage/local-storage";
 
 /**
- * Driver uploads a finger-drawn signature image. Signature canvases on the
+ * Executive uploads a finger-drawn signature image. Signature canvases on the
  * mobile app emit a base64 PNG data URI, so we accept JSON-only here for
  * symmetry with the photo route.
  */
 export async function POST(req: NextRequest) {
   const session = await getAuthFromRequest(req);
   if (!session) return unauthorized();
-  if (session.role !== "driver") return forbidden();
+  if (session.role !== "executive") return forbidden();
 
   try {
     const body = await req.json().catch(() => ({}));

@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { RonoLogo, RonoGradientButton } from "@/components/rono/brand";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   InputOTP,
@@ -11,55 +10,14 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { toast } from "sonner";
-import { Eye, EyeOff, KeyRound, ShieldCheck } from "lucide-react";
-
-type Mode = "password" | "otp";
 
 export default function CompanyLoginPage() {
   const router = useRouter();
-  const [mode, setMode] = useState<Mode>("password");
-
-  // Password tab state
-  const [identifier, setIdentifier] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-
-  // OTP tab state
   const [mobile, setMobile] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState("");
-
   const [loading, setLoading] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
-
-  async function handlePasswordLogin(e: React.FormEvent) {
-    e.preventDefault();
-    if (!identifier.trim() || !password) {
-      toast.error("Enter your mobile/email and password");
-      return;
-    }
-    setLoading(true);
-    try {
-      const res = await fetch("/api/auth/login-company", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ identifier: identifier.trim(), password }),
-      });
-      const data = await res.json();
-      if (!data.success) {
-        toast.error(data.error ?? "Login failed");
-        setLoading(false);
-        return;
-      }
-      toast.success("Welcome back!");
-      setRedirecting(true);
-      router.push("/company/dashboard");
-      router.refresh();
-    } catch {
-      toast.error("Network error. Please retry.");
-      setLoading(false);
-    }
-  }
 
   async function sendOtp() {
     if (mobile.length !== 10) return;
@@ -125,10 +83,9 @@ export default function CompanyLoginPage() {
   return (
     <div className="flex min-h-screen">
       <aside className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-br from-[#5a3dc8] via-[#4a2fb8] to-[#3a1fa0] p-12 text-white lg:flex">
-        {/* Decorative circles */}
         <div className="absolute -right-16 -top-20 h-64 w-64 rounded-full bg-white/5" />
         <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-white/5" />
-        
+
         <div className="relative z-10">
           <RonoLogo className="text-white [&_span]:text-white" />
         </div>
@@ -138,24 +95,9 @@ export default function CompanyLoginPage() {
             Run your transport company on autopilot.
           </h1>
           <p className="mt-4 text-lg font-semibold text-white/60">
-            Approve LRs, manage drivers and track every shipment from a single
+            Approve LRs, manage executives and track every shipment from a single
             dashboard. Powered by RonoHub.
           </p>
-
-          <ul className="mt-8 space-y-3 text-sm font-semibold text-white/80">
-            <li className="flex items-start gap-2">
-              <ShieldCheck className="mt-0.5 h-4 w-4 text-[#2ecc71]" />
-              Audit-grade trail for every approval and rejection.
-            </li>
-            <li className="flex items-start gap-2">
-              <ShieldCheck className="mt-0.5 h-4 w-4 text-[#2ecc71]" />
-              Branded LR PDFs with QR codes auto-generated on approval.
-            </li>
-            <li className="flex items-start gap-2">
-              <ShieldCheck className="mt-0.5 h-4 w-4 text-[#2ecc71]" />
-              Per-company quotas managed by the platform admin.
-            </li>
-          </ul>
         </div>
 
         <div className="relative z-10 flex gap-2">
@@ -171,167 +113,83 @@ export default function CompanyLoginPage() {
             <RonoLogo />
           </div>
 
-          <h2 className="text-2xl font-extrabold text-[#2d2d4e]">Welcome back 👋</h2>
+          <h2 className="text-2xl font-extrabold text-[#2d2d4e]">Welcome back</h2>
           <p className="mt-2 text-sm font-semibold text-[#9ca3af]">
-            Sign in to manage your fleet, branches, and lorry receipts.
+            Sign in with the mobile number registered by your platform admin.
           </p>
 
-          <div className="mt-6 inline-flex rounded-full border border-[#e8edf5] bg-[#fafbff] p-1 text-sm font-bold">
-            <button
-              type="button"
-              onClick={() => setMode("password")}
-              className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 transition ${
-                mode === "password"
-                  ? "bg-gradient-to-r from-[#7b4fd4] to-[#3b9fe8] text-white shadow-md"
-                  : "text-[#9ca3af] hover:text-[#7b4fd4]"
-              }`}
-            >
-              <KeyRound className="h-3.5 w-3.5" />
-              Password
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode("otp")}
-              className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 transition ${
-                mode === "otp"
-                  ? "bg-gradient-to-r from-[#7b4fd4] to-[#3b9fe8] text-white shadow-md"
-                  : "text-[#9ca3af] hover:text-[#7b4fd4]"
-              }`}
-            >
-              <ShieldCheck className="h-3.5 w-3.5" />
-              OTP
-            </button>
-          </div>
-
-          {mode === "password" ? (
-            <form onSubmit={handlePasswordLogin} className="mt-6 space-y-5">
-              <div>
-                <Label htmlFor="identifier">Mobile or Email</Label>
-                <Input
-                  id="identifier"
-                  value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
-                  placeholder="9876543210 or admin@company.com"
-                  className="mt-1.5"
-                  required
-                  autoComplete="username"
+          <div className="mt-6 space-y-5">
+            <div>
+              <Label htmlFor="mobile">Mobile Number</Label>
+              <div className="mt-1.5 flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus-within:border-violet-300 focus-within:ring-2 focus-within:ring-violet-100">
+                <span className="font-semibold text-slate-500">+91</span>
+                <input
+                  id="mobile"
+                  inputMode="numeric"
+                  value={mobile}
+                  onChange={(e) =>
+                    setMobile(e.target.value.replace(/\D/g, "").slice(0, 10))
+                  }
+                  placeholder="98765 43210"
+                  className="flex-1 border-0 bg-transparent outline-none"
+                  autoComplete="tel-national"
+                  disabled={otpSent}
                 />
               </div>
+            </div>
 
-              <div>
-                <Label htmlFor="password">Password</Label>
-                <div className="relative mt-1.5">
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pr-10"
-                    required
-                    autoComplete="current-password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                    aria-label={
-                      showPassword ? "Hide password" : "Show password"
-                    }
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
-                <p className="mt-1.5 text-xs text-slate-400">
-                  Don&apos;t have a password yet? Use OTP to sign in and set
-                  one later from your profile.
-                </p>
-              </div>
-
+            {!otpSent ? (
               <RonoGradientButton
-                type="submit"
-                disabled={loading}
+                type="button"
+                onClick={sendOtp}
+                disabled={loading || mobile.length !== 10}
                 className="w-full"
               >
-                {loading ? "Signing in…" : "Sign In"}
+                {loading ? "Sending..." : "Send OTP"}
               </RonoGradientButton>
-            </form>
-          ) : (
-            <div className="mt-6 space-y-5">
-              <div>
-                <Label htmlFor="mobile">Mobile Number</Label>
-                <div className="mt-1.5 flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus-within:border-violet-300 focus-within:ring-2 focus-within:ring-violet-100">
-                  <span className="font-semibold text-slate-500">+91</span>
-                  <input
-                    id="mobile"
-                    inputMode="numeric"
-                    value={mobile}
-                    onChange={(e) =>
-                      setMobile(e.target.value.replace(/\D/g, "").slice(0, 10))
-                    }
-                    placeholder="98765 43210"
-                    className="flex-1 border-0 bg-transparent outline-none"
-                    autoComplete="tel-national"
-                  />
-                </div>
-              </div>
-
-              {!otpSent ? (
-                <RonoGradientButton
-                  type="button"
-                  onClick={sendOtp}
-                  disabled={loading || mobile.length !== 10}
-                  className="w-full"
-                >
-                  {loading ? "Sending…" : "Send OTP"}
-                </RonoGradientButton>
-              ) : (
-                <>
-                  <div>
-                    <Label>Enter 6-digit OTP</Label>
-                    <div className="mt-1.5 flex justify-center">
-                      <InputOTP maxLength={6} value={otp} onChange={setOtp}>
-                        <InputOTPGroup>
-                          {Array.from({ length: 6 }).map((_, i) => (
-                            <InputOTPSlot key={i} index={i} />
-                          ))}
-                        </InputOTPGroup>
-                      </InputOTP>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOtp("");
-                        setOtpSent(false);
-                      }}
-                      className="mt-2 text-xs text-violet-600 hover:underline"
-                    >
-                      Wrong number? Edit it.
-                    </button>
+            ) : (
+              <>
+                <div>
+                  <Label>Enter 6-digit OTP</Label>
+                  <div className="mt-1.5 flex justify-center">
+                    <InputOTP maxLength={6} value={otp} onChange={setOtp}>
+                      <InputOTPGroup>
+                        {Array.from({ length: 6 }).map((_, i) => (
+                          <InputOTPSlot key={i} index={i} />
+                        ))}
+                      </InputOTPGroup>
+                    </InputOTP>
                   </div>
-                  <RonoGradientButton
-                    type="button"
-                    onClick={verifyOtp}
-                    disabled={loading || otp.length !== 6}
-                    className="w-full"
-                  >
-                    {loading ? "Verifying…" : "Verify & Sign In"}
-                  </RonoGradientButton>
                   <button
                     type="button"
-                    onClick={sendOtp}
-                    disabled={loading}
-                    className="block w-full text-center text-xs text-slate-500 hover:text-violet-700"
+                    onClick={() => {
+                      setOtp("");
+                      setOtpSent(false);
+                    }}
+                    className="mt-2 text-xs text-violet-600 hover:underline"
                   >
-                    Didn&apos;t get the code? Resend
+                    Wrong number? Edit it.
                   </button>
-                </>
-              )}
-            </div>
-          )}
+                </div>
+                <RonoGradientButton
+                  type="button"
+                  onClick={verifyOtp}
+                  disabled={loading || otp.length !== 6}
+                  className="w-full"
+                >
+                  {loading ? "Verifying..." : "Verify"}
+                </RonoGradientButton>
+                <button
+                  type="button"
+                  onClick={sendOtp}
+                  disabled={loading}
+                  className="block w-full text-center text-xs text-slate-500 hover:text-violet-700"
+                >
+                  Resend
+                </button>
+              </>
+            )}
+          </div>
 
           <div className="mt-8 rounded-xl border border-blue-100 bg-blue-50 p-4 text-xs leading-relaxed text-blue-800">
             By signing in you agree to RonoHub&apos;s acceptable-use policy. All

@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
       ...(branchId && branchId !== "all" ? { branchId } : {}),
     },
     orderBy: { createdAt: "desc" },
-    include: { driver: true, branch: true },
+    include: { executive: true, branch: true },
   });
 
   const headers = [
@@ -77,8 +77,8 @@ export async function GET(req: NextRequest) {
     "Date",
     "Status",
     "Branch",
-    "Driver",
-    "Driver Mobile",
+    "Executive",
+    "Executive Mobile",
     "Vehicle",
     "Origin",
     "Destination",
@@ -99,8 +99,8 @@ export async function GET(req: NextRequest) {
     lr.createdAt.toISOString().slice(0, 10),
     lr.status,
     `${lr.branch.name} · ${lr.branch.city}`,
-    lr.driver.name,
-    `+91 ${lr.driver.mobile}`,
+    lr.executive.name,
+    `+91 ${lr.executive.mobile}`,
     lr.vehicleNumber,
     lr.originCity,
     lr.destinationCity,

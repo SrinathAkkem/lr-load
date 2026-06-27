@@ -16,9 +16,9 @@ const KIND_FROM_LEGACY: Record<string, UploadKind> = {
   stamp: "stamps",
 };
 
-const ROLE_FOR_KIND: Record<UploadKind, ("driver" | "company_admin")[]> = {
-  photos: ["driver"],
-  signatures: ["driver"],
+const ROLE_FOR_KIND: Record<UploadKind, ("executive" | "company_admin")[]> = {
+  photos: ["executive"],
+  signatures: ["executive"],
   logos: ["company_admin"],
   stamps: ["company_admin"],
 };
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     const allowedRoles = ROLE_FOR_KIND[kind];
     if (
       session.role !== "super_admin" &&
-      !allowedRoles.includes(session.role as "driver" | "company_admin")
+      !allowedRoles.includes(session.role as "executive" | "company_admin")
     ) {
       return forbidden();
     }

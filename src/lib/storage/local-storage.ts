@@ -13,10 +13,13 @@ import { randomBytes } from "crypto";
  *                     blob bucket. Required on Vercel because the function
  *                     filesystem is read-only.
  *
+ *   • "s3"            → AWS S3 with optional CloudFront CDN_URL prefix
+ *
  * Backend selection (in priority order):
- *   1. `STORAGE_DRIVER=vercel-blob | disk`     ← explicit override
- *   2. `BLOB_READ_WRITE_TOKEN` is set           → vercel-blob
- *   3. fallback                                  → disk
+ *   1. `STORAGE_DRIVER=vercel-blob | disk | s3`  ← explicit override
+ *   2. `S3_BUCKET` is set                         → s3
+ *   3. `BLOB_READ_WRITE_TOKEN` is set             → vercel-blob
+ *   4. fallback                                   → disk
  *
  * Vercel auto-injects `BLOB_READ_WRITE_TOKEN` when a Blob store is connected
  * to the project, so a Vercel deploy needs zero env changes after setup.
@@ -69,11 +72,14 @@ export interface SaveArgs {
   ownerId: string;
 }
 
-type Driver = "disk" | "vercel-blob";
+type StorageBackend = "disk" | "vercel-blob" | "s3";
 
-function resolveDriver(): Driver {
+function resolveBackend(): StorageBackend {
   const explicit = process.env.STORAGE_DRIVER?.toLowerCase().trim();
-  if (explicit === "vercel-blob" || explicit === "disk") return explicit;
+  if (explicit === "vercel-blob" || explicit === "disk" || explicit === "s3") {
+    return explicit;
+  }
+  if (process.env.S3_BUCKET) return "s3";
   if (process.env.BLOB_READ_WRITE_TOKEN) return "vercel-blob";
   return "disk";
 }
@@ -139,13 +145,43 @@ async function saveToVercelBlob(args: SaveArgs): Promise<SaveResult> {
   };
 }
 
+async function saveToS3(args: SaveArgs): Promise<SaveResult> {
+  const { S3Client, PutObjectCommand } = await import("@aws-sdk/client-s3");
+  const bucket = process.env.S3_BUCKET;
+  if (!bucket) throw new Error("S3_BUCKET is not configured");
+
+  const filename = buildFilename(args);
+  const key = `${args.kind}/${filename}`;
+  const body = Buffer.isBuffer(args.data) ? args.data : Buffer.from(args.data);
+  const region = process.env.AWS_REGION ?? "ap-south-1";
+
+  const client = new S3Client({ region });
+  await client.send(
+    new PutObjectCommand({
+      Bucket: bucket,
+      Key: key,
+      Body: body,
+      ContentType: args.mime,
+      CacheControl: "public, max-age=2592000",
+    }),
+  );
+
+  const cdn = process.env.CDN_URL?.replace(/\/$/, "");
+  const url = cdn
+    ? `${cdn}/${key}`
+    : `https://${bucket}.s3.${region}.amazonaws.com/${key}`;
+
+  return { url, bytes: body.byteLength, mime: args.mime };
+}
+
 // ── Public API ───────────────────────────────────────────────────────────────
 
 export async function saveUpload(args: SaveArgs): Promise<SaveResult> {
   validate(args);
-  return resolveDriver() === "vercel-blob"
-    ? saveToVercelBlob(args)
-    : saveToDisk(args);
+  const backend = resolveBackend();
+  if (backend === "vercel-blob") return saveToVercelBlob(args);
+  if (backend === "s3") return saveToS3(args);
+  return saveToDisk(args);
 }
 
 /** Decode a `data:image/png;base64,...` payload into raw bytes + mime. */

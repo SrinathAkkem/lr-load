@@ -17,14 +17,14 @@ export async function GET(req: NextRequest) {
   if (!session) return unauthorized();
   if (session.role !== "company_admin" || !session.companyId) return forbidden();
 
-  const [company, stats, topRoutes, branchCount, driverCount, recentLrs] =
+  const [company, stats, topRoutes, branchCount, executiveCount, recentLrs] =
     await Promise.all([
       prisma.company.findUnique({ where: { id: session.companyId } }),
       computeDashboardStats(session.companyId),
       getTopRoutes(session.companyId),
       prisma.branch.count({ where: { companyId: session.companyId } }),
       prisma.user.count({
-        where: { companyId: session.companyId, role: "driver" },
+        where: { companyId: session.companyId, role: "executive" },
       }),
       prisma.lRRequest.findMany({
         where: { companyId: session.companyId },
@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
     topRoutes,
     quota: {
       branches: { used: branchCount, max: company?.maxBranches ?? 0 },
-      drivers: { used: driverCount, max: company?.maxDrivers ?? 0 },
+      executives: { used: executiveCount, max: company?.maxExecutives ?? 0 },
       lrs: { used: stats.totalLrs, max: company?.maxLrPerMonth ?? 0 },
     },
     recentLrs: recentLrs.map(toLR),

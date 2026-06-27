@@ -22,13 +22,13 @@ export async function PUT(
 
   const data: {
     maxBranches?: number;
-    maxDrivers?: number;
+    maxExecutives?: number;
     maxLrPerMonth?: number;
   } = {};
   if (body.maxBranches !== undefined)
     data.maxBranches = Math.max(1, Number(body.maxBranches));
-  if (body.maxDrivers !== undefined)
-    data.maxDrivers = Math.max(1, Number(body.maxDrivers));
+  if (body.maxExecutives !== undefined)
+    data.maxExecutives = Math.max(1, Number(body.maxExecutives));
   if (body.maxLrPerMonth !== undefined)
     data.maxLrPerMonth = Math.max(1, Number(body.maxLrPerMonth));
 

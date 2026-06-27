@@ -14,15 +14,15 @@ export async function PUT(
 ) {
   const session = await getAuthFromRequest(req);
   if (!session) return unauthorized();
-  if (session.role !== "driver") return forbidden();
+  if (session.role !== "executive") return forbidden();
 
   const { id } = await params;
   const lr = await prisma.lRRequest.findUnique({
     where: { id },
-    select: { driverId: true },
+    select: { executiveId: true },
   });
   if (!lr) return jsonError("LR not found", 404);
-  if (lr.driverId !== session.userId) return forbidden();
+  if (lr.executiveId !== session.userId) return forbidden();
 
   try {
     const updated = await markDelivered(id, session.userId);

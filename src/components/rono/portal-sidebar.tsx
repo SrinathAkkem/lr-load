@@ -38,7 +38,7 @@ const superAdminNav: NavGroup[] = [
     items: [
       { title: "Dashboard", href: "/super-admin/dashboard", icon: LayoutDashboard },
       { title: "Companies", href: "/super-admin/companies", icon: Building2 },
-      { title: "All Drivers", href: "/super-admin/drivers", icon: Users },
+      { title: "All Executives", href: "/super-admin/executives", icon: Users },
     ],
   },
   {
@@ -57,7 +57,7 @@ const companyAdminNav: NavGroup[] = [
       { title: "Dashboard", href: "/company/dashboard", icon: LayoutDashboard },
       { title: "LR Management", href: "/company/lr", icon: FileText, badgeKey: "pendingLrs" },
       { title: "Branch Management", href: "/company/branches", icon: GitBranch },
-      { title: "Driver Management", href: "/company/drivers", icon: Users },
+      { title: "Executive Management", href: "/company/executives", icon: Users },
       { title: "Reports", href: "/company/reports", icon: BarChart3 },
     ],
   },

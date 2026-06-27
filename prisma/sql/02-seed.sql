@@ -18,7 +18,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- ─── Companies ───────────────────────────────────────────────────────────────
 INSERT INTO `Company`
   (`id`, `name`, `address`, `gstNumber`, `lrCode`, `contactPhone`,
-   `maxBranches`, `maxDrivers`, `maxLrPerMonth`, `status`, `createdAt`, `updatedAt`)
+   `maxBranches`, `maxExecutives`, `maxLrPerMonth`, `status`, `createdAt`, `updatedAt`)
 VALUES
   ('comp_vlp', 'Venkateswara Logistics Pvt. Ltd.',
    'Plot 22, Transport Nagar, Hyderabad — 500018, Telangana',
@@ -68,16 +68,16 @@ VALUES
    'comp_vlp', NULL, 'Rajesh Kumar', 'active', NOW(3), NOW(3)),
   ('user_admin_abc', '9876543211', NULL, NULL, 'company_admin',
    'comp_abc', NULL, 'Rajan Sharma', 'active', NOW(3), NOW(3)),
-  ('user_driver_ravi', '9012345678', NULL, NULL, 'driver',
+  ('user_driver_ravi', '9012345678', NULL, NULL, 'executive',
    'comp_abc', 'br_abc_hyd', 'Ravi Kumar', 'active', NOW(3), NOW(3)),
-  ('user_driver_suresh', '9988776655', NULL, NULL, 'driver',
+  ('user_driver_suresh', '9988776655', NULL, NULL, 'executive',
    'comp_vlp', 'br_hyd', 'Suresh Rao', 'active', NOW(3), NOW(3)),
-  ('user_driver_mahesh', '9876512345', NULL, NULL, 'driver',
+  ('user_driver_mahesh', '9876512345', NULL, NULL, 'executive',
    'comp_vlp', 'br_wgl', 'Mahesh Kumar', 'active', NOW(3), NOW(3));
 
 -- ─── Sample LR requests ──────────────────────────────────────────────────────
 INSERT INTO `LRRequest`
-  (`id`, `lrNumber`, `trackingId`, `companyId`, `branchId`, `driverId`,
+  (`id`, `lrNumber`, `trackingId`, `companyId`, `branchId`, `executiveId`,
    `consignorName`, `consignorAddress`, `consigneeName`, `consigneeAddress`, `consigneePhone`,
    `originCity`, `destinationCity`, `vehicleNumber`,
    `goodsDescription`, `noOfPackages`, `weightKg`, `declaredValue`, `freightAmount`,

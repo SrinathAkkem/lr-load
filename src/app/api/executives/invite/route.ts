@@ -7,14 +7,14 @@ import {
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { prisma } from "@/lib/db/prisma";
 import { toUser } from "@/lib/db/serialize";
-import { inviteDriverSchema } from "@/lib/validations/lr";
+import { inviteExecutiveSchema } from "@/lib/validations/lr";
 import { recordAuditEvent } from "@/lib/services/audit-log";
 
 /**
- * Invite a driver by mobile number. The created `User` row starts in
+ * Invite an executive by mobile number. The created `User` row starts in
  * `invited` status and is flipped to `active` on first successful OTP verify.
  *
- * Same logic as `POST /api/drivers` — kept here as a brief-aligned alias.
+ * Same logic as `POST /api/executives` — kept here as a brief-aligned alias.
  */
 export async function POST(req: NextRequest) {
   const session = await getAuthFromRequest(req);
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json().catch(() => ({}));
-  const parsed = inviteDriverSchema.safeParse(body);
+  const parsed = inviteExecutiveSchema.safeParse(body);
   if (!parsed.success) {
     return jsonError(parsed.error.errors[0]?.message ?? "Invalid input");
   }
@@ -35,11 +35,11 @@ export async function POST(req: NextRequest) {
   if (!company) return jsonError("Company not found", 404);
 
   const existingCount = await prisma.user.count({
-    where: { companyId: session.companyId, role: "driver" },
+    where: { companyId: session.companyId, role: "executive" },
   });
-  if (existingCount >= company.maxDrivers) {
+  if (existingCount >= company.maxExecutives) {
     return jsonError(
-      "Driver limit reached. Contact the platform admin to raise it.",
+      "Executive limit reached. Contact the platform admin to raise it.",
     );
   }
 
@@ -53,13 +53,13 @@ export async function POST(req: NextRequest) {
   });
   if (!branch) return jsonError("Branch does not belong to this company", 400);
 
-  const driver = await prisma.user.create({
+  const executive = await prisma.user.create({
     data: {
       mobile: parsed.data.mobile,
-      role: "driver",
+      role: "executive",
       companyId: session.companyId,
       branchId: parsed.data.branchId,
-      name: parsed.data.name?.trim() || `Driver ${parsed.data.mobile.slice(-4)}`,
+      name: parsed.data.name?.trim() || `Executive ${parsed.data.mobile.slice(-4)}`,
       status: "invited",
     },
   });
@@ -69,11 +69,11 @@ export async function POST(req: NextRequest) {
     actorName: session.name,
     actorRole: session.role,
     companyId: session.companyId,
-    action: "driver.invite",
-    target: driver.name,
-    metadata: { mobile: driver.mobile, branchId: parsed.data.branchId },
+    action: "executive.invite",
+    target: executive.name,
+    metadata: { mobile: executive.mobile, branchId: parsed.data.branchId },
     ip: req.headers.get("x-forwarded-for") ?? null,
   });
 
-  return jsonOk(toUser(driver), 201);
+  return jsonOk(toUser(executive), 201);
 }

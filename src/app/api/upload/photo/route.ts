@@ -8,7 +8,7 @@ import { jsonError, jsonOk } from "@/lib/api/response";
 import { saveUpload } from "@/lib/storage/local-storage";
 
 /**
- * Driver uploads a goods photo from the mobile app.
+ * Executive uploads a goods photo from the mobile app.
  *
  * Accepts either:
  *   • multipart/form-data with `file` (preferred, used by RN's FormData)
@@ -17,7 +17,7 @@ import { saveUpload } from "@/lib/storage/local-storage";
 export async function POST(req: NextRequest) {
   const session = await getAuthFromRequest(req);
   if (!session) return unauthorized();
-  if (session.role !== "driver") return forbidden();
+  if (session.role !== "executive") return forbidden();
 
   try {
     const ct = req.headers.get("content-type") ?? "";

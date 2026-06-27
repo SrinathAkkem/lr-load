@@ -1,4 +1,4 @@
-export type UserRole = "super_admin" | "company_admin" | "driver";
+export type UserRole = "super_admin" | "company_admin" | "executive";
 export type UserStatus = "active" | "inactive" | "invited";
 export type CompanyStatus = "active" | "suspended";
 export type LRStatus =
@@ -19,7 +19,7 @@ export interface Company {
   lrCode: string;
   contactPhone: string;
   maxBranches: number;
-  maxDrivers: number;
+  maxExecutives: number;
   maxLrPerMonth: number;
   status: CompanyStatus;
   createdAt: string;
@@ -53,7 +53,7 @@ export interface LRRequest {
   trackingId: string;
   companyId: string;
   branchId: string;
-  driverId: string;
+  executiveId: string;
   consignorName: string;
   consignorAddress: string;
   consigneeName: string;

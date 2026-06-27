@@ -13,7 +13,7 @@ export default async function SuperAdminDashboardPage() {
   const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
   const monthEnd = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1);
 
-  const [companies, totalDrivers, totalLrs, monthLrCount, daily, monthly, newDriversThisMonth] =
+  const [companies, totalExecutives, totalLrs, monthLrCount, daily, monthly, newExecutivesThisMonth] =
     await Promise.all([
       prisma.company.findMany({
         orderBy: { createdAt: "desc" },
@@ -22,12 +22,12 @@ export default async function SuperAdminDashboardPage() {
             select: {
               lrRequests: { where: { createdAt: { gte: monthStart, lt: monthEnd } } },
               branches: true,
-              users: { where: { role: "driver" } },
+              users: { where: { role: "executive" } },
             },
           },
         },
       }),
-      prisma.user.count({ where: { role: "driver", status: "active" } }),
+      prisma.user.count({ where: { role: "executive", status: "active" } }),
       prisma.lRRequest.count(),
       prisma.lRRequest.count({
         where: { createdAt: { gte: monthStart, lt: monthEnd } },
@@ -36,7 +36,7 @@ export default async function SuperAdminDashboardPage() {
       getMonthlyLrCounts(null, 12),
       prisma.user.count({
         where: {
-          role: "driver",
+          role: "executive",
           status: "active",
           createdAt: { gte: monthStart, lt: monthEnd },
         },
@@ -57,7 +57,7 @@ export default async function SuperAdminDashboardPage() {
   const recentActivity = await prisma.lRRequest.findMany({
     orderBy: { createdAt: "desc" },
     take: 5,
-    include: { company: true, driver: true },
+    include: { company: true, executive: true },
   });
 
   const monthName = new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" });
@@ -84,10 +84,10 @@ export default async function SuperAdminDashboardPage() {
             <Truck className="h-7 w-7 text-[#3b9fe8]" />
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#6b7280]">Active Drivers</p>
-            <p className="text-3xl font-extrabold text-[#2d2d4e]">{totalDrivers.toLocaleString("en-IN")}</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#6b7280]">Active Executives</p>
+            <p className="text-3xl font-extrabold text-[#2d2d4e]">{totalExecutives.toLocaleString("en-IN")}</p>
             <p className="text-xs font-bold text-[#3b9fe8]">
-              +{newDriversThisMonth} joined this month
+              +{newExecutivesThisMonth} joined this month
             </p>
           </div>
         </div>
@@ -167,11 +167,11 @@ export default async function SuperAdminDashboardPage() {
                         <span className="font-extrabold text-[#2d2d4e]">{lr.company.name}</span>
                         {" "}
                         {lr.status === "pending"
-                          ? `— LR submitted by ${lr.driver.name}.`
+                          ? `— LR submitted by ${lr.executive.name}.`
                           : lr.status === "approved"
                             ? `— LR ${lr.trackingId} approved.`
                             : lr.status === "delivered"
-                              ? `— marked delivered by driver.`
+                              ? `— marked delivered by executive.`
                               : lr.status === "rejected"
                                 ? `— was suspended by admin.`
                                 : `— LR ${lr.trackingId} ${lr.status}.`}
@@ -212,7 +212,7 @@ export default async function SuperAdminDashboardPage() {
                 <th className="pb-3 pr-4 text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">#</th>
                 <th className="pb-3 pr-4 text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">Company Name</th>
                 <th className="pb-3 pr-4 text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">Branches</th>
-                <th className="pb-3 pr-4 text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">Drivers</th>
+                <th className="pb-3 pr-4 text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">Executives</th>
                 <th className="pb-3 pr-4 text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">LRs This Month</th>
                 <th className="pb-3 text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">Status</th>
               </tr>
@@ -250,7 +250,7 @@ export default async function SuperAdminDashboardPage() {
                       {company._count.branches} / {company.maxBranches}
                     </td>
                     <td className="py-4 pr-4 text-sm font-semibold text-[#6b7280]">
-                      {company._count.users} / {company.maxDrivers}
+                      {company._count.users} / {company.maxExecutives}
                     </td>
                     <td className="py-4 pr-4">
                       <div className="flex items-center gap-3">

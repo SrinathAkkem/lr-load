@@ -45,7 +45,7 @@ export default async function SuperAdminDriversPage({
     }),
     prisma.user.findMany({
       where: {
-        role: "driver",
+        role: "executive",
         ...(status !== "all"
           ? { status: status as "active" | "invited" | "inactive" }
           : {}),
@@ -63,7 +63,7 @@ export default async function SuperAdminDriversPage({
       include: {
         branch: { select: { name: true, city: true } },
         company: { select: { name: true, lrCode: true } },
-        driverLrs: {
+        executiveLrs: {
           where: { createdAt: { gte: monthStart, lt: monthEnd } },
           select: { id: true },
         },
@@ -187,7 +187,7 @@ export default async function SuperAdminDriversPage({
                       {d.branch?.name ?? "—"}
                     </td>
                     <td className="p-4 text-slate-700">
-                      {d.driverLrs.length}
+                      {d.executiveLrs.length}
                     </td>
                     <td className="p-4">
                       <StatusPill status={d.status} />

@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
       _count: {
         select: {
           branches: true,
-          users: { where: { role: "driver" } },
+          users: { where: { role: "executive" } },
           lrRequests: {
             where: { createdAt: { gte: monthStart, lt: monthEnd } },
           },
@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
     companies.map((c) => ({
       ...toCompany(c),
       branchCount: c._count.branches,
-      driverCount: c._count.users,
+      executiveCount: c._count.users,
       lrsThisMonth: c._count.lrRequests,
     })),
   );
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
         lrCode,
         contactPhone: String(body.contactPhone ?? adminMobile),
         maxBranches: Number(body.maxBranches ?? 5),
-        maxDrivers: Number(body.maxDrivers ?? 50),
+        maxExecutives: Number(body.maxExecutives ?? 50),
         maxLrPerMonth: Number(body.maxLrPerMonth ?? 200),
         status: "active",
       },

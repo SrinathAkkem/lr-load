@@ -8,10 +8,8 @@ import { jsonError, jsonOk } from "@/lib/api/response";
 import { prisma } from "@/lib/db/prisma";
 
 /**
- * Soft-deactivate a driver. We don't hard delete because the driver may have
- * historical LRs whose `driverId` is a required FK. Setting `status` to
- * `inactive` is enough to keep them out of dispatch lists and force a
- * re-invite if they need to come back.
+ * Soft-deactivate an executive. We don't hard delete because they may have
+ * historical LRs whose `executiveId` is a required FK.
  */
 export async function DELETE(
   req: NextRequest,
@@ -24,11 +22,11 @@ export async function DELETE(
   }
 
   const { id } = await params;
-  const driver = await prisma.user.findUnique({ where: { id } });
-  if (!driver || driver.role !== "driver") {
-    return jsonError("Driver not found", 404);
+  const executive = await prisma.user.findUnique({ where: { id } });
+  if (!executive || executive.role !== "executive") {
+    return jsonError("Executive not found", 404);
   }
-  if (driver.companyId !== session.companyId) return forbidden();
+  if (executive.companyId !== session.companyId) return forbidden();
 
   await prisma.user.update({
     where: { id },

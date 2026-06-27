@@ -28,8 +28,8 @@ const ACTION_LABELS: Record<string, { label: string; tone: string }> = {
     label: "Rejected LR",
     tone: "bg-red-50 text-red-700 ring-red-200",
   },
-  "driver.invite": {
-    label: "Invited driver",
+  "executive.invite": {
+    label: "Invited executive",
     tone: "bg-blue-50 text-blue-700 ring-blue-200",
   },
   "auth.password.change": {

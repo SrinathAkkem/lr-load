@@ -17,7 +17,7 @@ interface FormState {
   adminName: string;
   adminMobile: string;
   maxBranches: string;
-  maxDrivers: string;
+  maxExecutives: string;
   maxLrPerMonth: string;
 }
 
@@ -30,7 +30,7 @@ const INITIAL: FormState = {
   adminName: "",
   adminMobile: "",
   maxBranches: "5",
-  maxDrivers: "50",
+  maxExecutives: "50",
   maxLrPerMonth: "200",
 };
 
@@ -73,7 +73,7 @@ export function AddCompanyButton() {
           adminName: form.adminName.trim() || "Company Admin",
           adminMobile,
           maxBranches: Number(form.maxBranches) || 5,
-          maxDrivers: Number(form.maxDrivers) || 50,
+          maxExecutives: Number(form.maxExecutives) || 50,
           maxLrPerMonth: Number(form.maxLrPerMonth) || 200,
         }),
       });
@@ -188,12 +188,12 @@ export function AddCompanyButton() {
                   onChange={(e) => update("maxBranches", e.target.value)}
                 />
               </Field>
-              <Field label="Max Drivers">
+              <Field label="Max Executives">
                 <Input
                   type="number"
                   min={1}
-                  value={form.maxDrivers}
-                  onChange={(e) => update("maxDrivers", e.target.value)}
+                  value={form.maxExecutives}
+                  onChange={(e) => update("maxExecutives", e.target.value)}
                 />
               </Field>
               <Field label="Max LRs per Month" full>

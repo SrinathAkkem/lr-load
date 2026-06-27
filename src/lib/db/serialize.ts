@@ -53,7 +53,7 @@ type PrismaCompany = {
   lrCode: string;
   contactPhone: string;
   maxBranches: number;
-  maxDrivers: number;
+  maxExecutives: number;
   maxLrPerMonth: number;
   status: "active" | "suspended";
   createdAt: Date;
@@ -73,7 +73,7 @@ type PrismaUser = {
   mobile: string;
   email: string | null;
   password?: string | null;
-  role: "super_admin" | "company_admin" | "driver";
+  role: "super_admin" | "company_admin" | "executive";
   companyId: string | null;
   branchId: string | null;
   name: string;
@@ -87,7 +87,7 @@ type PrismaLR = {
   trackingId: string;
   companyId: string;
   branchId: string;
-  driverId: string;
+  executiveId: string;
   consignorName: string;
   consignorAddress: string;
   consigneeName: string;
@@ -136,7 +136,7 @@ export function toCompany(c: PrismaCompany): Company {
     lrCode: c.lrCode,
     contactPhone: c.contactPhone,
     maxBranches: c.maxBranches,
-    maxDrivers: c.maxDrivers,
+    maxExecutives: c.maxExecutives,
     maxLrPerMonth: c.maxLrPerMonth,
     status: c.status,
     createdAt: c.createdAt.toISOString(),
@@ -178,7 +178,7 @@ export function toLR(lr: PrismaLR): LRRequest {
     trackingId: lr.trackingId,
     companyId: lr.companyId,
     branchId: lr.branchId,
-    driverId: lr.driverId,
+    executiveId: lr.executiveId,
     consignorName: lr.consignorName,
     consignorAddress: lr.consignorAddress,
     consigneeName: lr.consigneeName,
