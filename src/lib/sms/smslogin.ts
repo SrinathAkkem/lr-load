@@ -62,6 +62,7 @@ export async function sendOtpSms(mobile: string, code: string): Promise<void> {
   const senderId = env("SMSLOGIN_SENDER_ID") ?? "RONOHB";
   const dltEntityId = requireEnv("SMSLOGIN_DLT_ENTITY_ID");
   const dltTemplateId = requireEnv("SMSLOGIN_DLT_TEMPLATE_ID");
+  const dltTelemarketerId = env("SMSLOGIN_DLT_TELEMARKETER_ID");
   const message = getOtpMessage(code);
 
   const apiUrl = "https://smslogin.co/v3/api.php";
@@ -75,6 +76,10 @@ export async function sendOtpSms(mobile: string, code: string): Promise<void> {
     dltentityid: dltEntityId,
     dlttempid: dltTemplateId,
   });
+
+  if (dltTelemarketerId) {
+    params.set("dlttmid", dltTelemarketerId);
+  }
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 12000);

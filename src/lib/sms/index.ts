@@ -1,9 +1,9 @@
-import { isSmsLoginConfigured, isTwilioConfigured } from "@/lib/otp/config";
+import { isSmsLoginReady, isTwilioConfigured } from "@/lib/otp/config";
 import { sendOtpSms as sendViaSmsLogin } from "./smslogin";
 import { sendOtpSms as sendViaTwilio } from "./twilio";
 
 export async function sendOtpSms(mobile: string, code: string): Promise<void> {
-  if (isSmsLoginConfigured()) {
+  if (isSmsLoginReady()) {
     await sendViaSmsLogin(mobile, code);
     return;
   }
@@ -11,6 +11,15 @@ export async function sendOtpSms(mobile: string, code: string): Promise<void> {
   if (isTwilioConfigured()) {
     await sendViaTwilio(mobile, code);
     return;
+  }
+
+  if (
+    process.env.SMSLOGIN_USERNAME?.trim() &&
+    process.env.SMSLOGIN_PASSWORD?.trim()
+  ) {
+    throw new Error(
+      "SMSLogin credentials found but DLT is incomplete. Set SMSLOGIN_DLT_ENTITY_ID and SMSLOGIN_DLT_TEMPLATE_ID.",
+    );
   }
 
   throw new Error(

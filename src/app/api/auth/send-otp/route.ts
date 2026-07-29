@@ -7,6 +7,7 @@ import { sendOtpSms } from "@/lib/sms";
 import {
   DEV_OTP_CODE,
   isDevOtpBypassAllowed,
+  isOtpSmsDisabled,
   isSmsConfigured,
   shouldSendRealSms,
 } from "@/lib/otp/config";
@@ -62,7 +63,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  if (isProduction() && !isSmsConfigured()) {
+  if (isProduction() && !isSmsConfigured() && !isOtpSmsDisabled()) {
     console.error("[send-otp] Production requires SMSLOGIN_* or TWILIO_* env vars");
     return jsonError("SMS service is not configured. Contact support.", 503);
   }
