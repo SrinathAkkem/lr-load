@@ -9,11 +9,11 @@ import {
   Building2,
   MapPin,
   Plus,
-  Search,
   Pencil,
   X,
   FileText,
   CheckCircle,
+  Trash2,
 } from "lucide-react";
 
 interface Branch {
@@ -36,7 +36,6 @@ const INITIAL_FORM = { name: "", city: "", state: "Telangana" };
 
 export default function BranchesPage() {
   const [branches, setBranches] = useState<Branch[]>([]);
-  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
@@ -44,6 +43,7 @@ export default function BranchesPage() {
   const [editing, setEditing] = useState<Branch | null>(null);
   const [editForm, setEditForm] = useState(INITIAL_FORM);
   const [savingEdit, setSavingEdit] = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
   const [company, setCompany] = useState<CompanySummary | null>(null);
 
   useEffect(() => {
@@ -69,6 +69,11 @@ export default function BranchesPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function openAddModal() {
+    setForm(INITIAL_FORM);
+    setShowAdd(true);
   }
 
   async function createBranch() {
@@ -123,16 +128,29 @@ export default function BranchesPage() {
     }
   }
 
-  const visible = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return branches;
-    return branches.filter(
-      (b) =>
-        b.name.toLowerCase().includes(q) ||
-        b.city.toLowerCase().includes(q) ||
-        b.state.toLowerCase().includes(q),
-    );
-  }, [branches, search]);
+  async function deleteBranch(branch: Branch) {
+    if (
+      !confirm(
+        `Delete "${branch.name}"? This cannot be undone. Branches with executives or LRs cannot be removed.`,
+      )
+    ) {
+      return;
+    }
+    setDeleting(branch.id);
+    try {
+      const res = await fetch(`/api/branches/${branch.id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.success) {
+        toast.success("Branch deleted");
+        if (editing?.id === branch.id) setEditing(null);
+        refresh();
+      } else {
+        toast.error(data.error ?? "Couldn't delete branch");
+      }
+    } finally {
+      setDeleting(null);
+    }
+  }
 
   const used = branches.length;
   const max = company?.maxBranches ?? used;
@@ -140,7 +158,6 @@ export default function BranchesPage() {
 
   return (
     <div className="p-6 md:p-8">
-      {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-lg font-bold text-slate-900">Your Branches</h1>
@@ -153,7 +170,7 @@ export default function BranchesPage() {
             {used} / {max} branches
           </span>
           <Button
-            onClick={() => setShowAdd(true)}
+            onClick={openAddModal}
             disabled={remaining === 0}
             className="bg-violet-600 hover:bg-violet-700"
           >
@@ -163,24 +180,22 @@ export default function BranchesPage() {
         </div>
       </div>
 
-      {/* Branch Cards Grid */}
       <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {loading && branches.length === 0 ? (
           Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="h-52 animate-pulse rounded-2xl border-0 bg-white shadow-sm" />
           ))
-        ) : visible.length === 0 && branches.length > 0 ? (
-          <div className="md:col-span-2 xl:col-span-3 rounded-2xl border-0 border-dashed bg-white p-12 text-center text-sm text-slate-400">
-            No branches match your search.
+        ) : branches.length === 0 ? (
+          <div className="md:col-span-2 xl:col-span-3 rounded-2xl border border-dashed border-slate-200 bg-white p-12 text-center text-sm text-slate-400">
+            No branches yet. Add your first branch to get started.
           </div>
         ) : (
           <>
-            {visible.map((b) => (
+            {branches.map((b) => (
               <div
                 key={b.id}
                 className="rounded-2xl border-0 border-slate-100 bg-white p-5 shadow-sm transition hover:border-violet-200 hover:shadow-md"
               >
-                {/* Branch header */}
                 <div className="flex items-start gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50">
                     <Building2 className="h-5 w-5 text-violet-600" />
@@ -200,7 +215,6 @@ export default function BranchesPage() {
                   </div>
                 </div>
 
-                {/* Stats row */}
                 <div className="mt-5 flex items-center gap-4">
                   <div className="text-center">
                     <p className="text-xl font-bold text-blue-600">{b.executiveCount}</p>
@@ -216,7 +230,6 @@ export default function BranchesPage() {
                   </div>
                 </div>
 
-                {/* Action buttons */}
                 <div className="mt-5 flex items-center gap-2">
                   <button
                     type="button"
@@ -227,7 +240,7 @@ export default function BranchesPage() {
                     className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 py-2 text-xs font-semibold text-slate-700 transition hover:border-violet-300 hover:text-violet-700"
                   >
                     <Pencil className="h-3 w-3" />
-                    Edit Branch
+                    Edit
                   </button>
                   <button
                     type="button"
@@ -236,14 +249,24 @@ export default function BranchesPage() {
                     <FileText className="h-3 w-3" />
                     LRs
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => deleteBranch(b)}
+                    disabled={deleting === b.id}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-60"
+                    title="Delete branch"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                    {deleting === b.id ? "…" : "Delete"}
+                  </button>
                 </div>
               </div>
             ))}
 
-            {/* Add New Branch card */}
             {remaining > 0 && (
               <button
-                onClick={() => setShowAdd(true)}
+                type="button"
+                onClick={openAddModal}
                 className="flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-slate-200 bg-white p-8 text-slate-400 transition hover:border-violet-300 hover:text-violet-600"
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-dashed border-current">
@@ -257,53 +280,83 @@ export default function BranchesPage() {
         )}
       </div>
 
-      {/* Inline Add Branch form */}
-      <div className="mt-8 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-        <h3 className="flex items-center gap-2 text-sm font-bold text-violet-700">
-          <Plus className="h-4 w-4" />
-          Add New Branch
-        </h3>
-        <div className="mt-4 grid gap-4 md:grid-cols-4 items-end">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Branch Name</p>
-            <Input
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              placeholder="e.g. Vijayawada Branch"
-              className="mt-1.5"
-            />
-          </div>
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">City</p>
-            <Input
-              value={form.city}
-              onChange={(e) => setForm({ ...form, city: e.target.value })}
-              placeholder="e.g. Vijayawada"
-              className="mt-1.5"
-            />
-          </div>
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">State</p>
-            <Input
-              value={form.state}
-              onChange={(e) => setForm({ ...form, state: e.target.value })}
-              className="mt-1.5"
-            />
-          </div>
-          <div>
-            <Button
-              onClick={createBranch}
-              disabled={creating}
-              className="w-full bg-violet-600 hover:bg-violet-700"
-            >
-              <CheckCircle className="mr-1.5 h-4 w-4" />
-              {creating ? "Creating…" : "Create Branch"}
-            </Button>
-          </div>
+      {showAdd && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 p-4 backdrop-blur sm:items-center">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              createBranch();
+            }}
+            className="w-full max-w-lg rounded-2xl bg-white shadow-2xl"
+          >
+            <div className="flex items-center justify-between border-b p-5">
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">Add New Branch</h2>
+                <p className="text-xs text-slate-500">
+                  {remaining} branch slot{remaining === 1 ? "" : "s"} remaining
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => !creating && setShowAdd(false)}
+                className="rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="space-y-4 p-5">
+              <div>
+                <Label>Branch Name *</Label>
+                <Input
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  placeholder="e.g. Vijayawada Branch"
+                  className="mt-1.5"
+                  required
+                />
+              </div>
+              <div>
+                <Label>City *</Label>
+                <Input
+                  value={form.city}
+                  onChange={(e) => setForm({ ...form, city: e.target.value })}
+                  placeholder="e.g. Vijayawada"
+                  className="mt-1.5"
+                  required
+                />
+              </div>
+              <div>
+                <Label>State *</Label>
+                <Input
+                  value={form.state}
+                  onChange={(e) => setForm({ ...form, state: e.target.value })}
+                  className="mt-1.5"
+                  required
+                />
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-3 border-t bg-slate-50 p-5">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => !creating && setShowAdd(false)}
+                disabled={creating}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={creating}
+                className="bg-violet-600 hover:bg-violet-700"
+              >
+                <CheckCircle className="mr-1.5 h-4 w-4" />
+                {creating ? "Creating…" : "Create Branch"}
+              </Button>
+            </div>
+          </form>
         </div>
-      </div>
+      )}
 
-      {/* Edit Modal */}
       {editing && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 p-4 backdrop-blur sm:items-center">
           <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl">
@@ -343,11 +396,25 @@ export default function BranchesPage() {
                 />
               </div>
             </div>
-            <div className="flex items-center justify-end gap-3 border-t bg-slate-50 p-5">
-              <Button variant="outline" onClick={() => setEditing(null)} disabled={savingEdit}>Cancel</Button>
-              <Button onClick={saveEdit} disabled={savingEdit} className="bg-violet-600 hover:bg-violet-700">
-                {savingEdit ? "Saving…" : "Save Changes"}
+            <div className="flex items-center justify-between gap-3 border-t bg-slate-50 p-5">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => deleteBranch(editing)}
+                disabled={savingEdit || deleting === editing.id}
+                className="border-red-200 text-red-600 hover:bg-red-50"
+              >
+                <Trash2 className="mr-1.5 h-4 w-4" />
+                Delete
               </Button>
+              <div className="flex items-center gap-3">
+                <Button variant="outline" onClick={() => setEditing(null)} disabled={savingEdit}>
+                  Cancel
+                </Button>
+                <Button onClick={saveEdit} disabled={savingEdit} className="bg-violet-600 hover:bg-violet-700">
+                  {savingEdit ? "Saving…" : "Save Changes"}
+                </Button>
+              </div>
             </div>
           </div>
         </div>

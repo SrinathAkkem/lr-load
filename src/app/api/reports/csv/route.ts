@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/auth/session";
+import { getAuthFromRequest, forbidden } from "@/lib/api/auth-middleware";
 import { prisma } from "@/lib/db/prisma";
 import type { LRStatus } from "@/lib/types";
 
@@ -29,12 +29,9 @@ function escapeCsv(value: string | number | null | undefined) {
 }
 
 export async function GET(req: NextRequest) {
-  const session = await getSession();
+  const session = await getAuthFromRequest(req);
   if (!session?.companyId || session.role !== "company_admin") {
-    return NextResponse.json(
-      { success: false, error: "Forbidden" },
-      { status: 403 },
-    );
+    return forbidden();
   }
   const companyId = session.companyId;
   const url = new URL(req.url);

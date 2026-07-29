@@ -29,7 +29,7 @@ export function MobileShell({
   );
 }
 
-export function DriverBottomNav() {
+export function ExecutiveBottomNav() {
   const pathname = usePathname();
   const items = [
     { href: "/mobile/executive/home", icon: Home, label: "Home" },
@@ -52,12 +52,13 @@ export function DriverBottomNav() {
   );
 }
 
+
 export function AdminBottomNav() {
   const pathname = usePathname();
   const items = [
     { href: "/mobile/admin/home", icon: LayoutDashboard, label: "Dashboard" },
     { href: "/mobile/admin/lrs", icon: FileText, label: "LRs" },
-    { href: "/mobile/admin/drivers", icon: Users, label: "Drivers" },
+    { href: "/mobile/admin/executives", icon: Users, label: "Executives" },
     { href: "/mobile/admin/profile", icon: User, label: "Profile" },
   ];
 

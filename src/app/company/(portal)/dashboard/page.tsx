@@ -55,7 +55,7 @@ export default async function CompanyDashboardPage() {
 
   const recentLrs = recentRows.map((lr) => ({
     ...toLR(lr),
-    executiveName: lr.executive.name,
+    executiveName: lr.executive?.name ?? "Executive",
   }));
 
   const lrUsagePct = company
@@ -248,7 +248,7 @@ export default async function CompanyDashboardPage() {
                           <>LR <span className="font-semibold">{lr.trackingId}</span> approved. {lr.originCity} → {lr.destinationCity}.</>
                         )}
                         {lr.status === "pending" && (
-                          <>Driver <span className="font-semibold">{lr.executiveName}</span> submitted LR. Awaiting approval.</>
+                          <>Executive <span className="font-semibold">{lr.executiveName}</span> submitted LR. Awaiting approval.</>
                         )}
                         {lr.status === "delivered" && (
                           <>LR <span className="font-semibold">{lr.trackingId}</span> marked delivered by executive.</>

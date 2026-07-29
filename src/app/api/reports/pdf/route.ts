@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
-import { getSession } from "@/lib/auth/session";
+import { getAuthFromRequest, forbidden } from "@/lib/api/auth-middleware";
 import { prisma } from "@/lib/db/prisma";
 import { formatCurrency } from "@/lib/services/lr-service";
 import type { LRStatus } from "@/lib/types";
@@ -26,12 +26,9 @@ const BRAND_INK = rgb(0.06, 0.09, 0.16);
 const BRAND_MUTED = rgb(0.45, 0.5, 0.6);
 
 export async function GET(req: NextRequest) {
-  const session = await getSession();
+  const session = await getAuthFromRequest(req);
   if (!session?.companyId || session.role !== "company_admin") {
-    return NextResponse.json(
-      { success: false, error: "Forbidden" },
-      { status: 403 },
-    );
+    return forbidden();
   }
   const companyId = session.companyId;
   const url = new URL(req.url);

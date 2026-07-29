@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db/prisma";
 import { toLR } from "@/lib/db/serialize";
 import { StatusBadge, formatDate, formatINR } from "@/components/rono/status-badge";
 import { ApproveRejectActions } from "./actions";
+import { mediaUrl } from "@/lib/media-url";
 import { ChevronLeft, Download, ExternalLink } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -145,16 +146,19 @@ export default async function CompanyLRDetailPage({
           {lr.photos && lr.photos.length > 0 && (
             <Card title={`Goods Photos (${lr.photos.length})`}>
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                {lr.photos.map((url, i) => (
+                {lr.photos.map((url, i) => {
+                  const src = mediaUrl(url);
+                  if (!src) return null;
+                  return (
                   <a
                     key={i}
-                    href={url}
+                    href={src}
                     target="_blank"
                     rel="noreferrer"
                     className="relative aspect-square overflow-hidden rounded-xl border bg-slate-50"
                   >
                     <Image
-                      src={url}
+                      src={src}
                       alt={`Goods photo ${i + 1}`}
                       fill
                       sizes="200px"
@@ -162,17 +166,18 @@ export default async function CompanyLRDetailPage({
                       unoptimized
                     />
                   </a>
-                ))}
+                  );
+                })}
               </div>
             </Card>
           )}
 
-          {lr.signatureUrl && (
+          {lr.signatureUrl && mediaUrl(lr.signatureUrl) && (
             <Card title="Authorised Signature">
               <div className="rounded-xl border bg-white p-4">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={lr.signatureUrl}
+                  src={mediaUrl(lr.signatureUrl)}
                   alt="Authorised signature"
                   className="mx-auto h-32 object-contain"
                 />

@@ -260,7 +260,7 @@ export default function CompanyLRPage() {
                 <th className="px-6 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">LR Number</th>
                 <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Route</th>
                 <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Consignor → Consignee</th>
-                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Driver</th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Executive</th>
                 <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Date</th>
                 <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Freight</th>
                 <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Status</th>

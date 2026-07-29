@@ -6,7 +6,7 @@ import {
 } from "@/lib/api/auth-middleware";
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { prisma } from "@/lib/db/prisma";
-import { toBranch, toLR, toUser } from "@/lib/db/serialize";
+import { toBranch, toCompany, toLR, toUser } from "@/lib/db/serialize";
 import { createLRSchema } from "@/lib/validations/lr";
 import { createLR } from "@/lib/services/lr-service";
 import type { Prisma } from "@prisma/client";
@@ -17,6 +17,11 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const status = searchParams.get("status");
+  const statuses = searchParams
+    .get("statuses")
+    ?.split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
   const search = searchParams.get("search")?.trim();
   const branchId = searchParams.get("branchId");
   const from = searchParams.get("from");
@@ -29,7 +34,11 @@ export async function GET(req: NextRequest) {
     where.companyId = session.companyId;
   }
 
-  if (status && status !== "all") {
+  if (statuses && statuses.length > 0) {
+    where.status = {
+      in: statuses as import("@prisma/client").LRStatus[],
+    };
+  } else if (status && status !== "all") {
     where.status = status as Prisma.LRRequestWhereInput["status"];
   }
 
@@ -55,13 +64,14 @@ export async function GET(req: NextRequest) {
       { lrNumber: { contains: search } },
       { consigneeName: { contains: search } },
       { consignorName: { contains: search } },
+      { executive: { name: { contains: search } } },
     ];
   }
 
   const lrs = await prisma.lRRequest.findMany({
     where,
     orderBy: { createdAt: "desc" },
-    include: { executive: true, branch: true },
+    include: { executive: true, branch: true, company: true },
   });
 
   return jsonOk(
@@ -69,6 +79,7 @@ export async function GET(req: NextRequest) {
       ...toLR(lr),
       executive: toUser(lr.executive),
       branch: toBranch(lr.branch),
+      company: toCompany(lr.company),
     })),
   );
 }

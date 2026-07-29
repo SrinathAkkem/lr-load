@@ -20,7 +20,7 @@ const schema = z.object({
  * - Super admins must always provide their current password.
  * - Company admins may set a password for the first time after signing in
  *   with OTP (no `currentPassword` required when one isn't already set).
- * - Drivers don't have passwords; the request is rejected for them.
+ * - Executives don't have passwords; the request is rejected for them.
  */
 export async function POST(req: NextRequest) {
   const session = await getAuthFromRequest(req);

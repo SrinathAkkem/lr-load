@@ -74,7 +74,7 @@ export async function DELETE(
 
   if (branch._count.users > 0 || branch._count.lrRequests > 0) {
     return jsonError(
-      "Branch has drivers or LRs attached. Reassign them before deleting.",
+      "Branch has executives or LRs attached. Reassign them before deleting.",
       409,
     );
   }

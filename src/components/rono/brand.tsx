@@ -13,7 +13,7 @@ export function RonoLogo({
   return (
     <div className={cn("inline-flex items-center gap-2", className)}>
       <Image
-        src="/uploads/logos/RonoHubLogo.png"
+        src="/ronohub-logo.png"
         alt="Rono Hub Logo"
         width={width}
         height={height}

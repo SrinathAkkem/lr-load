@@ -68,11 +68,11 @@ VALUES
    'comp_vlp', NULL, 'Rajesh Kumar', 'active', NOW(3), NOW(3)),
   ('user_admin_abc', '9876543211', NULL, NULL, 'company_admin',
    'comp_abc', NULL, 'Rajan Sharma', 'active', NOW(3), NOW(3)),
-  ('user_driver_ravi', '9012345678', NULL, NULL, 'executive',
+  ('user_exec_ravi', '9012345678', NULL, NULL, 'executive',
    'comp_abc', 'br_abc_hyd', 'Ravi Kumar', 'active', NOW(3), NOW(3)),
-  ('user_driver_suresh', '9988776655', NULL, NULL, 'executive',
+  ('user_exec_suresh', '9988776655', NULL, NULL, 'executive',
    'comp_vlp', 'br_hyd', 'Suresh Rao', 'active', NOW(3), NOW(3)),
-  ('user_driver_mahesh', '9876512345', NULL, NULL, 'executive',
+  ('user_exec_mahesh', '9876512345', NULL, NULL, 'executive',
    'comp_vlp', 'br_wgl', 'Mahesh Kumar', 'active', NOW(3), NOW(3));
 
 -- ─── Sample LR requests ──────────────────────────────────────────────────────
@@ -85,7 +85,7 @@ INSERT INTO `LRRequest`
    `photos`, `signatureUrl`, `status`, `qrCode`, `pdfUrl`,
    `createdAt`, `updatedAt`, `approvedAt`, `deliveredAt`, `rejectionReason`)
 VALUES
-  ('lr_0477', NULL, 'VLP/2026/0477', 'comp_vlp', 'br_hyd', 'user_driver_suresh',
+  ('lr_0477', NULL, 'VLP/2026/0477', 'comp_vlp', 'br_hyd', 'user_exec_suresh',
    'Mehta Traders', 'Plot 12, KPHB Colony, Hyderabad — 500072, Telangana',
    'Reddy Wholesale', 'MG Road, Vijayawada — 520010, Andhra Pradesh', '9800144556',
    'Hyderabad', 'Vijayawada', 'AP39AB1234',
@@ -96,7 +96,7 @@ VALUES
    'pending', 'qr_vlp_0477', NULL,
    '2026-04-07 05:12:00', NOW(3), NULL, NULL, NULL),
 
-  ('lr_0248', NULL, 'ABC/2026/0248', 'comp_abc', 'br_abc_hyd', 'user_driver_ravi',
+  ('lr_0248', NULL, 'ABC/2026/0248', 'comp_abc', 'br_abc_hyd', 'user_exec_ravi',
    'Sharma Textiles Pvt Ltd', 'Plot 14, Industrial Area, Hyderabad - 500001',
    'Mehta Fabrics & Co.', 'Shop 7, Dharavi Market, Mumbai - 400017', '9876543210',
    'Hyderabad', 'Mumbai', 'AP39AB1234',
@@ -107,7 +107,7 @@ VALUES
    '/uploads/signature.svg', 'pending', 'qr_abc_0248', NULL,
    '2026-04-07 02:44:00', NOW(3), NULL, NULL, NULL),
 
-  ('lr_0041', 'ABC/2026/0041', 'ABC/2026/0041', 'comp_abc', 'br_abc_hyd', 'user_driver_ravi',
+  ('lr_0041', 'ABC/2026/0041', 'ABC/2026/0041', 'comp_abc', 'br_abc_hyd', 'user_exec_ravi',
    'Srinivas Textiles Pvt Ltd', 'Plot 14, Industrial Area, Secunderabad, Telangana 500015',
    'Krishna Fabrics', 'Shop 8, MG Road, Chennai 600001', '9876512340',
    'Hyderabad', 'Chennai', 'AP39AB1234',
@@ -117,7 +117,7 @@ VALUES
    'approved', 'qr_abc_0041', '/api/lr/lr_0041/pdf',
    '2026-04-05 08:00:00', NOW(3), '2026-04-05 10:00:00', NULL, NULL),
 
-  ('lr_0042', NULL, 'ABC/2026/0042', 'comp_abc', 'br_abc_hyd', 'user_driver_ravi',
+  ('lr_0042', NULL, 'ABC/2026/0042', 'comp_abc', 'br_abc_hyd', 'user_exec_ravi',
    'Test Consignor', 'Test Address',
    'Test Consignee', 'Test Address 2', '9876543211',
    'Hyderabad', 'Mumbai', 'AP39AB9999',
@@ -128,7 +128,7 @@ VALUES
    '2026-04-06 08:00:00', NOW(3), NULL, NULL,
    'Vehicle number format is incorrect. Please re-enter as AP39AB1234 (uppercase, no spaces).'),
 
-  ('lr_0040', 'ABC/2026/0040', 'ABC/2026/0040', 'comp_abc', 'br_abc_hyd', 'user_driver_ravi',
+  ('lr_0040', 'ABC/2026/0040', 'ABC/2026/0040', 'comp_abc', 'br_abc_hyd', 'user_exec_ravi',
    'Delivered Consignor', 'Address 1',
    'Delivered Consignee', 'Address 2', '9876543212',
    'Hyderabad', 'Vijayawada', 'AP39AB1234',
@@ -138,7 +138,7 @@ VALUES
    'delivered', 'qr_abc_0040', '/api/lr/lr_0040/pdf',
    '2026-04-01 08:00:00', NOW(3), '2026-04-01 12:00:00', '2026-04-03 12:00:00', NULL),
 
-  ('lr_00142', 'VLP/2026/00142', 'VLP/2026/00142', 'comp_vlp', 'br_hyd', 'user_driver_suresh',
+  ('lr_00142', 'VLP/2026/00142', 'VLP/2026/00142', 'comp_vlp', 'br_hyd', 'user_exec_suresh',
    'Sri Sai Traders', 'Plot 24, ECIL Cross Road, Hyderabad — 500062',
    'Mahesh Enterprises', 'Shop 8, Dharavi Industrial Area, Mumbai — 400017', '9800144556',
    'Hyderabad', 'Mumbai', 'TS09EA4422',

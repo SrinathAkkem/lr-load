@@ -59,7 +59,6 @@ export const inviteExecutiveSchema = z.object({
 });
 
 /** @deprecated Use inviteExecutiveSchema */
-export const inviteDriverSchema = inviteExecutiveSchema;
 
 export const companyLimitsSchema = z.object({
   maxBranches: z.coerce.number().int().positive(),

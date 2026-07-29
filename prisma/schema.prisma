@@ -94,10 +94,11 @@ model User {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
-  company       Company?       @relation(fields: [companyId], references: [id], onDelete: SetNull)
-  branch        Branch?        @relation(fields: [branchId], references: [id], onDelete: SetNull)
-  executiveLrs  LRRequest[]    @relation("ExecutiveLRs")
-  notifications Notification[]
+  company        Company?        @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  branch         Branch?         @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  executiveLrs   LRRequest[]     @relation("ExecutiveLRs")
+  notifications  Notification[]
+  savedAddresses SavedAddress[]
 
   @@index([companyId, role])
   @@index([branchId])
@@ -184,6 +185,39 @@ model Otp {
   createdAt DateTime @default(now())
 
   @@index([expiresAt])
+}
+
+// Uploaded files stored as binary in MySQL. Eliminates all disk/symlink issues
+// on Hostinger VPS. LONGBLOB supports up to 4 GB per file.
+model Upload {
+  id        String   @id @default(cuid())
+  path      String   @unique @db.VarChar(500)
+  data      Bytes    @db.LongBlob
+  mime      String   @db.VarChar(100)
+  size      Int
+  ownerId   String?  @db.VarChar(64)
+  createdAt DateTime @default(now())
+
+  @@index([ownerId])
+  @@index([createdAt])
+}
+
+// Per-user saved consigner/consignee addresses for the mobile address book.
+model SavedAddress {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   @db.VarChar(16) // consigner | consignee
+  name      String   @db.VarChar(255)
+  company   String?  @db.VarChar(255)
+  address   String   @db.Text
+  pincode   String?  @db.VarChar(10)
+  phone     String   @db.VarChar(15)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
 }
 
 // Append-only audit log of impactful platform actions: super-admin company

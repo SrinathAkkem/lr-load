@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { mediaUrl } from "@/lib/media-url";
 import { Upload, LogOut, Building2, KeyRound } from "lucide-react";
 
 interface FormState {
@@ -109,10 +110,23 @@ export default function CompanyProfilePage() {
       });
       const data = await res.json();
       if (data.success && data.data?.url) {
-        setForm((prev) => ({
-          ...prev,
-          [kind === "logo" ? "logoUrl" : "stampUrl"]: data.data.url,
-        }));
+        const field = kind === "logo" ? "logoUrl" : "stampUrl";
+        const updated = { ...form, [field]: data.data.url };
+        setForm(updated);
+
+        // Persist to DB immediately so it survives refresh
+        await fetch("/api/company/profile", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: updated.name,
+            address: updated.address,
+            gstNumber: updated.gstNumber,
+            logoUrl: updated.logoUrl,
+            stampUrl: updated.stampUrl,
+          }),
+        });
+
         toast.success(`${kind === "logo" ? "Logo" : "Stamp"} uploaded`);
       } else {
         toast.error(data.error ?? "Upload failed");
@@ -234,7 +248,7 @@ export default function CompanyProfilePage() {
                 {form.logoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={form.logoUrl}
+                    src={mediaUrl(form.logoUrl) ?? form.logoUrl}
                     alt="Company logo"
                     className="max-h-28 object-contain"
                   />
@@ -327,7 +341,7 @@ export default function CompanyProfilePage() {
                 {form.stampUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={form.stampUrl}
+                    src={mediaUrl(form.stampUrl) ?? form.stampUrl}
                     alt="Company stamp"
                     className="max-h-28 object-contain"
                   />

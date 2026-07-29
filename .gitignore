@@ -58,3 +58,4 @@ next-env.d.ts
 !/public/uploads/signatures/
 !/public/uploads/logos/
 !/public/uploads/stamps/
+.env*

@@ -47,7 +47,19 @@ const nextConfig: NextConfig = {
 
   serverExternalPackages: ["@prisma/client", "prisma", "bcryptjs"],
 
-  // Ensure public folder assets are properly served
+  async redirects() {
+    return [];
+  },
+
+  async rewrites() {
+    return [
+      {
+        source: "/uploads/:path*",
+        destination: "/api/files?u=/uploads/:path*",
+      },
+    ];
+  },
+
   staticPageGenerationTimeout: 1000,
 };
 

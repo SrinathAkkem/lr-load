@@ -1,4 +1,5 @@
 import { listAuditEvents } from "@/lib/services/audit-log";
+import { formatAuditDetails } from "@/lib/audit/format-details";
 import { ScrollText } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -156,14 +157,8 @@ export default async function SuperAdminAuditPage({
                       <td className="p-4 align-top text-slate-700">
                         {e.target ?? "—"}
                       </td>
-                      <td className="p-4 align-top text-xs text-slate-500">
-                        {e.metadata && Object.keys(e.metadata).length > 0 ? (
-                          <pre className="max-w-md whitespace-pre-wrap break-words rounded-lg bg-slate-50 px-2 py-1 font-mono text-[11px] text-slate-600">
-                            {JSON.stringify(e.metadata, null, 0)}
-                          </pre>
-                        ) : (
-                          "—"
-                        )}
+                      <td className="p-4 align-top text-sm text-slate-600">
+                        {formatAuditDetails(e.action, e.metadata) ?? "—"}
                       </td>
                     </tr>
                   );

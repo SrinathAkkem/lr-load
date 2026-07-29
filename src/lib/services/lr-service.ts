@@ -463,6 +463,55 @@ export async function getNotificationsForUser(
   return rows.map(toNotification);
 }
 
+export async function markNotificationRead(
+  userId: string,
+  notificationId: string,
+) {
+  const row = await prisma.notification.findFirst({
+    where: { id: notificationId, userId },
+  });
+  if (!row) return null;
+
+  const updated = await prisma.notification.update({
+    where: { id: notificationId },
+    data: { read: true },
+  });
+  return toNotification(updated);
+}
+
+export async function markAllNotificationsRead(userId: string) {
+  await prisma.notification.updateMany({
+    where: { userId, read: false },
+    data: { read: true },
+  });
+  return getNotificationsForUser(userId);
+}
+
+export async function computeExecutiveDashboardStats(executiveId: string) {
+  const monthStart = startOfMonth();
+  const monthEnd = startOfNextMonth();
+
+  const monthLrs = await prisma.lRRequest.findMany({
+    where: { executiveId, createdAt: { gte: monthStart, lt: monthEnd } },
+    select: { status: true },
+  });
+
+  const pending = monthLrs.filter((lr) => lr.status === "pending").length;
+  const approved = monthLrs.filter(
+    (lr) => lr.status === "approved" || lr.status === "in_transit",
+  ).length;
+  const rejected = monthLrs.filter((lr) => lr.status === "rejected").length;
+  const delivered = monthLrs.filter((lr) => lr.status === "delivered").length;
+
+  return {
+    totalLrs: monthLrs.length,
+    pending,
+    approved,
+    rejected,
+    delivered,
+  };
+}
+
 // ───────────────────── Formatting helpers ─────────────────────
 
 export function formatCurrency(amount: number): string {

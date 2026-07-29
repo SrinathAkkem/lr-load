@@ -1,26 +1,26 @@
 # Rono LR — Deployment Guide
 
-This Next.js + Prisma app is deliberately portable: a single `DATABASE_URL`
-swaps the database, a single `npm run build` produces the artifact, and the
-same codebase runs on **Hostinger** (shared hosting Node.js App or VPS) and
-**AWS** (EC2 + RDS, or ECS Fargate + RDS).
+This Next.js + Prisma app runs on **Hostinger VPS (Ubuntu)** with MySQL on the
+same server and **disk-based uploads** for photos, logos, stamps, and PDFs.
 
-The mobile app (`1/lr-mobile`) does **not** talk to MySQL directly. It calls
-the same REST APIs this server exposes — set its `EXPO_PUBLIC_API_URL` to the
-deployed URL of this app.
+**Primary guide:** [HOSTINGER_VPS.md](./HOSTINGER_VPS.md) — automated setup script,
+nginx, PM2, persistent `/var/lib/rono/uploads`, Twilio OTP.
+
+The mobile app (`lr-mobile`) calls this server's REST APIs — set
+`EXPO_PUBLIC_API_URL` to your VPS domain.
 
 ---
 
-## Quickstart — recommended paths
+## Quickstart
 
-| You want…                                              | Use section                                            |
-|--------------------------------------------------------|--------------------------------------------------------|
-| Free, fastest path. Hosts on Vercel, MySQL on Hostinger | **§2 Vercel + Hostinger MySQL**                       |
-| Stay on Hostinger end-to-end                            | **§3 Hostinger Premium / Business (Node.js App)**      |
-| Full control, single $5–10/mo box                       | **§4 Hostinger VPS**                                   |
-| AWS production setup                                    | **§5 AWS RDS + EC2 / ECS Fargate**                     |
-| Mobile app config                                       | **§6 Mobile app**                                      |
-| Final pre-launch sanity                                 | **§7 Production checklist**                            |
+| You want… | Use |
+|-----------|-----|
+| **Production on Hostinger VPS** | [HOSTINGER_VPS.md](./HOSTINGER_VPS.md) |
+| Hostinger shared Node.js App | **§3** below |
+| Mobile app API URL | **§6** below |
+| Pre-launch checklist | **§7** below |
+
+> Vercel and AWS paths were removed. Storage is disk-only (`UPLOAD_DIR`).
 
 ---
 
@@ -521,7 +521,7 @@ compliance and incident review. The audit log is visible to super admins at
 | `company.limits.update` | Super admin changing quota          |
 | `branch.update`         | Company admin editing a branch       |
 | `branch.delete`         | Company admin removing an empty branch |
-| `driver.invite`         | Company admin inviting a driver      |
+| `executive.invite`      | Company admin inviting an executive  |
 | `lr.approve`            | Company admin approving an LR        |
 | `lr.reject`             | Company admin rejecting an LR        |
 | `auth.password.change`  | Any password update                  |

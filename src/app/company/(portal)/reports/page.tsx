@@ -303,7 +303,7 @@ export default async function CompanyReportsPage({
                 <thead>
                   <tr className="border-b border-slate-100 text-left">
                     <th className="pb-2 pr-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">#</th>
-                    <th className="pb-2 pr-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">Driver</th>
+                    <th className="pb-2 pr-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">Executive</th>
                     <th className="pb-2 pr-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">Branch</th>
                     <th className="pb-2 pr-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">LRs</th>
                     <th className="pb-2 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">Freight Value</th>

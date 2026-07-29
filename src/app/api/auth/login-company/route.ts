@@ -7,7 +7,7 @@ import { prisma } from "@/lib/db/prisma";
 
 /**
  * Password-based sign-in for company admins. Accepts either the registered
- * mobile (10 digits) or the company email as the `identifier`. Drivers and
+ * mobile (10 digits) or the company email as the `identifier`. Executives and
  * super admins always go through their dedicated endpoints.
  */
 const schema = z.object({

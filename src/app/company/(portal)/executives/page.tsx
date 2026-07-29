@@ -13,7 +13,7 @@ import {
 import { toast } from "sonner";
 import { Send, Search, RotateCw, Trash2 } from "lucide-react";
 
-interface Driver {
+interface Executive {
   id: string;
   name: string;
   mobile: string;
@@ -30,8 +30,8 @@ interface Branch {
   city: string;
 }
 
-export default function DriversPage() {
-  const [drivers, setDrivers] = useState<Driver[]>([]);
+export default function ExecutivesPage() {
+  const [executives, setExecutives] = useState<Executive[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "invited" | "inactive">("all");
@@ -39,7 +39,7 @@ export default function DriversPage() {
   const [removing, setRemoving] = useState<string | null>(null);
   const [inviteMobile, setInviteMobile] = useState("");
   const [inviteBranch, setInviteBranch] = useState("");
-  const [maxExecutives, setMaxDrivers] = useState(150);
+  const [maxExecutives, setMaxExecutives] = useState(150);
 
   useEffect(() => {
     refresh();
@@ -54,17 +54,17 @@ export default function DriversPage() {
     fetch("/api/company/profile")
       .then((r) => r.json())
       .then((d) => {
-        if (d?.success && d.data) setMaxDrivers(d.data.maxExecutives);
+        if (d?.success && d.data) setMaxExecutives(d.data.maxExecutives);
       });
   }, []);
 
   async function refresh() {
     const res = await fetch("/api/executives");
     const d = await res.json();
-    if (d.success) setDrivers(d.data);
+    if (d.success) setExecutives(d.data);
   }
 
-  async function inviteDriver() {
+  async function inviteExecutive() {
     if (!/^\d{10}$/.test(inviteMobile)) {
       toast.error("Mobile must be 10 digits");
       return;
@@ -93,7 +93,7 @@ export default function DriversPage() {
     }
   }
 
-  async function removeDriver(id: string, name: string) {
+  async function removeExecutive(id: string, name: string) {
     if (!confirm(`Deactivate ${name}? They won't be able to log in or create LRs.`)) return;
     setRemoving(id);
     try {
@@ -104,42 +104,42 @@ export default function DriversPage() {
     } finally { setRemoving(null); }
   }
 
-  const filtered = drivers.filter((d) => {
+  const filtered = executives.filter((d) => {
     if (statusFilter !== "all" && d.status !== statusFilter) return false;
     const q = search.trim().toLowerCase();
     if (!q) return true;
     return d.name.toLowerCase().includes(q) || d.mobile.includes(q) || (d.branch?.name ?? "").toLowerCase().includes(q);
   });
 
-  const activeCount = drivers.filter(d => d.status === "active").length;
-  const invitedCount = drivers.filter(d => d.status === "invited").length;
-  const inactiveCount = drivers.filter(d => d.status === "inactive").length;
+  const activeCount = executives.filter(d => d.status === "active").length;
+  const invitedCount = executives.filter(d => d.status === "invited").length;
+  const inactiveCount = executives.filter(d => d.status === "inactive").length;
 
   const initials = (name: string) => name.split(/\s+/).map(n => n[0]).join("").slice(0, 2).toUpperCase();
 
   return (
     <div className="p-6 md:p-8">
-      {/* Invite a New Driver section */}
+      {/* Invite a New Executive section */}
       <div className="rounded-2xl border border-violet-100 bg-violet-50/50 p-5">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100">
             <Send className="h-5 w-5 text-violet-600" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-bold text-violet-900">Invite a New Driver</h3>
+            <h3 className="text-sm font-bold text-violet-900">Invite a New Executive</h3>
             <p className="text-xs text-violet-700/70">
-              Enter the executivedriver&apos;sapos;s mobile number. They will receive an OTP to set up their account and join this company.
+              Enter the executive&apos;s mobile number. They will receive an OTP to set up their account and join this company.
             </p>
           </div>
           <div className="flex items-center gap-3 text-right">
             <div>
-              <p className="text-3xl font-bold text-violet-700">{drivers.length} / {maxExecutives}</p>
+              <p className="text-3xl font-bold text-violet-700">{executives.length} / {maxExecutives}</p>
               <p className="text-[10px] font-medium text-violet-500">executives used</p>
             </div>
             <div className="h-1.5 w-16 rounded-full bg-violet-200">
               <div
                 className="h-1.5 rounded-full bg-violet-600"
-                style={{ width: `${Math.min(100, (drivers.length / maxExecutives) * 100)}%` }}
+                style={{ width: `${Math.min(100, (executives.length / maxExecutives) * 100)}%` }}
               />
             </div>
           </div>
@@ -164,21 +164,21 @@ export default function DriversPage() {
               className="pl-10 rounded-lg border-violet-200 bg-white text-sm"
             />
           </div>
-          <Button onClick={inviteDriver} disabled={busy} className="bg-violet-600 hover:bg-violet-700 rounded-lg">
+          <Button onClick={inviteExecutive} disabled={busy} className="bg-violet-600 hover:bg-violet-700 rounded-lg">
             <Send className="mr-1.5 h-3.5 w-3.5" />
             {busy ? "Sending…" : "Send Invite"}
           </Button>
         </div>
       </div>
 
-      {/* All Drivers section */}
+      {/* All Executives section */}
       <div className="mt-6 rounded-2xl border border-slate-100 bg-white shadow-sm">
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-6 py-4">
-          <h2 className="text-base font-semibold text-slate-900">All Drivers</h2>
+          <h2 className="text-base font-semibold text-slate-900">All Executives</h2>
           <div className="flex items-center gap-2">
             <span className="rounded-full bg-violet-50 px-3 py-1 text-[11px] font-semibold text-violet-700">
-              {drivers.length} drivers
+              {executives.length} executives
             </span>
             <span className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-medium text-slate-600">
               Branch: All ▼
@@ -194,7 +194,7 @@ export default function DriversPage() {
           <div className="flex items-center gap-1.5">
             <span className="text-xs font-medium text-slate-500 mr-1">Filter:</span>
             {([
-              { key: "all", label: "All Drivers" },
+              { key: "all", label: "All Executives" },
               { key: "active", label: "Active" },
               { key: "invited", label: "Invited (Pending)" },
               { key: "inactive", label: "Inactive" },
@@ -229,7 +229,7 @@ export default function DriversPage() {
           <table className="w-full min-w-[900px] text-sm">
             <thead>
               <tr className="border-b border-slate-100 text-left">
-                <th className="px-6 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Driver</th>
+                <th className="px-6 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Executive</th>
                 <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Mobile</th>
                 <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Branch</th>
                 <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">LRs (Month)</th>
@@ -242,7 +242,7 @@ export default function DriversPage() {
               {filtered.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-6 py-12 text-center text-sm text-slate-400">
-                    {drivers.length === 0 ? "No drivers yet. Invite the first one above." : "No drivers match your filters."}
+                    {executives.length === 0 ? "No executives yet. Invite the first one above." : "No executives match your filters."}
                   </td>
                 </tr>
               ) : (
@@ -263,7 +263,7 @@ export default function DriversPage() {
                               ? `Invited ${relativeDate(d.createdAt)}`
                               : d.status === "inactive"
                                 ? `Removed ${shortDate(d.createdAt)}`
-                                : `Driver since ${shortDate(d.createdAt)}`}
+                                : `Executive since ${shortDate(d.createdAt)}`}
                           </p>
                         </div>
                       </div>
@@ -301,7 +301,7 @@ export default function DriversPage() {
                             LR History
                           </button>
                           <button
-                            onClick={() => removeDriver(d.id, d.name)}
+                            onClick={() => removeExecutive(d.id, d.name)}
                             disabled={removing === d.id}
                             className="rounded-md border border-red-200 px-3 py-1.5 text-[11px] font-semibold text-red-600 hover:bg-red-50 disabled:opacity-60"
                           >
@@ -315,7 +315,7 @@ export default function DriversPage() {
                             Resend OTP
                           </button>
                           <button
-                            onClick={() => removeDriver(d.id, d.name)}
+                            onClick={() => removeExecutive(d.id, d.name)}
                             className="rounded-md border border-red-200 px-3 py-1.5 text-[11px] font-semibold text-red-600 hover:bg-red-50"
                           >
                             Cancel
@@ -336,7 +336,7 @@ export default function DriversPage() {
 
         {/* Pagination */}
         <div className="flex items-center justify-between border-t border-slate-100 px-6 py-3">
-          <p className="text-xs text-slate-400">Showing 1–{Math.min(6, filtered.length)} of {filtered.length} drivers</p>
+          <p className="text-xs text-slate-400">Showing 1–{Math.min(6, filtered.length)} of {filtered.length} executives</p>
           <div className="flex items-center gap-1">
             <span className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-400">←</span>
             <span className="rounded-md bg-violet-600 px-2.5 py-1 text-xs font-semibold text-white">1</span>

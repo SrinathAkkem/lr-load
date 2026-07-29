@@ -218,3 +218,41 @@ export function toNotification(n: PrismaNotification): Notification {
     createdAt: n.createdAt.toISOString(),
   };
 }
+
+type PrismaSavedAddress = {
+  id: string;
+  userId: string;
+  type: string;
+  name: string;
+  company: string | null;
+  address: string;
+  pincode: string | null;
+  phone: string;
+  createdAt: Date;
+};
+
+export type SavedAddressDto = {
+  id: string;
+  type: "consigner" | "consignee";
+  name: string;
+  company?: string;
+  address: string;
+  pincode?: string;
+  phone: string;
+  userId: string;
+  createdAt: string;
+};
+
+export function toSavedAddress(row: PrismaSavedAddress): SavedAddressDto {
+  return {
+    id: row.id,
+    type: row.type as "consigner" | "consignee",
+    name: row.name,
+    company: row.company ?? undefined,
+    address: row.address,
+    pincode: row.pincode ?? undefined,
+    phone: row.phone,
+    userId: row.userId,
+    createdAt: row.createdAt.toISOString(),
+  };
+}

@@ -208,7 +208,7 @@ export default function BillingPage() {
                 </li>
                 <li className="flex items-center gap-2 text-sm text-slate-600">
                   <Users className="h-4 w-4 text-emerald-500" />
-                  <span>{plan.maxExecutives} drivers</span>
+                  <span>{plan.maxExecutives} executives</span>
                 </li>
                 <li className="flex items-center gap-2 text-sm text-slate-600">
                   <Check className="h-4 w-4 text-emerald-500" />

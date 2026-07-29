@@ -1,33 +1,14 @@
-import { promises as fs } from "fs";
-import path from "path";
 import { randomBytes } from "crypto";
+import { prisma } from "@/lib/db/prisma";
 
 /**
- * File-storage facade with two interchangeable backends:
+ * File storage backed by MySQL LONGBLOB.
  *
- *   • "disk"        → writes to `UPLOAD_DIR` (default `<cwd>/public/uploads`).
- *                     Used for local dev, Hostinger Premium / VPS, and any
- *                     classic Node host with a writable filesystem.
+ * Every upload goes into the `Upload` table. No disk paths, symlinks, or
+ * UPLOAD_DIR config needed. Files persist with the database and survive
+ * all redeploys automatically.
  *
- *   • "vercel-blob" → uses `@vercel/blob` and stores files in Vercel's managed
- *                     blob bucket. Required on Vercel because the function
- *                     filesystem is read-only.
- *
- *   • "s3"            → AWS S3 with optional CloudFront CDN_URL prefix
- *
- * Backend selection (in priority order):
- *   1. `STORAGE_DRIVER=vercel-blob | disk | s3`  ← explicit override
- *   2. `S3_BUCKET` is set                         → s3
- *   3. `BLOB_READ_WRITE_TOKEN` is set             → vercel-blob
- *   4. fallback                                   → disk
- *
- * Vercel auto-injects `BLOB_READ_WRITE_TOKEN` when a Blob store is connected
- * to the project, so a Vercel deploy needs zero env changes after setup.
- *
- * The public URLs returned by both backends are stored as-is in the existing
- * `LRRequest.photos` / `signatureUrl` columns and on `Company.logoUrl`
- * / `stampUrl`. The PDF generator and HTML pages handle both `/uploads/*`
- * and `https://*.vercel-storage.com/*` shapes transparently.
+ * Public URLs stored in the DB remain `/uploads/{kind}/{filename}`.
  */
 
 const UPLOAD_KINDS = ["photos", "signatures", "logos", "stamps"] as const;
@@ -40,14 +21,11 @@ const ALLOWED_MIME: Record<UploadKind, RegExp> = {
   stamps: /^image\/(jpe?g|png|webp|svg\+xml)$/i,
 };
 
-// Caps are sized for Vercel's 4.5 MB serverless request body limit on the
-// Hobby tier. Bumping `photos` to 8 MB requires either Vercel Pro (32 MB
-// configurable limit) or migrating to direct-to-blob client uploads.
 const MAX_BYTES: Record<UploadKind, number> = {
-  photos: 4 * 1024 * 1024,
-  signatures: 1 * 1024 * 1024,
-  logos: 2 * 1024 * 1024,
-  stamps: 2 * 1024 * 1024,
+  photos: 12 * 1024 * 1024,
+  signatures: 2 * 1024 * 1024,
+  logos: 4 * 1024 * 1024,
+  stamps: 4 * 1024 * 1024,
 };
 
 const EXT_FROM_MIME: Record<string, string> = {
@@ -72,18 +50,6 @@ export interface SaveArgs {
   ownerId: string;
 }
 
-type StorageBackend = "disk" | "vercel-blob" | "s3";
-
-function resolveBackend(): StorageBackend {
-  const explicit = process.env.STORAGE_DRIVER?.toLowerCase().trim();
-  if (explicit === "vercel-blob" || explicit === "disk" || explicit === "s3") {
-    return explicit;
-  }
-  if (process.env.S3_BUCKET) return "s3";
-  if (process.env.BLOB_READ_WRITE_TOKEN) return "vercel-blob";
-  return "disk";
-}
-
 function buildFilename(args: SaveArgs): string {
   const ext = EXT_FROM_MIME[args.mime.toLowerCase()] ?? "bin";
   const slug = randomBytes(8).toString("hex");
@@ -105,86 +71,51 @@ function validate(args: SaveArgs): void {
   }
 }
 
-// ── Disk backend ─────────────────────────────────────────────────────────────
+export async function saveUpload(args: SaveArgs): Promise<SaveResult> {
+  validate(args);
 
-function diskRoot(): string {
-  return process.env.UPLOAD_DIR
-    ? path.resolve(process.env.UPLOAD_DIR)
-    : path.join(process.cwd(), "public", "uploads");
-}
-
-async function saveToDisk(args: SaveArgs): Promise<SaveResult> {
   const filename = buildFilename(args);
-  const dir = path.join(diskRoot(), args.kind);
-  await fs.mkdir(dir, { recursive: true });
-  await fs.writeFile(path.join(dir, filename), args.data);
+  const urlPath = `/uploads/${args.kind}/${filename}`;
+
+  await prisma.upload.create({
+    data: {
+      path: urlPath,
+      data: Buffer.from(args.data),
+      mime: args.mime,
+      size: args.data.byteLength,
+      ownerId: args.ownerId,
+    },
+  });
+
   return {
-    url: `/uploads/${args.kind}/${filename}`,
+    url: urlPath,
     bytes: args.data.byteLength,
     mime: args.mime,
   };
 }
 
-// ── Vercel Blob backend ──────────────────────────────────────────────────────
-
-async function saveToVercelBlob(args: SaveArgs): Promise<SaveResult> {
-  const { put } = await import("@vercel/blob");
-  const filename = buildFilename(args);
-  // `put()` types accept `Buffer` but not bare `Uint8Array`; normalize.
-  const body = Buffer.isBuffer(args.data) ? args.data : Buffer.from(args.data);
-  const result = await put(`${args.kind}/${filename}`, body, {
-    access: "public",
-    contentType: args.mime,
-    addRandomSuffix: false,
-    cacheControlMaxAge: 60 * 60 * 24 * 30, // 30 days
+/** Fetch file binary from the database by its URL path. */
+export async function getUpload(
+  urlPath: string,
+): Promise<{ data: Buffer; mime: string } | null> {
+  const record = await prisma.upload.findUnique({
+    where: { path: urlPath },
+    select: { data: true, mime: true },
   });
-  return {
-    url: result.url,
-    bytes: body.byteLength,
-    mime: args.mime,
-  };
+  if (!record) return null;
+  return { data: Buffer.from(record.data), mime: record.mime };
 }
 
-async function saveToS3(args: SaveArgs): Promise<SaveResult> {
-  const { S3Client, PutObjectCommand } = await import("@aws-sdk/client-s3");
-  const bucket = process.env.S3_BUCKET;
-  if (!bucket) throw new Error("S3_BUCKET is not configured");
-
-  const filename = buildFilename(args);
-  const key = `${args.kind}/${filename}`;
-  const body = Buffer.isBuffer(args.data) ? args.data : Buffer.from(args.data);
-  const region = process.env.AWS_REGION ?? "ap-south-1";
-
-  const client = new S3Client({ region });
-  await client.send(
-    new PutObjectCommand({
-      Bucket: bucket,
-      Key: key,
-      Body: body,
-      ContentType: args.mime,
-      CacheControl: "public, max-age=2592000",
-    }),
-  );
-
-  const cdn = process.env.CDN_URL?.replace(/\/$/, "");
-  const url = cdn
-    ? `${cdn}/${key}`
-    : `https://${bucket}.s3.${region}.amazonaws.com/${key}`;
-
-  return { url, bytes: body.byteLength, mime: args.mime };
+/** Delete an upload by its URL path. */
+export async function deleteUpload(urlPath: string): Promise<boolean> {
+  try {
+    await prisma.upload.delete({ where: { path: urlPath } });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
-// ── Public API ───────────────────────────────────────────────────────────────
-
-export async function saveUpload(args: SaveArgs): Promise<SaveResult> {
-  validate(args);
-  const backend = resolveBackend();
-  if (backend === "vercel-blob") return saveToVercelBlob(args);
-  if (backend === "s3") return saveToS3(args);
-  return saveToDisk(args);
-}
-
-/** Decode a `data:image/png;base64,...` payload into raw bytes + mime. */
 export function decodeDataUri(
   dataUri: string,
 ): { mime: string; data: Buffer } | null {

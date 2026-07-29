@@ -143,6 +143,7 @@ export async function PATCH(
     "goodsDescription", "noOfPackages", "weightKg",
     "declaredValue", "freightAmount", "paymentMode",
     "specialInstructions", "signatureUrl", "photos",
+    "dispatchDate",
   ] as const;
 
   const data: Record<string, unknown> = {};
@@ -158,12 +159,14 @@ export async function PATCH(
     }
   }
 
-  if (Object.keys(data).length === 0) {
+  const wantsResubmit =
+    lr.status === "rejected" && body.status === "pending";
+
+  if (Object.keys(data).length === 0 && !wantsResubmit) {
     return jsonError("No valid fields to update");
   }
 
-  // If LR was rejected, resubmitting resets it to pending
-  if (lr.status === "rejected") {
+  if (wantsResubmit) {
     data.status = "pending";
     data.rejectionReason = null;
   }

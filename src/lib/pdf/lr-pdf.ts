@@ -3,6 +3,7 @@ import QRCode from "qrcode";
 import type { Company, LRRequest } from "@prisma/client";
 import { toLR } from "@/lib/db/serialize";
 import { loadImageBytes } from "./image-loader";
+import { pdfText } from "./pdf-text";
 
 /**
  * Brand colors — kept in sync with the web UI's purple gradient.
@@ -64,21 +65,21 @@ export async function generateLrPdf(
   y -= 90;
 
   // ─── LR number + dispatch ──────────────────────────────────────────────
-  page.drawText(`LR No. ${view.lrNumber ?? view.trackingId}`, {
+  page.drawText(pdfText(`LR No. ${view.lrNumber ?? view.trackingId}`), {
     x: margin,
     y: y - 4,
     size: 18,
     font: helvBold,
     color: BRAND.primary,
   });
-  page.drawText(`Date of Dispatch: ${view.dispatchDate}`, {
+  page.drawText(pdfText(`Date of Dispatch: ${view.dispatchDate}`), {
     x: margin,
     y: y - 24,
     size: 10,
     font: helv,
     color: BRAND.muted,
   });
-  page.drawText(`Status: ${view.status.replace("_", " ").toUpperCase()}`, {
+  page.drawText(pdfText(`Status: ${view.status.replace("_", " ").toUpperCase()}`), {
     x: width - margin - 160,
     y: y - 24,
     size: 10,
@@ -94,16 +95,16 @@ export async function generateLrPdf(
     y,
     w: halfW,
     title: "FROM (CONSIGNOR)",
-    name: view.consignorName,
-    address: view.consignorAddress,
+    name: pdfText(view.consignorName),
+    address: pdfText(view.consignorAddress),
   });
   drawAddressBlock(page, helv, helvBold, {
     x: margin + halfW + 10,
     y,
     w: halfW,
     title: "TO (CONSIGNEE)",
-    name: view.consigneeName,
-    address: `${view.consigneeAddress}\nPhone: ${view.consigneePhone}`,
+    name: pdfText(view.consigneeName),
+    address: pdfText(`${view.consigneeAddress}\nPhone: ${view.consigneePhone}`),
   });
   y -= 110;
 
@@ -113,9 +114,9 @@ export async function generateLrPdf(
     y,
     w: width - 2 * margin,
     items: [
-      { label: "ROUTE", value: `${view.originCity} → ${view.destinationCity}` },
-      { label: "VEHICLE", value: view.vehicleNumber },
-      { label: "PAYMENT", value: view.paymentMode },
+      { label: "ROUTE", value: pdfText(`${view.originCity} to ${view.destinationCity}`) },
+      { label: "VEHICLE", value: pdfText(view.vehicleNumber) },
+      { label: "PAYMENT", value: pdfText(view.paymentMode) },
     ],
   });
   y -= 50;
@@ -125,7 +126,7 @@ export async function generateLrPdf(
     x: margin,
     y,
     w: width - 2 * margin,
-    description: view.goodsDescription,
+    description: pdfText(view.goodsDescription),
     packages: view.noOfPackages,
     weight: view.weightKg,
     declaredValue: view.declaredValue,
@@ -152,7 +153,7 @@ export async function generateLrPdf(
       color: BRAND.muted,
     });
     y -= 14;
-    drawWrappedText(page, helv, view.specialInstructions, {
+    drawWrappedText(page, helv, pdfText(view.specialInstructions), {
       x: margin,
       y,
       w: width - 2 * margin,
@@ -164,15 +165,19 @@ export async function generateLrPdf(
 
   // ─── Signature + QR + Stamp footer row ────────────────────────────────
   const qrUrl = `${appUrl.replace(/\/$/, "")}/qr/${view.qrCode}`;
-  const qrPngDataUri = await QRCode.toDataURL(qrUrl, { margin: 1, width: 220 });
-  const qrPng = await pdf.embedPng(qrPngDataUri);
+  const qrPngBytes = await QRCode.toBuffer(qrUrl, {
+    type: "png",
+    margin: 1,
+    width: 220,
+  });
+  const qrPng = await pdf.embedPng(qrPngBytes);
 
   const sigBoxW = 220;
   const sigBoxH = 70;
   const sigX = margin;
   const sigY = 110;
 
-  page.drawText("DRIVER SIGNATURE", {
+  page.drawText("EXECUTIVE SIGNATURE", {
     x: sigX,
     y: sigY + sigBoxH + 6,
     size: 8,
@@ -277,7 +282,7 @@ export async function generateLrPdf(
     size: 10,
     color: BRAND.primary,
   });
-  drawCenteredText(page, helv, qrUrl, {
+  drawCenteredText(page, helv, pdfText(qrUrl), {
     x: 0,
     y: 28,
     w: width,
@@ -349,14 +354,14 @@ async function drawHeader(
   }
 
   const textX = args.x + args.w;
-  page.drawText(args.company.name, {
+  page.drawText(pdfText(args.company.name), {
     x: textX - helvBold.widthOfTextAtSize(args.company.name, 14),
     y: args.y - 16,
     size: 14,
     font: helvBold,
     color: BRAND.ink,
   });
-  drawWrappedText(page, helv, args.company.address, {
+  drawWrappedText(page, helv, pdfText(args.company.address), {
     x: textX - 260,
     y: args.y - 32,
     w: 260,
@@ -364,7 +369,7 @@ async function drawHeader(
     color: BRAND.muted,
     align: "right",
   });
-  page.drawText(`GSTIN: ${args.company.gstNumber}`, {
+  page.drawText(pdfText(`GSTIN: ${args.company.gstNumber}`), {
     x:
       textX -
       helv.widthOfTextAtSize(`GSTIN: ${args.company.gstNumber}`, 9),
@@ -410,14 +415,14 @@ function drawAddressBlock(
     font: helvBold,
     color: BRAND.muted,
   });
-  page.drawText(args.name, {
+  page.drawText(pdfText(args.name), {
     x: args.x + 10,
     y: args.y - 32,
     size: 11,
     font: helvBold,
     color: BRAND.ink,
   });
-  drawWrappedText(page, helv, args.address, {
+  drawWrappedText(page, helv, pdfText(args.address), {
     x: args.x + 10,
     y: args.y - 48,
     w: args.w - 20,
@@ -454,7 +459,7 @@ function drawKeyValueRow(
       font: helvBold,
       color: BRAND.muted,
     });
-    page.drawText(item.value, {
+    page.drawText(pdfText(item.value), {
       x: cx + 10,
       y: args.y - 30,
       size: 11,
@@ -478,7 +483,7 @@ function drawGoodsTable(
     declaredValue: number;
   },
 ) {
-  const headers = ["GOODS DESCRIPTION", "PKGS", "WEIGHT (KG)", "DECLARED ₹"];
+  const headers = ["GOODS DESCRIPTION", "PKGS", "WEIGHT (KG)", "DECLARED Rs."];
   const widths = [args.w * 0.5, args.w * 0.13, args.w * 0.17, args.w * 0.2];
 
   page.drawRectangle({
@@ -509,7 +514,7 @@ function drawGoodsTable(
     borderWidth: 0.5,
     color: BRAND.paper,
   });
-  drawWrappedText(page, helv, args.description, {
+  drawWrappedText(page, helv, pdfText(args.description), {
     x: args.x + 8,
     y: args.y - 36,
     w: widths[0] - 16,
@@ -520,9 +525,9 @@ function drawGoodsTable(
   [
     String(args.packages),
     args.weight.toFixed(2),
-    `₹${args.declaredValue.toLocaleString("en-IN")}`,
+    `Rs.${args.declaredValue.toLocaleString("en-IN")}`,
   ].forEach((v, i) => {
-    page.drawText(v, {
+    page.drawText(pdfText(v), {
       x: cx + 8,
       y: args.y - 36,
       size: 10,
@@ -559,7 +564,7 @@ function drawFreightBox(
     font: helvBold,
     color: rgb(1, 1, 1),
   });
-  page.drawText(`₹${args.freight.toLocaleString("en-IN")}`, {
+  page.drawText(`Rs.${args.freight.toLocaleString("en-IN")}`, {
     x: args.x + 14,
     y: args.y - 40,
     size: 18,
@@ -577,7 +582,7 @@ function drawFreightBox(
     height: 18,
     color: rgb(1, 1, 1),
   });
-  drawCenteredText(page, helvBold, args.payment.toUpperCase(), {
+  drawCenteredText(page, helvBold, pdfText(args.payment.toUpperCase()), {
     x: chipX,
     y: chipY + 4,
     w: chipW,
@@ -626,7 +631,7 @@ function drawCenteredText(
   opts: { x: number; y: number; w: number; size: number; color: RGB },
 ) {
   const w = font.widthOfTextAtSize(text, opts.size);
-  page.drawText(text, {
+  page.drawText(pdfText(text), {
     x: opts.x + (opts.w - w) / 2,
     y: opts.y,
     size: opts.size,

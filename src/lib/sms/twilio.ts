@@ -1,26 +1,16 @@
-import { isDevelopment } from "@/lib/env";
+import { getOtpMessage } from "@/lib/otp/config";
 
 function requireEnv(name: string): string {
-  const v = process.env[name];
+  const v = process.env[name]?.trim();
   if (!v) throw new Error(`${name} is not configured`);
   return v;
 }
 
 export async function sendOtpSms(mobile: string, code: string): Promise<void> {
-  if (isDevelopment()) {
-    console.info(`[dev OTP] +91${mobile}: ${code}`);
-    return;
-  }
-
   const accountSid = requireEnv("TWILIO_ACCOUNT_SID");
   const authToken = requireEnv("TWILIO_AUTH_TOKEN");
   const from = requireEnv("TWILIO_FROM_NUMBER");
-
-  const body = new URLSearchParams({
-    To: `+91${mobile}`,
-    From: from,
-    Body: `Your RonoHub login code is ${code}. Valid for 5 minutes.`,
-  });
+  const body = getOtpMessage(code);
 
   const res = await fetch(
     `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`,
@@ -31,7 +21,11 @@ export async function sendOtpSms(mobile: string, code: string): Promise<void> {
           "Basic " + Buffer.from(`${accountSid}:${authToken}`).toString("base64"),
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: body.toString(),
+      body: new URLSearchParams({
+        To: `+91${mobile}`,
+        From: from,
+        Body: body,
+      }).toString(),
     },
   );
 

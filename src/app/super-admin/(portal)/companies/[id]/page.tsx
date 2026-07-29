@@ -178,7 +178,7 @@ export default function CompanyDetailPage() {
               />
               <LimitRow
                 label="Max Executives"
-                description="Total drivers across all branches"
+                description="Total executives across all branches"
                 used={company.executiveCount}
                 value={limits.maxExecutives}
                 onChange={(v) => setLimits({ ...limits, maxExecutives: v })}
@@ -258,8 +258,8 @@ export default function CompanyDetailPage() {
             <p className="font-bold text-[#2d2d4e]">Platform Access</p>
             <p className="mt-1 text-sm font-semibold text-[#6b7280]">
               {company.status === "active"
-                ? "All drivers and the company admin can sign in."
-                : "All drivers and the company admin are blocked from signing in."}
+                ? "All executives and the company admin can sign in."
+                : "All executives and the company admin are blocked from signing in."}
             </p>
             <div className="mt-4 flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wide text-[#6b7280]">
@@ -276,7 +276,7 @@ export default function CompanyDetailPage() {
           <div className="rounded-2xl border-0 bg-[#fdedec] p-6 shadow-sm">
             <p className="font-bold text-[#e74c3c]">Suspend Company Access</p>
             <p className="mt-2 text-xs font-semibold leading-relaxed text-[#2d2d4e]">
-              Suspending will immediately block all drivers and the company
+              Suspending will immediately block all executives and the company
               admin from logging in. All LR data is preserved. You can
               reactivate the company at any time from this page.
             </p>

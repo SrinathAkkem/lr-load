@@ -44,7 +44,7 @@ const TITLE_MAP: Array<{ match: RegExp; title: string; placeholder: string }> = 
     placeholder: "Search companies...",
   },
   {
-    match: /^\/super-admin\/drivers/,
+    match: /^\/super-admin\/executives/,
     title: "All Executives",
     placeholder: "Search executives by name or mobile...",
   },
@@ -80,7 +80,7 @@ const TITLE_MAP: Array<{ match: RegExp; title: string; placeholder: string }> = 
     placeholder: "Search branches...",
   },
   {
-    match: /^\/company\/drivers/,
+    match: /^\/company\/executives/,
     title: "Executive Management",
     placeholder: "Search by name or mobile...",
   },
