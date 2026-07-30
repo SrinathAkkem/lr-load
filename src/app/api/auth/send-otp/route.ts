@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
   const code = shouldSendRealSms()
     ? String(randomInt(100000, 999999))
     : DEV_OTP_CODE;
-  const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+  const expiresAt = new Date(Date.now() + 2 * 60 * 1000);
 
   await prisma.otp.upsert({
     where: { mobile },

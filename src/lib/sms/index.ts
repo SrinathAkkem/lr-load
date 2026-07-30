@@ -15,10 +15,10 @@ export async function sendOtpSms(mobile: string, code: string): Promise<void> {
 
   if (
     process.env.SMSLOGIN_USERNAME?.trim() &&
-    process.env.SMSLOGIN_PASSWORD?.trim()
+    process.env.SMSLOGIN_API_KEY?.trim()
   ) {
     throw new Error(
-      "SMSLogin credentials found but DLT is incomplete. Set SMSLOGIN_DLT_ENTITY_ID and SMSLOGIN_DLT_TEMPLATE_ID.",
+      "SMSLogin credentials found but config is incomplete. Set SMSLOGIN_SENDER_ID and SMSLOGIN_DLT_TEMPLATE_ID.",
     );
   }
 

@@ -5,15 +5,15 @@ export const DEV_OTP_CODE = "123456";
 export function isSmsLoginConfigured(): boolean {
   return Boolean(
     process.env.SMSLOGIN_USERNAME?.trim() &&
-      process.env.SMSLOGIN_PASSWORD?.trim(),
+      process.env.SMSLOGIN_API_KEY?.trim(),
   );
 }
 
-/** SMSLogin needs DLT IDs to deliver in India. */
+/** SMSLogin needs sender + DLT template ID to deliver in India. */
 export function isSmsLoginReady(): boolean {
   return Boolean(
     isSmsLoginConfigured() &&
-      process.env.SMSLOGIN_DLT_ENTITY_ID?.trim() &&
+      process.env.SMSLOGIN_SENDER_ID?.trim() &&
       process.env.SMSLOGIN_DLT_TEMPLATE_ID?.trim(),
   );
 }
@@ -34,7 +34,7 @@ export function isSmsConfigured(): boolean {
 export type SmsConfigField =
   | "OTP_SMS_ENABLED"
   | "SMSLOGIN_USERNAME"
-  | "SMSLOGIN_PASSWORD"
+  | "SMSLOGIN_API_KEY"
   | "SMSLOGIN_SENDER_ID"
   | "SMSLOGIN_DLT_ENTITY_ID"
   | "SMSLOGIN_DLT_TELEMARKETER_ID"
@@ -45,7 +45,7 @@ export function getSmsConfigStatus() {
   const fields: Record<SmsConfigField, boolean> = {
     OTP_SMS_ENABLED: process.env.OTP_SMS_ENABLED === "true",
     SMSLOGIN_USERNAME: Boolean(process.env.SMSLOGIN_USERNAME?.trim()),
-    SMSLOGIN_PASSWORD: Boolean(process.env.SMSLOGIN_PASSWORD?.trim()),
+    SMSLOGIN_API_KEY: Boolean(process.env.SMSLOGIN_API_KEY?.trim()),
     SMSLOGIN_SENDER_ID: Boolean(process.env.SMSLOGIN_SENDER_ID?.trim()),
     SMSLOGIN_DLT_ENTITY_ID: Boolean(process.env.SMSLOGIN_DLT_ENTITY_ID?.trim()),
     SMSLOGIN_DLT_TELEMARKETER_ID: Boolean(
@@ -62,9 +62,8 @@ export function getSmsConfigStatus() {
 
   const missing: SmsConfigField[] = [];
   if (!fields.SMSLOGIN_USERNAME) missing.push("SMSLOGIN_USERNAME");
-  if (!fields.SMSLOGIN_PASSWORD) missing.push("SMSLOGIN_PASSWORD");
+  if (!fields.SMSLOGIN_API_KEY) missing.push("SMSLOGIN_API_KEY");
   if (!fields.SMSLOGIN_SENDER_ID) missing.push("SMSLOGIN_SENDER_ID");
-  if (!fields.SMSLOGIN_DLT_ENTITY_ID) missing.push("SMSLOGIN_DLT_ENTITY_ID");
   if (!fields.SMSLOGIN_DLT_TEMPLATE_ID) missing.push("SMSLOGIN_DLT_TEMPLATE_ID");
 
   const provider = isSmsLoginConfigured()
@@ -117,6 +116,6 @@ export function getOtpMessage(code: string): string {
   const template =
     process.env.SMSLOGIN_OTP_MESSAGE?.trim() ||
     process.env.OTP_MESSAGE_TEMPLATE?.trim() ||
-    "Your RonoHub login code is {code}. Valid for 5 minutes. Do not share this code with anyone.";
-  return template.replace(/\{code\}/g, code);
+    "{code} is your OTP to access RonoLR. It is valid for 2 minutes. Do not share this code with anyone,";
+  return template.replace(/\{#var#\}/g, code).replace(/\{code\}/g, code);
 }
