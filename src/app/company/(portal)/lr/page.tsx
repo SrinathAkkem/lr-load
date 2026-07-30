@@ -185,27 +185,27 @@ export default function CompanyLRPage() {
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-6 py-4">
           <h2 className="text-base font-semibold text-slate-900">All LR Requests</h2>
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-violet-50 px-3 py-1 text-[11px] font-semibold text-violet-700">
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">
               {counts.all} total
             </span>
             <input
               type="date"
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
-              className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-medium text-slate-600 outline-none focus:border-violet-300"
+              className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-medium text-slate-600 outline-none focus:border-primary/40"
               title="From date"
             />
             <input
               type="date"
               value={dateTo}
               onChange={(e) => setDateTo(e.target.value)}
-              className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-medium text-slate-600 outline-none focus:border-violet-300"
+              className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-medium text-slate-600 outline-none focus:border-primary/40"
               title="To date"
             />
             <select
               value={branchFilter}
               onChange={(e) => setBranchFilter(e.target.value)}
-              className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-medium text-slate-600 outline-none focus:border-violet-300"
+              className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-medium text-slate-600 outline-none focus:border-primary/40"
             >
               <option value="all">Branch: All</option>
               {branches.map((b) => (
@@ -225,7 +225,7 @@ export default function CompanyLRPage() {
                 onClick={() => setFilter(f.key)}
                 className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
                   filter === f.key
-                    ? "bg-violet-600 text-white shadow-sm"
+                    ? "bg-primary text-white shadow-sm"
                     : "bg-slate-50 text-slate-600 hover:bg-slate-100"
                 }`}
               >
@@ -247,7 +247,7 @@ export default function CompanyLRPage() {
               placeholder="Search by LR No., consignee..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-xs outline-none focus:border-violet-300 focus:bg-white focus:ring-1 focus:ring-violet-100"
+              className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-xs outline-none focus:border-primary/40 focus:bg-white focus:ring-1 focus:ring-brand"
             />
           </div>
         </div>
@@ -278,16 +278,16 @@ export default function CompanyLRPage() {
                     key={lr.id}
                     onClick={() => selectLr(lr)}
                     className={`cursor-pointer border-b border-slate-50 last:border-0 transition ${
-                      selectedLr?.id === lr.id ? "bg-violet-50/50" : "hover:bg-slate-50/50"
+                      selectedLr?.id === lr.id ? "bg-primary/10" : "hover:bg-slate-50/50"
                     }`}
                   >
                     <td className="px-6 py-3.5">
-                      <p className="font-semibold text-violet-700">{lr.trackingId}</p>
+                      <p className="font-semibold text-primary">{lr.trackingId}</p>
                       <p className="text-[11px] text-slate-400">{lr.vehicleNumber}</p>
                     </td>
                     <td className="px-4 py-3.5">
                       <p className="text-sm font-medium text-slate-800">{lr.originCity}</p>
-                      <p className="text-[11px] text-violet-600">→ {lr.destinationCity}</p>
+                      <p className="text-[11px] text-primary">→ {lr.destinationCity}</p>
                     </td>
                     <td className="px-4 py-3.5">
                       <p className="text-sm text-slate-800">{lr.consignorName}</p>
@@ -295,7 +295,7 @@ export default function CompanyLRPage() {
                     </td>
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-2">
-                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-100 text-[10px] font-bold text-violet-700">
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-[10px] font-bold text-primary">
                           {executiveInitials(lr.executive?.name ?? "?")}
                         </span>
                         <div>
@@ -340,7 +340,7 @@ export default function CompanyLRPage() {
                       ) : lr.status === "approved" || lr.status === "delivered" ? (
                         <div className="flex items-center justify-end gap-1.5">
                           <Link href={`/company/lr/${lr.id}`} className="rounded-md border border-slate-200 px-3 py-1.5 text-[11px] font-semibold text-slate-600 hover:bg-slate-50">View</Link>
-                          <button onClick={() => handleDownloadPdf(lr.id, lr.trackingId)} className="rounded-md border border-violet-200 bg-violet-50 px-3 py-1.5 text-[11px] font-semibold text-violet-700 hover:bg-violet-100">PDF</button>
+                          <button onClick={() => handleDownloadPdf(lr.id, lr.trackingId)} className="rounded-md border border-primary/20 bg-primary/10 px-3 py-1.5 text-[11px] font-semibold text-primary hover:bg-primary/15">PDF</button>
                         </div>
                       ) : (
                         <Link href={`/company/lr/${lr.id}`} className="rounded-md border border-slate-200 px-3 py-1.5 text-[11px] font-semibold text-slate-600 hover:bg-slate-50">View</Link>
@@ -383,7 +383,7 @@ export default function CompanyLRPage() {
                   onClick={() => setPage(p)}
                   className={`rounded-md px-2.5 py-1 text-xs font-medium ${
                     p === page
-                      ? "bg-violet-600 text-white"
+                      ? "bg-primary text-white"
                       : "border border-slate-200 text-slate-600 hover:bg-slate-50"
                   }`}
                 >
@@ -424,15 +424,15 @@ export default function CompanyLRPage() {
             {/* Consignor (Sender) */}
             <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
               <div className="flex items-center gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-50">
-                  <Package className="h-4 w-4 text-violet-600" />
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+                  <Package className="h-4 w-4 text-primary" />
                 </div>
                 <h3 className="text-sm font-bold text-slate-900">Consignor (Sender)</h3>
               </div>
               <div className="mt-4 space-y-2">
                 <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Name</p><p className="text-sm font-medium text-slate-800">{selectedLr.consignorName}</p></div>
                 <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Address</p><p className="text-sm text-slate-600">{selectedLr.consignorAddress}</p></div>
-                <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Origin City</p><p className="text-sm font-medium text-violet-600">{selectedLr.originCity}</p></div>
+                <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Origin City</p><p className="text-sm font-medium text-primary">{selectedLr.originCity}</p></div>
               </div>
             </div>
 
@@ -449,7 +449,7 @@ export default function CompanyLRPage() {
                 <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Address</p><p className="text-sm text-slate-600">{selectedLr.consigneeAddress}</p></div>
                 <div className="grid grid-cols-2 gap-4">
                   <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Phone</p><p className="text-sm text-slate-600">+91 {selectedLr.consigneePhone}</p></div>
-                  <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Destination</p><p className="text-sm font-medium text-violet-600">{selectedLr.destinationCity}</p></div>
+                  <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Destination</p><p className="text-sm font-medium text-primary">{selectedLr.destinationCity}</p></div>
                 </div>
               </div>
             </div>
@@ -467,7 +467,7 @@ export default function CompanyLRPage() {
                 <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">No. of Packages</p><p className="text-sm font-medium text-slate-800">{selectedLr.noOfPackages} packages</p></div>
                 <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Weight</p><p className="text-sm font-medium text-slate-800">{selectedLr.weightKg} KG</p></div>
                 <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Declared Value</p><p className="text-sm font-medium text-slate-800">{formatINR(selectedLr.declaredValue)}</p></div>
-                <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Vehicle Number</p><p className="text-sm font-bold text-violet-700">{selectedLr.vehicleNumber}</p></div>
+                <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Vehicle Number</p><p className="text-sm font-bold text-primary">{selectedLr.vehicleNumber}</p></div>
                 <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Dispatch Date</p><p className="text-sm text-slate-700">{new Date(selectedLr.dispatchDate).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })}</p></div>
               </div>
             </div>
@@ -482,7 +482,7 @@ export default function CompanyLRPage() {
               </div>
               <div className="mt-4 grid grid-cols-2 gap-4">
                 <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Freight Amount</p><p className="text-2xl font-bold text-emerald-600">{formatINR(selectedLr.freightAmount)}</p></div>
-                <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Payment Mode</p><p className="text-sm font-medium text-violet-600">{selectedLr.paymentMode}</p></div>
+                <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Payment Mode</p><p className="text-sm font-medium text-primary">{selectedLr.paymentMode}</p></div>
               </div>
               {selectedLr.specialInstructions && (
                 <div className="mt-3">
@@ -522,7 +522,7 @@ export default function CompanyLRPage() {
                       value={rejectReason}
                       onChange={(e) => setRejectReason(e.target.value)}
                       placeholder="e.g. Vehicle number does not match records..."
-                      className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-xs outline-none focus:border-violet-300 focus:ring-1 focus:ring-violet-100"
+                      className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-xs outline-none focus:border-primary/40 focus:ring-1 focus:ring-brand"
                     />
                   </div>
                 </div>
@@ -560,7 +560,7 @@ function StatBox({
   return (
     <button
       onClick={onClick}
-      className={`rounded-2xl border bg-white p-4 text-center shadow-sm transition hover:shadow-md ${s.border} ${active ? "ring-2 ring-violet-300" : ""}`}
+      className={`rounded-2xl border bg-white p-4 text-center shadow-sm transition hover:shadow-md ${s.border} ${active ? "ring-2 ring-primary/30" : ""}`}
     >
       <p className={`text-3xl font-bold ${s.text}`}>{value}</p>
       <p className={`mt-1 text-xs font-medium ${s.sub}`}>{label}</p>

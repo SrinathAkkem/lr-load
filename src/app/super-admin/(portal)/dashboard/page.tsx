@@ -80,13 +80,13 @@ export default async function SuperAdminDashboardPage() {
         </div>
 
         <div className="flex items-center gap-4 rounded-2xl border-0 bg-white p-6 shadow-sm">
-          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[#ebf5fd]">
-            <Truck className="h-7 w-7 text-[#3b9fe8]" />
+          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-brand-gradient-soft">
+            <Truck className="h-7 w-7 text-[var(--brand-info)]" />
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-[#6b7280]">Active Executives</p>
             <p className="text-3xl font-extrabold text-[#2d2d4e]">{totalExecutives.toLocaleString("en-IN")}</p>
-            <p className="text-xs font-bold text-[#3b9fe8]">
+            <p className="text-xs font-bold text-[var(--brand-info)]">
               +{newExecutivesThisMonth} joined this month
             </p>
           </div>
@@ -112,7 +112,7 @@ export default async function SuperAdminDashboardPage() {
         <div className="lg:col-span-3 rounded-2xl border-0 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold text-[#2d2d4e]">LR Volume — {monthName}</h2>
-            <span className="rounded-full bg-[#f0ebfc] px-3 py-1 text-[11px] font-bold text-[#7b4fd4]">
+            <span className="rounded-full bg-brand-gradient-soft px-3 py-1 text-[11px] font-bold text-brand">
               Daily
             </span>
           </div>
@@ -140,7 +140,7 @@ export default async function SuperAdminDashboardPage() {
             <h2 className="text-base font-bold text-[#2d2d4e]">Recent Activity</h2>
             <Link
               href="/super-admin/audit"
-              className="rounded-full border border-[#e8edf5] px-3 py-1 text-[11px] font-bold text-[#6b7280] transition hover:border-[#7b4fd4] hover:text-[#7b4fd4]"
+              className="rounded-full border border-[#e8edf5] px-3 py-1 text-[11px] font-bold text-[#6b7280] transition hover:border-brand hover:text-brand"
             >
               See all
             </Link>
@@ -193,12 +193,12 @@ export default async function SuperAdminDashboardPage() {
         <div className="flex items-center justify-between">
           <h2 className="text-base font-bold text-[#2d2d4e]">Top Companies by LR Volume</h2>
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-[#f0ebfc] px-3 py-1 text-[11px] font-bold text-[#7b4fd4]">
+            <span className="rounded-full bg-brand-gradient-soft px-3 py-1 text-[11px] font-bold text-brand">
               Top 5
             </span>
             <Link
               href="/super-admin/companies"
-              className="rounded-full border border-[#e8edf5] px-3 py-1 text-[11px] font-bold text-[#6b7280] transition hover:border-[#7b4fd4] hover:text-[#7b4fd4]"
+              className="rounded-full border border-[#e8edf5] px-3 py-1 text-[11px] font-bold text-[#6b7280] transition hover:border-brand hover:text-brand"
             >
               View All →
             </Link>
@@ -227,9 +227,9 @@ export default async function SuperAdminDashboardPage() {
                   : lrPct >= 75
                     ? "bg-[#f5a623]"
                     : i === 0
-                      ? "bg-[#7b4fd4]"
+                      ? "bg-brand"
                       : i === 1
-                        ? "bg-[#3b9fe8]"
+                        ? "bg-[var(--brand-info)]"
                         : i === 2
                           ? "bg-[#2ecc71]"
                           : "bg-[#f5a623]";
@@ -241,7 +241,7 @@ export default async function SuperAdminDashboardPage() {
                     <td className="py-4 pr-4">
                       <Link
                         href={`/super-admin/companies/${company.id}`}
-                        className="text-sm font-bold text-[#2d2d4e] hover:text-[#7b4fd4]"
+                        className="text-sm font-bold text-[#2d2d4e] hover:text-brand"
                       >
                         {company.name}
                       </Link>
@@ -292,7 +292,7 @@ const ACTIVITY_ICONS = [
   { icon: CheckCircle2, bg: "bg-[#e8f8f0]", color: "text-[#2ecc71]" },
   { icon: AlertTriangle, bg: "bg-[#fef3e0]", color: "text-[#f5a623]" },
   { icon: XCircle, bg: "bg-[#fdedec]", color: "text-[#e74c3c]" },
-  { icon: Rocket, bg: "bg-[#f0ebfc]", color: "text-[#7b4fd4]" },
+  { icon: Rocket, bg: "bg-brand-gradient-soft", color: "text-brand" },
   { icon: TrendingUp, bg: "bg-[#e8f8f0]", color: "text-[#2ecc71]" },
 ] as const;
 

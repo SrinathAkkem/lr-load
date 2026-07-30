@@ -229,7 +229,7 @@ export default function CompanyProfilePage() {
             <Button
               onClick={save}
               disabled={saving}
-              className="bg-violet-600 hover:bg-violet-700"
+             
             >
               {saving ? "Saving…" : "Save Profile"}
             </Button>
@@ -238,7 +238,7 @@ export default function CompanyProfilePage() {
           <div className="space-y-4">
             <div className="rounded-2xl border bg-white p-6 shadow-sm">
               <div className="flex items-center gap-2">
-                <Building2 className="h-4 w-4 text-violet-600" />
+                <Building2 className="h-4 w-4 text-primary" />
                 <h3 className="text-sm font-semibold">Company Logo</h3>
               </div>
               <p className="mt-1 text-xs text-slate-500">
@@ -284,7 +284,7 @@ export default function CompanyProfilePage() {
 
             <div className="rounded-2xl border bg-white p-6 shadow-sm">
               <div className="flex items-center gap-2">
-                <KeyRound className="h-4 w-4 text-violet-600" />
+                <KeyRound className="h-4 w-4 text-primary" />
                 <h3 className="text-sm font-semibold">Account Password</h3>
               </div>
               <p className="mt-1 text-xs text-slate-500">
@@ -326,7 +326,7 @@ export default function CompanyProfilePage() {
               <Button
                 onClick={changePassword}
                 disabled={pwBusy}
-                className="mt-4 w-full bg-violet-600 hover:bg-violet-700"
+               
               >
                 {pwBusy ? "Updating…" : "Update Password"}
               </Button>

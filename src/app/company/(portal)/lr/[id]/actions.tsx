@@ -63,7 +63,7 @@ export function ApproveRejectActions({ id }: { id: string }) {
             onChange={(e) => setReason(e.target.value)}
             rows={3}
             placeholder="Reason for rejection (visible to executive)"
-            className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-100"
+            className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand"
           />
           <div className="flex gap-2">
             <Button

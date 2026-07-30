@@ -26,8 +26,8 @@ export default async function SuperAdminSettingsPage() {
   return (
     <div className="p-6 md:p-8">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#f0ebfc] to-[#e8f5fd]">
-          <Settings className="h-5 w-5 text-[#7b4fd4]" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--brand-gradient-start)]/10 to-[var(--brand-gradient-end)]/10">
+          <Settings className="h-5 w-5 text-brand" />
         </div>
         <div>
           <h2 className="text-2xl font-bold text-slate-900">Settings</h2>

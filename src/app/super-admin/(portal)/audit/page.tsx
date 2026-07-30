@@ -19,7 +19,7 @@ const ACTION_LABELS: Record<string, { label: string; tone: string }> = {
   },
   "company.limits.update": {
     label: "Updated limits",
-    tone: "bg-[#f0ebfc] text-[#7b4fd4] ring-[#d4c5f9]",
+    tone: "bg-brand-gradient-soft text-brand ring-[#d4c5f9]",
   },
   "lr.approve": {
     label: "Approved LR",
@@ -61,8 +61,8 @@ export default async function SuperAdminAuditPage({
   return (
     <div className="p-6 md:p-8">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#f0ebfc] to-[#e8f5fd]">
-          <ScrollText className="h-5 w-5 text-[#7b4fd4]" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--brand-gradient-start)]/10 to-[var(--brand-gradient-end)]/10">
+          <ScrollText className="h-5 w-5 text-brand" />
         </div>
         <div>
           <h2 className="text-2xl font-bold text-slate-900">Audit Log</h2>
@@ -81,7 +81,7 @@ export default async function SuperAdminAuditPage({
           name="search"
           defaultValue={search}
           placeholder="Search by actor, target, or action..."
-          className="min-w-[260px] flex-1 rounded-full border border-[#e8edf5] bg-white px-4 py-2 text-sm font-semibold outline-none focus:border-[#7b4fd4] focus:bg-white focus:ring-2 focus:ring-[#f0ebfc]"
+          className="min-w-[260px] flex-1 rounded-full border border-[#e8edf5] bg-white px-4 py-2 text-sm font-semibold outline-none focus:border-brand focus:bg-white focus:ring-2 focus:ring-brand"
         />
         <select
           name="action"
@@ -97,7 +97,7 @@ export default async function SuperAdminAuditPage({
         </select>
         <button
           type="submit"
-          className="rounded-full bg-gradient-to-r from-[#7b4fd4] to-[#3b9fe8] px-5 py-2 text-sm font-bold text-white shadow-lg shadow-[#7b4fd4]/30 transition hover:shadow-xl"
+          className="rounded-full bg-brand-gradient px-5 py-2 text-sm font-bold text-white shadow-lg shadow-brand transition hover:shadow-xl"
         >
           Filter
         </button>

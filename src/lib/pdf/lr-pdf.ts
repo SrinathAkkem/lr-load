@@ -6,14 +6,13 @@ import { loadImageBytes } from "./image-loader";
 import { pdfText } from "./pdf-text";
 
 /**
- * Brand colors — kept in sync with the web UI's purple gradient.
- *   primary  → header + LR-number + section labels (violet 600)
+ * Brand colors — synced with src/lib/brand.ts (#5E3EA1 purple gradient).
  *   accent   → table header rows + chips (violet 100)
  *   ink      → body copy (slate 900)
  *   muted    → labels and meta text (slate 500)
  */
 const BRAND = {
-  primary: rgb(0.42, 0.27, 0.76),
+  primary: rgb(0.369, 0.243, 0.631),
   accent: rgb(0.95, 0.92, 1),
   ink: rgb(0.06, 0.09, 0.16),
   muted: rgb(0.42, 0.45, 0.55),

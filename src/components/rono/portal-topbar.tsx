@@ -196,7 +196,7 @@ export function PortalTopbar({ variant, userName, userRole }: TopbarProps) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={placeholder}
-          className="w-full rounded-lg border border-[#e8edf5] bg-[#fafbff] pl-9 pr-4 py-2 text-sm font-semibold text-[#2d2d4e] outline-none transition placeholder:text-[#9ca3af] focus:border-[#7b4fd4] focus:bg-white focus:ring-2 focus:ring-[#f0ebfc]"
+          className="w-full rounded-lg border border-[var(--brand-border)] bg-[var(--brand-surface)] pl-9 pr-4 py-2 text-sm font-semibold text-[var(--brand-text)] outline-none transition placeholder:text-[var(--brand-text-muted)] focus:border-brand focus:bg-white focus:ring-2 focus:ring-brand"
         />
       </form>
 
@@ -205,7 +205,7 @@ export function PortalTopbar({ variant, userName, userRole }: TopbarProps) {
           <button
             type="button"
             onClick={() => setNotifsOpen((v) => !v)}
-            className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-[#e8edf5] bg-white text-[#6b7280] transition hover:border-[#7b4fd4] hover:text-[#7b4fd4] hover:bg-gradient-to-br hover:from-[#f0ebfc] hover:to-[#e8f5fd]"
+            className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--brand-border)] bg-white text-[var(--brand-text-muted)] transition hover:border-brand hover:text-brand hover:bg-brand-gradient-soft"
             aria-label="Notifications"
           >
             <Bell className="h-4 w-4" />
@@ -237,7 +237,7 @@ export function PortalTopbar({ variant, userName, userRole }: TopbarProps) {
                       key={n.id}
                       className={cn(
                         "border-b border-[#e8edf5] px-4 py-3 last:border-0",
-                        !n.read && "bg-[#f0ebfc]",
+                        !n.read && "bg-brand-gradient-soft",
                       )}
                     >
                       <p className="text-sm font-bold text-[#2d2d4e]">
@@ -261,9 +261,9 @@ export function PortalTopbar({ variant, userName, userRole }: TopbarProps) {
               ? "/super-admin/settings"
               : "/company/profile"
           }
-          className="flex items-center gap-2.5 rounded-lg border border-[#e8edf5] bg-white px-3 py-1.5 text-left transition hover:border-[#7b4fd4]"
+          className="flex items-center gap-2.5 rounded-lg border border-[var(--brand-border)] bg-white px-3 py-1.5 text-left transition hover:border-brand"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#7b4fd4] text-[10px] font-bold text-white">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-[10px] font-bold text-white">
             {initials || "U"}
           </span>
           <span className="hidden md:block">

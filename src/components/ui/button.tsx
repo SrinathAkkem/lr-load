@@ -10,16 +10,16 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-gradient-to-r from-[#7b4fd4] to-[#3b9fe8] text-white shadow-lg shadow-[#7b4fd4]/30 hover:shadow-xl hover:shadow-[#7b4fd4]/40 focus-visible:ring-[#f0ebfc]",
+          "bg-brand-gradient text-white shadow-brand hover:opacity-95 focus-visible:ring-brand",
         destructive:
-          "bg-[#e74c3c] text-white shadow-md hover:bg-[#d43f2f] focus-visible:ring-[#fdedec]",
+          "bg-[var(--brand-error)] text-white shadow-md hover:opacity-90 focus-visible:ring-[var(--brand-error)]/20",
         outline:
-          "border border-[#e8edf5] bg-white hover:bg-[#fafbff] hover:border-[#7b4fd4] hover:text-[#7b4fd4] text-[#6b7280]",
+          "border border-[var(--brand-border)] bg-white hover:bg-[var(--brand-surface)] hover:border-brand hover:text-brand text-[var(--brand-text-muted)]",
         secondary:
-          "bg-[#3b9fe8] text-white shadow-md hover:bg-[#2a8fd8]",
+          "bg-[var(--brand-primary-light)] text-white shadow-md hover:opacity-90",
         ghost:
-          "hover:bg-[#f0ebfc] hover:text-[#7b4fd4] text-[#6b7280]",
-        link: "text-[#7b4fd4] underline-offset-4 hover:underline font-semibold",
+          "hover:bg-brand-gradient-soft hover:text-brand text-[var(--brand-text-muted)]",
+        link: "text-brand underline-offset-4 hover:underline font-semibold",
       },
       size: {
         default: "h-11 px-6 py-3 has-[>svg]:px-4",
@@ -50,7 +50,7 @@ function Button({
   return (
     <Comp
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(buttonVariants({ variant, size }), className)}
       {...props}
     />
   );

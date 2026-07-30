@@ -71,7 +71,7 @@ export default function CompanyLoginPage() {
 
   if (redirecting) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#5a3dc8] via-[#4a2fb8] to-[#3a1fa0]">
+      <div className="flex min-h-screen items-center justify-center bg-brand-gradient-sidebar">
         <div className="text-center">
           <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-white/30 border-t-white" />
           <p className="mt-4 text-sm font-semibold text-white/80">Loading dashboard...</p>
@@ -82,7 +82,7 @@ export default function CompanyLoginPage() {
 
   return (
     <div className="flex min-h-screen">
-      <aside className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-br from-[#5a3dc8] via-[#4a2fb8] to-[#3a1fa0] p-12 text-white lg:flex">
+      <aside className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-brand-gradient-sidebar p-12 text-white lg:flex">
         <div className="absolute -right-16 -top-20 h-64 w-64 rounded-full bg-white/5" />
         <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-white/5" />
 
@@ -121,7 +121,7 @@ export default function CompanyLoginPage() {
           <div className="mt-6 space-y-5">
             <div>
               <Label htmlFor="mobile">Mobile Number</Label>
-              <div className="mt-1.5 flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus-within:border-violet-300 focus-within:ring-2 focus-within:ring-violet-100">
+              <div className="mt-1.5 flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus-within:border-primary/40 focus-within:ring-2 focus-within:ring-brand">
                 <span className="font-semibold text-slate-500">+91</span>
                 <input
                   id="mobile"
@@ -166,7 +166,7 @@ export default function CompanyLoginPage() {
                       setOtp("");
                       setOtpSent(false);
                     }}
-                    className="mt-2 text-xs text-violet-600 hover:underline"
+                    className="mt-2 text-xs text-primary hover:underline"
                   >
                     Wrong number? Edit it.
                   </button>
@@ -183,7 +183,7 @@ export default function CompanyLoginPage() {
                   type="button"
                   onClick={sendOtp}
                   disabled={loading}
-                  className="block w-full text-center text-xs text-slate-500 hover:text-violet-700"
+                  className="block w-full text-center text-xs text-slate-500 hover:text-primary"
                 >
                   Resend
                 </button>

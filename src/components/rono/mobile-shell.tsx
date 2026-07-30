@@ -19,9 +19,9 @@ export function MobileShell({
   return (
     <div className="mx-auto min-h-screen max-w-md bg-slate-50">
       {(title || subtitle) && (
-        <div className={cn("bg-gradient-to-b from-violet-700 to-violet-900 px-5 pb-6 pt-12 text-white", headerClassName)}>
+        <div className={cn("bg-brand-gradient-sidebar px-5 pb-6 pt-12 text-white", headerClassName)}>
           {title && <h1 className="text-xl font-bold">{title}</h1>}
-          {subtitle && <p className="mt-1 text-sm text-violet-200">{subtitle}</p>}
+          {subtitle && <p className="mt-1 text-sm text-white/70">{subtitle}</p>}
         </div>
       )}
       {children}
@@ -42,7 +42,7 @@ export function ExecutiveBottomNav() {
       {items.map((item) => {
         const active = pathname.startsWith(item.href);
         return (
-          <Link key={item.href} href={item.href} className={cn("flex flex-1 flex-col items-center gap-1 text-xs", active ? "text-violet-600" : "text-slate-400")}>
+          <Link key={item.href} href={item.href} className={cn("flex flex-1 flex-col items-center gap-1 text-xs", active ? "text-brand" : "text-slate-400")}>
             <item.icon className="h-5 w-5" />
             {item.label}
           </Link>
@@ -67,7 +67,7 @@ export function AdminBottomNav() {
       {items.map((item) => {
         const active = pathname.startsWith(item.href);
         return (
-          <Link key={item.href} href={item.href} className={cn("flex flex-1 flex-col items-center gap-1 text-[10px]", active ? "text-violet-600" : "text-slate-400")}>
+          <Link key={item.href} href={item.href} className={cn("flex flex-1 flex-col items-center gap-1 text-[10px]", active ? "text-brand" : "text-slate-400")}>
             <item.icon className="h-5 w-5" />
             {item.label}
           </Link>

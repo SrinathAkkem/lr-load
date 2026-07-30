@@ -82,7 +82,7 @@ export default async function SuperAdminExecutivesPage({
           </p>
         </div>
         <div className="flex items-center gap-2 rounded-2xl border-0 bg-white px-4 py-2 text-xs uppercase tracking-wider font-bold text-[#6b7280] shadow-sm">
-          <Users className="h-4 w-4 text-[#7b4fd4]" />
+          <Users className="h-4 w-4 text-brand" />
           <span className="font-extrabold text-[#2d2d4e]">
             {executives.length}
           </span>
@@ -101,7 +101,7 @@ export default async function SuperAdminExecutivesPage({
             name="search"
             defaultValue={q}
             placeholder="Search executives by name or mobile..."
-            className="w-full rounded-full border border-[#e8edf5] bg-white pl-9 pr-4 py-2 text-sm font-semibold outline-none focus:border-[#7b4fd4] focus:bg-white focus:ring-2 focus:ring-[#f0ebfc]"
+            className="w-full rounded-full border border-[#e8edf5] bg-white pl-9 pr-4 py-2 text-sm font-semibold outline-none focus:border-brand focus:bg-white focus:ring-2 focus:ring-brand"
           />
         </div>
 
@@ -132,7 +132,7 @@ export default async function SuperAdminExecutivesPage({
 
         <button
           type="submit"
-          className="rounded-full bg-gradient-to-r from-[#7b4fd4] to-[#3b9fe8] px-5 py-2 text-sm font-bold text-white shadow-lg shadow-[#7b4fd4]/30 transition hover:shadow-xl"
+          className="rounded-full bg-brand-gradient px-5 py-2 text-sm font-bold text-white shadow-lg shadow-brand transition hover:shadow-xl"
         >
           Apply
         </button>
@@ -175,7 +175,7 @@ export default async function SuperAdminExecutivesPage({
                       {d.company ? (
                         <Link
                           href={`/super-admin/companies/${d.companyId}`}
-                          className="text-[#7b4fd4] font-bold hover:underline"
+                          className="text-brand font-bold hover:underline"
                         >
                           {d.company.name}
                         </Link>

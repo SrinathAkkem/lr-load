@@ -115,7 +115,7 @@ export default function CompanyDetailPage() {
     <div className="p-6 md:p-8">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-[#9ca3af]">
-        <Link href="/super-admin/companies" className="hover:text-[#7b4fd4] transition font-semibold">Companies</Link>
+        <Link href="/super-admin/companies" className="hover:text-brand transition font-semibold">Companies</Link>
         <span>/</span>
         <span className="font-bold text-[#2d2d4e]">{company.name}</span>
         <Link
@@ -128,9 +128,9 @@ export default function CompanyDetailPage() {
       </div>
 
       {/* Company Banner */}
-      <div className="mt-4 rounded-2xl border-0 bg-gradient-to-r from-[#f0ebfc] to-[#ebf5fd] p-5">
+      <div className="mt-4 rounded-2xl border-0 bg-gradient-to-r from-[var(--brand-gradient-start)]/10 to-[var(--brand-gradient-end)]/10 p-5">
         <div className="flex flex-wrap items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#7b4fd4] text-xs font-bold text-white">
+          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand text-xs font-bold text-white">
             {company.lrCode}
           </span>
           <div>
@@ -345,7 +345,7 @@ function LimitRow({
         <button
           type="button"
           onClick={() => bump(-1)}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-[#e8edf5] text-[#6b7280] transition hover:border-[#7b4fd4] hover:text-[#7b4fd4]"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-[#e8edf5] text-[#6b7280] transition hover:border-brand hover:text-brand"
           aria-label="Decrease"
         >
           <Minus className="h-3.5 w-3.5" />
@@ -361,7 +361,7 @@ function LimitRow({
         <button
           type="button"
           onClick={() => bump(1)}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-[#e8edf5] text-[#6b7280] transition hover:border-[#7b4fd4] hover:text-[#7b4fd4]"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-[#e8edf5] text-[#6b7280] transition hover:border-brand hover:text-brand"
           aria-label="Increase"
         >
           <Plus className="h-3.5 w-3.5" />
@@ -381,7 +381,7 @@ function UsageRow({
   max: number;
 }) {
   const pct = max > 0 ? Math.min(100, (used / max) * 100) : 0;
-  const tone = pct >= 90 ? "bg-[#e74c3c]" : pct >= 75 ? "bg-[#f5a623]" : "bg-gradient-to-r from-[#7b4fd4] to-[#3b9fe8]";
+  const tone = pct >= 90 ? "bg-[#e74c3c]" : pct >= 75 ? "bg-[#f5a623]" : "bg-brand-gradient";
   return (
     <div>
       <div className="flex items-center justify-between">

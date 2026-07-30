@@ -10,9 +10,9 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-[#f0ebfc] text-[#7b4fd4] [a&]:hover:bg-[#e5dcfa]",
+          "bg-brand-gradient-soft text-brand [a&]:hover:bg-[#e5dcfa]",
         secondary:
-          "bg-[#ebf5fd] text-[#3b9fe8] [a&]:hover:bg-[#d6ebfa]",
+          "bg-brand-gradient-soft text-[var(--brand-info)] [a&]:hover:bg-[#d6ebfa]",
         destructive:
           "bg-[#fdedec] text-[#e74c3c] [a&]:hover:bg-[#fcdcda]",
         success:
@@ -20,7 +20,7 @@ const badgeVariants = cva(
         warning:
           "bg-[#fef3e0] text-[#f5a623] [a&]:hover:bg-[#fde9c7]",
         outline:
-          "border border-[#e8edf5] text-[#6b7280] [a&]:hover:bg-[#fafbff] [a&]:hover:text-[#7b4fd4]",
+          "border border-[#e8edf5] text-[#6b7280] [a&]:hover:bg-[#fafbff] [a&]:hover:text-brand",
       },
     },
     defaultVariants: {

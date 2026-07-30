@@ -108,7 +108,7 @@ export default async function CompaniesListPage({
               <select
                 name="status"
                 defaultValue={status}
-                className="rounded-lg border border-[#e8edf5] bg-white px-3 py-1.5 text-xs font-semibold text-[#2d2d4e] outline-none focus:border-[#7b4fd4] focus:ring-2 focus:ring-[#f0ebfc]"
+                className="rounded-lg border border-[#e8edf5] bg-white px-3 py-1.5 text-xs font-semibold text-[#2d2d4e] outline-none focus:border-brand focus:ring-2 focus:ring-brand"
               >
                 <option value="all">All Status</option>
                 <option value="active">Active</option>
@@ -118,11 +118,11 @@ export default async function CompaniesListPage({
                 name="search"
                 defaultValue={search}
                 placeholder="Search by name or code…"
-                className="rounded-lg border border-[#e8edf5] bg-white px-3 py-1.5 text-xs font-semibold outline-none focus:border-[#7b4fd4] focus:ring-2 focus:ring-[#f0ebfc] min-w-[180px]"
+                className="rounded-lg border border-[#e8edf5] bg-white px-3 py-1.5 text-xs font-semibold outline-none focus:border-brand focus:ring-2 focus:ring-brand min-w-[180px]"
               />
               <button
                 type="submit"
-                className="rounded-full bg-gradient-to-r from-[#7b4fd4] to-[#3b9fe8] px-4 py-1.5 text-xs font-bold text-white shadow-md shadow-[#7b4fd4]/30 transition hover:shadow-lg"
+                className="rounded-full bg-brand-gradient px-4 py-1.5 text-xs font-bold text-white shadow-md shadow-brand transition hover:shadow-lg"
               >
                 Apply
               </button>
@@ -163,7 +163,7 @@ export default async function CompaniesListPage({
                   >
                     <td className="px-6 py-3.5">
                       <Link href={`/super-admin/companies/${company.id}`} className="block">
-                        <p className="font-bold text-[#2d2d4e] hover:text-[#7b4fd4] transition">
+                        <p className="font-bold text-[#2d2d4e] hover:text-brand transition">
                           {company.name}
                         </p>
                         <p className="text-[11px] font-semibold text-[#9ca3af]">
@@ -172,7 +172,7 @@ export default async function CompaniesListPage({
                       </Link>
                     </td>
                     <td className="px-4 py-3.5">
-                      <span className="rounded-full bg-[#f0ebfc] px-2.5 py-0.5 text-[11px] font-bold text-[#7b4fd4]">
+                      <span className="rounded-full bg-brand-gradient-soft px-2.5 py-0.5 text-[11px] font-bold text-brand">
                         {company.lrCode}
                       </span>
                     </td>
@@ -202,7 +202,7 @@ export default async function CompaniesListPage({
                       <div className="flex items-center justify-end gap-2">
                         <Link
                           href={`/super-admin/companies/${company.id}`}
-                          className="rounded-full border border-[#e8edf5] px-3 py-1 text-[11px] font-bold text-[#7b4fd4] transition hover:bg-[#f0ebfc]"
+                          className="rounded-full border border-[#e8edf5] px-3 py-1 text-[11px] font-bold text-brand transition hover:bg-brand-gradient-soft"
                         >
                           Edit Limits
                         </Link>
@@ -246,7 +246,7 @@ export default async function CompaniesListPage({
                   href={`/super-admin/companies?page=${p}${search ? `&search=${search}` : ""}${status !== "all" ? `&status=${status}` : ""}`}
                   className={`rounded-lg px-2.5 py-1 text-xs font-bold ${
                     p === page
-                      ? "bg-[#7b4fd4] text-white"
+                      ? "bg-brand text-white"
                       : "border border-[#e8edf5] text-[#6b7280] hover:bg-[#fafbff]"
                   }`}
                 >

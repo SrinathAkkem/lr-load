@@ -48,7 +48,7 @@ export default async function CompanyLRDetailPage({
 
       <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-violet-600">
+          <p className="text-xs font-semibold uppercase tracking-wide text-primary">
             Lorry Receipt
           </p>
           <h1 className="text-3xl font-bold">{lr.trackingId}</h1>
@@ -63,7 +63,7 @@ export default async function CompanyLRDetailPage({
               href={`/api/lr/${lr.id}/pdf`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 rounded-full border border-violet-200 bg-violet-50 px-4 py-1.5 text-sm font-semibold text-violet-700 transition hover:bg-violet-100"
+              className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-sm font-semibold text-primary transition hover:bg-primary/15"
             >
               <Download className="h-3.5 w-3.5" />
               PDF
@@ -73,7 +73,7 @@ export default async function CompanyLRDetailPage({
             href={`/qr/${lrRow.qrCode}`}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-sm font-semibold text-slate-600 transition hover:border-violet-200 hover:text-violet-700"
+            className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-sm font-semibold text-slate-600 transition hover:border-primary/20 hover:text-primary"
           >
             <ExternalLink className="h-3.5 w-3.5" />
             QR Tracking
@@ -93,14 +93,14 @@ export default async function CompanyLRDetailPage({
           <Card title="Consignor & Consignee">
             <div className="grid gap-6 md:grid-cols-2">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-violet-600">
+                <p className="text-xs font-semibold uppercase tracking-wide text-primary">
                   Consignor
                 </p>
                 <p className="mt-2 font-semibold">{lr.consignorName}</p>
                 <p className="mt-1 text-sm text-slate-500">{lr.consignorAddress}</p>
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-violet-600">
+                <p className="text-xs font-semibold uppercase tracking-wide text-primary">
                   Consignee
                 </p>
                 <p className="mt-2 font-semibold">{lr.consigneeName}</p>
@@ -252,7 +252,7 @@ function Timeline({ lr }: { lr: ReturnType<typeof toLR> }) {
         <li key={i} className="flex items-start gap-3">
           <span
             className={`mt-1 h-2.5 w-2.5 rounded-full ${
-              e.done ? "bg-violet-500" : "bg-slate-300"
+              e.done ? "bg-primary/100" : "bg-slate-300"
             }`}
           />
           <div>

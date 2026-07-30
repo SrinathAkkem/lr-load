@@ -136,7 +136,7 @@ export function PortalSidebar({
   };
 
   return (
-    <aside className="relative sticky top-0 flex h-screen w-[260px] shrink-0 flex-col overflow-hidden border-r border-[#2d2d4e]/20 bg-gradient-to-br from-[#5a3dc8] via-[#4a2fb8] to-[#3a1fa0] text-white">
+    <aside className="relative sticky top-0 flex h-screen w-[260px] shrink-0 flex-col overflow-hidden border-r border-white/10 bg-brand-gradient-sidebar text-white">
       {/* Decorative circles */}
       <div className="absolute -right-8 top-20 h-32 w-32 rounded-full bg-white/5" />
       <div className="absolute -left-8 bottom-32 h-24 w-24 rounded-full bg-white/5" />
@@ -185,7 +185,7 @@ export function PortalSidebar({
                   className={cn(
                     "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-semibold transition-all duration-200",
                     active
-                      ? "bg-gradient-to-r from-[#7b4fd4] to-[#3b9fe8] text-white shadow-md"
+                      ? "bg-brand-gradient text-white shadow-md"
                       : "text-white/70 hover:bg-white/[0.08] hover:text-white",
                   )}
                 >
@@ -213,7 +213,7 @@ export function PortalSidebar({
           onClick={() => setMenuOpen((v) => !v)}
           className="flex w-full items-center gap-3 rounded-xl p-2.5 text-left transition hover:bg-white/[0.08]"
         >
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#7b4fd4] to-[#3b9fe8] text-xs font-bold text-white shadow-md">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-gradient text-xs font-bold text-white shadow-md">
                 {initials || "U"}
               </div>
           <div className="min-w-0 flex-1">

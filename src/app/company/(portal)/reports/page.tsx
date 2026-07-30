@@ -182,7 +182,7 @@ export default async function CompanyReportsPage({
         <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold text-slate-900">LR Volume by Week</h2>
-            <span className="rounded-full bg-violet-50 px-3 py-1 text-[11px] font-semibold text-violet-700">
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">
               {new Date(from).toLocaleDateString("en-IN", { month: "short", year: "numeric" })}
             </span>
           </div>
@@ -193,7 +193,7 @@ export default async function CompanyReportsPage({
               return (
                 <div key={w.label} className="flex flex-col items-center gap-2">
                   <div
-                    className={`w-14 rounded-t-lg ${w.current ? "bg-violet-600" : "bg-violet-200"}`}
+                    className={`w-14 rounded-t-lg ${w.current ? "bg-primary" : "bg-primary/20"}`}
                     style={{ height: `${barH}px` }}
                   />
                   <span className="text-[10px] font-medium text-slate-500">{w.label}</span>
@@ -205,7 +205,7 @@ export default async function CompanyReportsPage({
             {weekBuckets.map((w) => (
               <div key={w.label}>
                 <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{w.fullLabel}</p>
-                <p className={`text-xl font-bold ${w.current ? "text-violet-600" : "text-slate-900"}`}>{w.count}</p>
+                <p className={`text-xl font-bold ${w.current ? "text-primary" : "text-slate-900"}`}>{w.count}</p>
                 <p className="text-[10px] text-slate-400">{w.current ? "LRs so far" : "LRs"}</p>
               </div>
             ))}
@@ -216,7 +216,7 @@ export default async function CompanyReportsPage({
         <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold text-slate-900">Top 5 Routes</h2>
-            <span className="rounded-full bg-violet-50 px-3 py-1 text-[11px] font-semibold text-violet-700">
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">
               By LR Volume
             </span>
           </div>
@@ -255,7 +255,7 @@ export default async function CompanyReportsPage({
         <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold text-slate-900">Freight by Payment Mode</h2>
-            <span className="rounded-full bg-violet-50 px-3 py-1 text-[11px] font-semibold text-violet-700">{monthLabel}</span>
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">{monthLabel}</span>
           </div>
 
           <div className="mt-5 grid grid-cols-3 gap-3">
@@ -292,7 +292,7 @@ export default async function CompanyReportsPage({
         <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold text-slate-900">Top Executives by LR Volume</h2>
-            <span className="rounded-full bg-violet-50 px-3 py-1 text-[11px] font-semibold text-violet-700">This Month</span>
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">This Month</span>
           </div>
 
           {topExecutives.length === 0 ? (
@@ -313,7 +313,7 @@ export default async function CompanyReportsPage({
                   {topExecutives.map((td, i) => {
                     const executive = executiveMap.get(td.executiveId);
                     const inits = executive?.name.split(/\s+/).map(n => n[0]).join("").slice(0, 2).toUpperCase() ?? "??";
-                    const colors = ["bg-violet-500", "bg-blue-500", "bg-emerald-500", "bg-amber-500", "bg-pink-500"];
+                    const colors = ["bg-primary/100", "bg-blue-500", "bg-emerald-500", "bg-amber-500", "bg-pink-500"];
                     return (
                       <tr key={td.executiveId} className="border-b border-slate-50 last:border-0">
                         <td className="py-3 pr-3 text-xs font-bold text-slate-300">{String(i + 1).padStart(2, "0")}</td>
@@ -324,11 +324,11 @@ export default async function CompanyReportsPage({
                           </div>
                         </td>
                         <td className="py-3 pr-3">
-                          <span className="rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-semibold text-violet-700">
+                          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
                             {executive?.branch?.name ?? "—"}
                           </span>
                         </td>
-                        <td className="py-3 pr-3 font-bold text-violet-700">{td._count?._all ?? 0}</td>
+                        <td className="py-3 pr-3 font-bold text-primary">{td._count?._all ?? 0}</td>
                         <td className="py-3 text-right font-semibold text-emerald-600">
                           {formatCurrency(Number(td._sum?.freightAmount?.toString() ?? "0"))}
                         </td>
@@ -350,7 +350,7 @@ export default async function CompanyReportsPage({
           </div>
           <div>
             <h3 className="text-sm font-bold">Export Full Report as PDF</h3>
-            <p className="text-xs text-violet-300">
+            <p className="text-xs text-white/60">
               Includes all LR details, route summary, freight breakdown and executive leaderboard for the selected period.
             </p>
           </div>

@@ -66,82 +66,104 @@
 
 :root {
   --radius: 1rem;
-  /* Figma Design Colors */
-  --background: 244 246 251;
-  --foreground: 45 45 78;
-  --card: 255 255 255;
-  --card-foreground: 45 45 78;
-  --popover: 255 255 255;
-  --popover-foreground: 45 45 78;
-  --primary: 123 79 212;
-  --primary-foreground: 255 255 255;
-  --secondary: 59 159 232;
-  --secondary-foreground: 255 255 255;
-  --muted: 232 237 245;
-  --muted-foreground: 107 114 128;
-  --accent: 123 79 212;
-  --accent-foreground: 255 255 255;
-  --destructive: 231 76 60;
-  --border: 232 237 245;
-  --input: 232 237 245;
-  --ring: 123 79 212;
-  --chart-1: 123 79 212;
-  --chart-2: 59 159 232;
-  --chart-3: 46 204 113;
-  --chart-4: 245 166 35;
-  --chart-5: 231 76 60;
-  --sidebar: 45 45 78;
-  --sidebar-foreground: 255 255 255;
-  --sidebar-primary: 123 79 212;
-  --sidebar-primary-foreground: 255 255 255;
-  --sidebar-accent: 59 159 232;
-  --sidebar-accent-foreground: 255 255 255;
-  --sidebar-border: 45 45 78;
-  --sidebar-ring: 123 79 212;
-  
-  /* Design System Colors */
-  --violet: 123 79 212;
-  --navy: 45 45 78;
-  --success: 46 204 113;
-  --warning: 245 166 35;
-  --error: 231 76 60;
-  --info: 59 159 232;
-  --gray: 107 114 128;
-  --light-gray: 156 163 175;
+
+  /* Brand — synced with lr-mobile-v2/constants/theme.ts */
+  --brand-primary: #5E3EA1;
+  --brand-primary-light: #7C3AED;
+  --brand-primary-dark: #4C1D95;
+  --brand-gradient-start: #8B359E;
+  --brand-gradient-end: #5E3EA1;
+  --brand-gradient: linear-gradient(135deg, var(--brand-gradient-start) 0%, var(--brand-gradient-end) 100%);
+  --brand-gradient-sidebar: linear-gradient(180deg, var(--brand-gradient-start) 0%, var(--brand-primary-dark) 100%);
+  --brand-gradient-soft: linear-gradient(135deg, rgb(139 53 158 / 0.12) 0%, rgb(94 62 161 / 0.08) 100%);
+  --brand-shadow: 0 10px 25px rgb(94 62 161 / 0.25);
+  --brand-ring: rgb(139 53 158 / 0.2);
+  --brand-surface: #F5F5F7;
+  --brand-text: #1E1E1E;
+  --brand-text-secondary: #4D4D4D;
+  --brand-text-muted: #64748B;
+  --brand-border: #E2E8F0;
+  --brand-success: #0C6B24;
+  --brand-warning: #967E1C;
+  --brand-error: #961C1C;
+  --brand-info: #2466DE;
+
+  /* shadcn / Tailwind semantic tokens (full color values for Tailwind v4) */
+  --background: #F5F5F7;
+  --foreground: #1E1E1E;
+  --card: #FFFFFF;
+  --card-foreground: #1E1E1E;
+  --popover: #FFFFFF;
+  --popover-foreground: #1E1E1E;
+  --primary: #5E3EA1;
+  --primary-foreground: #FFFFFF;
+  --secondary: #8B359E;
+  --secondary-foreground: #FFFFFF;
+  --muted: #F5F5F7;
+  --muted-foreground: #64748B;
+  --accent: #8B359E;
+  --accent-foreground: #FFFFFF;
+  --destructive: #961C1C;
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --ring: #5E3EA1;
+  --chart-1: #5E3EA1;
+  --chart-2: #8B359E;
+  --chart-3: #0C6B24;
+  --chart-4: #967E1C;
+  --chart-5: #961C1C;
+  --sidebar: #4C1D95;
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: #5E3EA1;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #8B359E;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #4C1D95;
+  --sidebar-ring: #7C3AED;
+
+  /* Legacy aliases used in some components */
+  --violet: #5E3EA1;
+  --navy: 30 30 30;
+  --success: 12 107 36;
+  --warning: 150 122 28;
+  --error: 150 28 28;
+  --info: 36 102 222;
+  --gray: 100 116 139;
+  --light-gray: 146 148 151;
 }
 
 .dark {
-  --background: oklch(0.147 0.004 49.25);
-  --foreground: oklch(0.985 0.001 106.423);
-  --card: oklch(0.216 0.006 56.043);
-  --card-foreground: oklch(0.985 0.001 106.423);
-  --popover: oklch(0.216 0.006 56.043);
-  --popover-foreground: oklch(0.985 0.001 106.423);
-  --primary: oklch(0.923 0.003 48.717);
-  --primary-foreground: oklch(0.216 0.006 56.043);
-  --secondary: oklch(0.268 0.007 34.298);
-  --secondary-foreground: oklch(0.985 0.001 106.423);
-  --muted: oklch(0.268 0.007 34.298);
-  --muted-foreground: oklch(0.709 0.01 56.259);
-  --accent: oklch(0.268 0.007 34.298);
-  --accent-foreground: oklch(0.985 0.001 106.423);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.553 0.013 58.071);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.216 0.006 56.043);
-  --sidebar-foreground: oklch(0.985 0.001 106.423);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0.001 106.423);
-  --sidebar-accent: oklch(0.268 0.007 34.298);
-  --sidebar-accent-foreground: oklch(0.985 0.001 106.423);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.553 0.013 58.071);
+  --background: #1a1a2e;
+  --foreground: #f5f5f7;
+  --card: #252540;
+  --card-foreground: #f5f5f7;
+  --popover: #252540;
+  --popover-foreground: #f5f5f7;
+  --primary: #7C3AED;
+  --primary-foreground: #FFFFFF;
+  --secondary: #8B359E;
+  --secondary-foreground: #FFFFFF;
+  --muted: #2d2d4a;
+  --muted-foreground: #94a3b8;
+  --accent: #8B359E;
+  --accent-foreground: #FFFFFF;
+  --destructive: #e74c3c;
+  --border: #3d3d5c;
+  --input: #3d3d5c;
+  --ring: #7C3AED;
+  --chart-1: #7C3AED;
+  --chart-2: #8B359E;
+  --chart-3: #2ecc71;
+  --chart-4: #f5a623;
+  --chart-5: #e74c3c;
+  --sidebar: #1a1a2e;
+  --sidebar-foreground: #f5f5f7;
+  --sidebar-primary: #7C3AED;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #8B359E;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #3d3d5c;
+  --sidebar-ring: #7C3AED;
 }
 
 @layer base {
@@ -150,5 +172,29 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .bg-brand-gradient {
+    background-image: var(--brand-gradient);
+  }
+  .bg-brand-gradient-sidebar {
+    background-image: var(--brand-gradient-sidebar);
+  }
+  .bg-brand-gradient-soft {
+    background-image: var(--brand-gradient-soft);
+  }
+  .shadow-brand {
+    box-shadow: var(--brand-shadow);
+  }
+  .text-brand {
+    color: var(--brand-primary);
+  }
+  .border-brand {
+    border-color: var(--brand-primary);
+  }
+  .ring-brand {
+    --tw-ring-color: var(--brand-ring);
   }
 }

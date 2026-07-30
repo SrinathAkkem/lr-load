@@ -131,7 +131,7 @@ export default function BillingPage() {
 
   const planColors = {
     basic: { border: "border-blue-200", bg: "bg-blue-50", text: "text-blue-700", badge: "bg-blue-100 text-blue-700" },
-    professional: { border: "border-violet-200", bg: "bg-violet-50", text: "text-violet-700", badge: "bg-violet-600 text-white" },
+    professional: { border: "border-primary/20", bg: "bg-primary/10", text: "text-primary", badge: "bg-primary text-white" },
     enterprise: { border: "border-amber-200", bg: "bg-amber-50", text: "text-amber-700", badge: "bg-amber-100 text-amber-700" },
   };
 
@@ -172,11 +172,11 @@ export default function BillingPage() {
             <div
               key={plan.id}
               className={`relative rounded-2xl border-2 bg-white p-6 shadow-sm transition hover:shadow-md ${
-                isPopular ? "border-violet-400 ring-2 ring-violet-100" : colors.border
+                isPopular ? "border-primary/40 ring-2 ring-primary/15" : colors.border
               }`}
             >
               {isPopular && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-violet-600 px-3 py-1 text-[10px] font-bold uppercase text-white">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase text-white">
                   Most Popular
                 </span>
               )}
@@ -199,7 +199,7 @@ export default function BillingPage() {
 
               <ul className="mt-5 space-y-3">
                 <li className="flex items-center gap-2 text-sm text-slate-600">
-                  <FileText className="h-4 w-4 text-violet-500" />
+                  <FileText className="h-4 w-4 text-primary" />
                   <span>{plan.maxLrPerMonth} LRs / month</span>
                 </li>
                 <li className="flex items-center gap-2 text-sm text-slate-600">
@@ -225,7 +225,7 @@ export default function BillingPage() {
                 disabled={processing === plan.id}
                 className={`mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition disabled:opacity-60 ${
                   isPopular
-                    ? "bg-violet-600 text-white hover:bg-violet-700"
+                    ? "bg-brand-gradient text-white hover:opacity-95"
                     : "border border-slate-200 bg-white text-slate-800 hover:bg-slate-50"
                 }`}
               >

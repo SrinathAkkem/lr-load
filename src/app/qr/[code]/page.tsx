@@ -61,7 +61,7 @@ export default function QRLandingPage({
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
         <div className="rounded-2xl border bg-white p-8 text-center shadow-sm">
-          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-violet-200 border-t-violet-600" />
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
           <p className="mt-3 text-sm text-slate-500">Loading LR details…</p>
         </div>
       </div>
@@ -100,7 +100,7 @@ export default function QRLandingPage({
               className="h-12 w-12 rounded-xl border border-slate-200 object-contain bg-white"
             />
           ) : (
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-100 text-violet-700">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/15 text-primary">
               <Truck className="h-6 w-6" />
             </div>
           )}
@@ -111,20 +111,20 @@ export default function QRLandingPage({
             <p className="mt-0.5 text-[11px] text-slate-500">
               GSTIN {data.company?.gstNumber}
             </p>
-            <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-violet-50 px-2 py-0.5 text-[11px] font-semibold text-violet-700 ring-1 ring-violet-100">
+            <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary ring-1 ring-primary/15">
               <Shield className="h-3 w-3" /> Verified Lorry Receipt
             </p>
           </div>
         </div>
       </header>
 
-      <div className="mx-4 mt-4 overflow-hidden rounded-2xl bg-gradient-to-br from-violet-600 via-violet-500 to-indigo-600 p-5 text-white shadow-lg">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-200">
+      <div className="mx-4 mt-4 overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--brand-gradient-start)] via-[var(--brand-primary-light)] to-[var(--brand-gradient-end)] p-5 text-white shadow-lg">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/70">
           Lorry Receipt Number
         </p>
         <p className="mt-1 text-2xl font-bold">{data.lrNumber}</p>
         <div className="mt-4 flex items-center justify-between text-xs">
-          <span className="text-violet-100">Dispatched {data.dispatchDate}</span>
+          <span className="text-white/80">Dispatched {data.dispatchDate}</span>
           <span
             className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ring-1 backdrop-blur ${statusClass}`}
           >
@@ -140,7 +140,7 @@ export default function QRLandingPage({
         </div>
         <div className="mt-3 rounded-xl bg-slate-50 p-3 text-xs">
           <p className="font-semibold text-slate-700">Vehicle</p>
-          <p className="mt-0.5 font-mono text-base font-bold text-violet-700">
+          <p className="mt-0.5 font-mono text-base font-bold text-primary">
             {data.vehicleNumber}
           </p>
         </div>
@@ -164,7 +164,7 @@ export default function QRLandingPage({
 
       <Section title="Freight">
         <div className="flex items-end justify-between">
-          <p className="text-2xl font-bold text-violet-700">
+          <p className="text-2xl font-bold text-primary">
             {formatINR(data.freightAmount)}
           </p>
           <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 ring-1 ring-amber-200">
@@ -178,7 +178,7 @@ export default function QRLandingPage({
           href={data.pdfUrl}
           target="_blank"
           rel="noreferrer"
-          className="mx-4 mt-6 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 py-4 font-bold text-white shadow-lg shadow-violet-500/20 transition active:scale-[0.99]"
+          className="mx-4 mt-6 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[var(--brand-gradient-start)] to-[var(--brand-gradient-end)] py-4 font-bold text-white shadow-lg shadow-brand transition active:scale-[0.99]"
         >
           <Download className="h-5 w-5" /> Download LR PDF
         </a>
@@ -205,7 +205,7 @@ function Section({
 }) {
   return (
     <section className="mx-4 mt-3 rounded-2xl border bg-white p-4 shadow-sm">
-      <h2 className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-violet-700">
+      <h2 className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-primary">
         {icon} {title}
       </h2>
       <div className="mt-3 text-sm text-slate-700">{children}</div>
@@ -235,7 +235,7 @@ function Party({
 }) {
   return (
     <div className="rounded-xl border border-slate-100 p-3">
-      <p className="text-[10px] font-semibold uppercase tracking-wide text-violet-600">
+      <p className="text-[10px] font-semibold uppercase tracking-wide text-primary">
         {label}
       </p>
       <p className="mt-1 font-semibold text-slate-900">{name}</p>

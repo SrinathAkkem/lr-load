@@ -27,7 +27,7 @@ export function DashboardSearch() {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search LRs, executives..."
-        className="w-full rounded-full border border-slate-200 bg-slate-50 py-2 pl-9 pr-4 text-sm outline-none transition focus:border-violet-300 focus:bg-white focus:ring-2 focus:ring-violet-100"
+        className="w-full rounded-full border border-slate-200 bg-slate-50 py-2 pl-9 pr-4 text-sm outline-none transition focus:border-primary/40 focus:bg-white focus:ring-2 focus:ring-brand"
       />
     </form>
   );

@@ -94,7 +94,7 @@ export function AddCompanyButton() {
   return (
     <>
       <Button
-        className="bg-violet-600 hover:bg-violet-700"
+       
         onClick={() => setOpen(true)}
       >
         <Plus className="mr-1 h-4 w-4" />
@@ -217,7 +217,7 @@ export function AddCompanyButton() {
               </Button>
               <Button
                 type="submit"
-                className="bg-violet-600 hover:bg-violet-700"
+               
                 disabled={busy}
               >
                 {busy ? "Creating…" : "Create Company"}

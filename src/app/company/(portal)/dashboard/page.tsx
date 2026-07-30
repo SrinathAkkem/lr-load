@@ -107,9 +107,9 @@ export default async function CompanyDashboardPage() {
           title="Delivered (Month)"
           value={stats.delivered}
           subtitle={`${stats.inTransit} in transit`}
-          icon={<Truck className="h-5 w-5 text-violet-600" />}
-          iconBg="bg-violet-50"
-          valueColor="text-violet-600"
+          icon={<Truck className="h-5 w-5 text-primary" />}
+          iconBg="bg-primary/10"
+          valueColor="text-primary"
         />
       </div>
 
@@ -120,7 +120,7 @@ export default async function CompanyDashboardPage() {
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold text-slate-900">LR Volume — {monthName}</h2>
             <div className="flex items-center gap-2">
-              <span className="rounded-full bg-violet-100 px-3 py-1 text-[11px] font-semibold text-violet-700">
+              <span className="rounded-full bg-primary/15 px-3 py-1 text-[11px] font-semibold text-primary">
                 Weekly
               </span>
               <span className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-medium text-slate-600">
@@ -153,7 +153,7 @@ export default async function CompanyDashboardPage() {
         <div className="lg:col-span-2 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold text-slate-900">Top Routes This Month</h2>
-            <span className="rounded-full bg-violet-50 px-3 py-1 text-[11px] font-semibold text-violet-700">
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">
               Top 5
             </span>
           </div>
@@ -195,12 +195,12 @@ export default async function CompanyDashboardPage() {
       {/* Bottom row: Total Freight + Recent Activity + Platform Quota */}
       <div className="mt-8 grid gap-6 lg:grid-cols-3">
         {/* Total Freight Value */}
-        <div className="rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-700 p-6 text-white shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-violet-200">
+        <div className="rounded-2xl bg-gradient-to-br from-[var(--brand-gradient-start)] to-[var(--brand-gradient-end)] p-6 text-white shadow-sm">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-white/70">
             Total Freight Value — {monthName}
           </p>
           <p className="mt-3 text-4xl font-bold">{formatCurrency(stats.freightTotal)}</p>
-          <p className="mt-1 text-sm text-violet-200">
+          <p className="mt-1 text-sm text-white/70">
             Across {stats.totalLrs} LRs issued this month
           </p>
 
@@ -208,7 +208,7 @@ export default async function CompanyDashboardPage() {
             {payments.map((p) => (
               <div key={p.mode} className="text-center">
                 <p className="text-lg font-bold text-white">{formatCompact(p.amount)}</p>
-                <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-violet-300">
+                <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/60">
                   {p.mode === "TO_PAY" ? "To Pay" : p.mode === "PAID" ? "Paid" : "To Be Billed"}
                 </p>
               </div>
@@ -222,7 +222,7 @@ export default async function CompanyDashboardPage() {
             <h2 className="text-base font-semibold text-slate-900">Recent Activity</h2>
             <Link
               href="/company/lr"
-              className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-semibold text-slate-600 transition hover:border-violet-200 hover:text-violet-600"
+              className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-semibold text-slate-600 transition hover:border-primary/20 hover:text-primary"
             >
               See all
             </Link>

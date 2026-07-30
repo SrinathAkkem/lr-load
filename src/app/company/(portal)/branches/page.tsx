@@ -172,7 +172,7 @@ export default function BranchesPage() {
           <Button
             onClick={openAddModal}
             disabled={remaining === 0}
-            className="bg-violet-600 hover:bg-violet-700"
+           
           >
             <Plus className="mr-1.5 h-4 w-4" />
             Add New Branch
@@ -194,11 +194,11 @@ export default function BranchesPage() {
             {branches.map((b) => (
               <div
                 key={b.id}
-                className="rounded-2xl border-0 border-slate-100 bg-white p-5 shadow-sm transition hover:border-violet-200 hover:shadow-md"
+                className="rounded-2xl border-0 border-slate-100 bg-white p-5 shadow-sm transition hover:border-primary/20 hover:shadow-md"
               >
                 <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50">
-                    <Building2 className="h-5 w-5 text-violet-600" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                    <Building2 className="h-5 w-5 text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-slate-900">{b.name}</h3>
@@ -221,7 +221,7 @@ export default function BranchesPage() {
                     <p className="text-[10px] font-medium text-slate-500">Executives</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-xl font-bold text-violet-600">{b.lrsThisMonth}</p>
+                    <p className="text-xl font-bold text-primary">{b.lrsThisMonth}</p>
                     <p className="text-[10px] font-medium text-slate-500">LRs (Month)</p>
                   </div>
                   <div className="text-center">
@@ -237,14 +237,14 @@ export default function BranchesPage() {
                       setEditing(b);
                       setEditForm({ name: b.name, city: b.city, state: b.state });
                     }}
-                    className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 py-2 text-xs font-semibold text-slate-700 transition hover:border-violet-300 hover:text-violet-700"
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 py-2 text-xs font-semibold text-slate-700 transition hover:border-primary/30 hover:text-primary"
                   >
                     <Pencil className="h-3 w-3" />
                     Edit
                   </button>
                   <button
                     type="button"
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-violet-300 hover:text-violet-700"
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-primary/30 hover:text-primary"
                   >
                     <FileText className="h-3 w-3" />
                     LRs
@@ -267,7 +267,7 @@ export default function BranchesPage() {
               <button
                 type="button"
                 onClick={openAddModal}
-                className="flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-slate-200 bg-white p-8 text-slate-400 transition hover:border-violet-300 hover:text-violet-600"
+                className="flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-slate-200 bg-white p-8 text-slate-400 transition hover:border-primary/30 hover:text-primary"
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-dashed border-current">
                   <Plus className="h-6 w-6" />
@@ -347,7 +347,7 @@ export default function BranchesPage() {
               <Button
                 type="submit"
                 disabled={creating}
-                className="bg-violet-600 hover:bg-violet-700"
+               
               >
                 <CheckCircle className="mr-1.5 h-4 w-4" />
                 {creating ? "Creating…" : "Create Branch"}
@@ -411,7 +411,7 @@ export default function BranchesPage() {
                 <Button variant="outline" onClick={() => setEditing(null)} disabled={savingEdit}>
                   Cancel
                 </Button>
-                <Button onClick={saveEdit} disabled={savingEdit} className="bg-violet-600 hover:bg-violet-700">
+                <Button onClick={saveEdit} disabled={savingEdit}>
                   {savingEdit ? "Saving…" : "Save Changes"}
                 </Button>
               </div>

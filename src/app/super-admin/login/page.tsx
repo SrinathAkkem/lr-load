@@ -44,7 +44,7 @@ export default function SuperAdminLoginPage() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#2d2d4e]">
         <div className="text-center">
-          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#7b4fd4] border-t-white" />
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-brand border-t-white" />
           <p className="mt-4 text-sm font-bold text-white">Loading dashboard...</p>
         </div>
       </div>
@@ -54,7 +54,7 @@ export default function SuperAdminLoginPage() {
   return (
     <div className="flex min-h-screen">
       {/* Left Panel */}
-      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-br from-[#5a3dc8] via-[#4a2fb8] to-[#3a1fa0] p-12 text-white lg:flex">
+      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-brand-gradient-sidebar p-12 text-white lg:flex">
         {/* Decorative circles */}
         <div className="absolute -right-16 -top-20 h-64 w-64 rounded-full bg-white/5" />
         <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-white/5" />
@@ -96,7 +96,7 @@ export default function SuperAdminLoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1.5 h-11 rounded-lg border-[#e8edf5] bg-white px-4 text-sm font-semibold focus:border-[#7b4fd4] focus:ring-[#f0ebfc]"
+                className="mt-1.5 h-11 rounded-lg border-[#e8edf5] bg-white px-4 text-sm font-semibold focus:border-brand focus:ring-brand"
                 required
               />
             </div>
@@ -107,7 +107,7 @@ export default function SuperAdminLoginPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1.5 h-11 rounded-lg border-[#e8edf5] bg-white px-4 text-sm font-semibold focus:border-[#7b4fd4] focus:ring-[#f0ebfc]"
+                className="mt-1.5 h-11 rounded-lg border-[#e8edf5] bg-white px-4 text-sm font-semibold focus:border-brand focus:ring-brand"
                 required
               />
             </div>
@@ -116,13 +116,13 @@ export default function SuperAdminLoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-gradient-to-r from-[#7b4fd4] to-[#3b9fe8] px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#7b4fd4]/30 transition-all hover:shadow-xl hover:shadow-[#7b4fd4]/40 disabled:opacity-50 active:scale-[0.98]"
+            className="w-full rounded-lg bg-brand-gradient px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-brand transition-all hover:shadow-xl hover:shadow-brand disabled:opacity-50 active:scale-[0.98]"
           >
             {loading ? "Signing in..." : "Sign In to Admin Portal"}
           </button>
 
-          <div className="flex items-start gap-3 rounded-xl border-0 bg-[#ebf5fd] p-4">
-            <Lock className="mt-0.5 h-4 w-4 shrink-0 text-[#3b9fe8]" />
+          <div className="flex items-start gap-3 rounded-xl border-0 bg-brand-gradient-soft p-4">
+            <Lock className="mt-0.5 h-4 w-4 shrink-0 text-[var(--brand-info)]" />
             <div className="text-xs font-semibold leading-relaxed text-[#2d2d4e]">
               <p>
                 This portal is restricted to Rayudu Group / RonoHub administrators.

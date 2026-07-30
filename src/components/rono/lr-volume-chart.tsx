@@ -69,7 +69,7 @@ export function LrVolumeChart({
                 onClick={() => setRange(r)}
                 className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
                   range === r
-                    ? "bg-violet-600 text-white shadow"
+                    ? "bg-primary text-white shadow"
                     : "text-slate-500 hover:text-slate-900"
                 }`}
               >
@@ -89,7 +89,7 @@ export function LrVolumeChart({
                 onClick={() => setRange(r)}
                 className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
                   range === r
-                    ? "bg-violet-600 text-white shadow"
+                    ? "bg-primary text-white shadow"
                     : "text-slate-500 hover:text-slate-900"
                 }`}
               >
