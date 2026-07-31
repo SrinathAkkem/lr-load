@@ -102,7 +102,11 @@ export async function generateLrPdf(
     y,
     w: halfW,
     title: "TO (CONSIGNEE)",
-    name: pdfText(view.consigneeName),
+    name: pdfText(
+      view.consigneeCompany
+        ? `${view.consigneeCompany}\n${view.consigneeName}`
+        : view.consigneeName,
+    ),
     address: pdfText(`${view.consigneeAddress}\nPhone: ${view.consigneePhone}`),
   });
   y -= 110;

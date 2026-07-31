@@ -56,6 +56,7 @@ export interface LRRequest {
   executiveId: string;
   consignorName: string;
   consignorAddress: string;
+  consigneeCompany: string | null;
   consigneeName: string;
   consigneeAddress: string;
   consigneePhone: string;

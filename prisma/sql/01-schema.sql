@@ -66,6 +66,7 @@ CREATE TABLE `LRRequest` (
     `executiveId` VARCHAR(191) NOT NULL,
     `consignorName` VARCHAR(255) NOT NULL,
     `consignorAddress` TEXT NOT NULL,
+    `consigneeCompany` VARCHAR(255) NULL,
     `consigneeName` VARCHAR(255) NOT NULL,
     `consigneeAddress` TEXT NOT NULL,
     `consigneePhone` VARCHAR(15) NOT NULL,

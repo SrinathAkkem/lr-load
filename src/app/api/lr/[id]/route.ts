@@ -139,7 +139,7 @@ export async function PATCH(
 
   const ALLOWED_FIELDS = [
     "consignorName", "consignorAddress",
-    "consigneeName", "consigneeAddress", "consigneePhone",
+    "consigneeCompany", "consigneeName", "consigneeAddress", "consigneePhone",
     "originCity", "destinationCity", "vehicleNumber",
     "goodsDescription", "noOfPackages", "weightKg",
     "declaredValue", "freightAmount", "paymentMode",

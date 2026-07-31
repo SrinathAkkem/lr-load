@@ -90,6 +90,7 @@ type PrismaLR = {
   executiveId: string;
   consignorName: string;
   consignorAddress: string;
+  consigneeCompany: string | null;
   consigneeName: string;
   consigneeAddress: string;
   consigneePhone: string;
@@ -181,6 +182,7 @@ export function toLR(lr: PrismaLR): LRRequest {
     executiveId: lr.executiveId,
     consignorName: lr.consignorName,
     consignorAddress: lr.consignorAddress,
+    consigneeCompany: lr.consigneeCompany,
     consigneeName: lr.consigneeName,
     consigneeAddress: lr.consigneeAddress,
     consigneePhone: lr.consigneePhone,

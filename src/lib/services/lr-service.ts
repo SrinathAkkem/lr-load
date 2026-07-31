@@ -227,6 +227,7 @@ export async function createLR(
       executiveId,
       consignorName: input.consignorName,
       consignorAddress: input.consignorAddress,
+      consigneeCompany: input.consigneeCompany ?? null,
       consigneeName: input.consigneeName,
       consigneeAddress: input.consigneeAddress,
       consigneePhone: input.consigneePhone,

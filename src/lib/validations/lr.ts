@@ -5,6 +5,7 @@ export const paymentModes = ["To Pay", "Paid", "To Be Billed"] as const;
 export const createLRSchema = z.object({
   consignorName: z.string().min(1, "Consignor name is required"),
   consignorAddress: z.string().min(1, "Consignor address is required"),
+  consigneeCompany: z.string().optional(),
   consigneeName: z.string().min(1, "Consignee name is required"),
   consigneeAddress: z.string().min(1, "Consignee address is required"),
   consigneePhone: z

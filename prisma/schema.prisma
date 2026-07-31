@@ -115,6 +115,7 @@ model LRRequest {
 
   consignorName       String      @db.VarChar(255)
   consignorAddress    String      @db.Text
+  consigneeCompany    String?     @db.VarChar(255)
   consigneeName       String      @db.VarChar(255)
   consigneeAddress    String      @db.Text
   consigneePhone      String      @db.VarChar(15)
