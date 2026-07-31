@@ -23,7 +23,7 @@ export default function BillingPage() {
           </h2>
           
           <p className="text-gray-600 mb-6 max-w-md mx-auto">
-            We're working on bringing you a seamless billing experience with flexible plans 
+            We&apos;re working on bringing you a seamless billing experience with flexible plans 
             and payment options. This feature will be available in an upcoming release.
           </p>
 
