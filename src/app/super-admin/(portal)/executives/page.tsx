@@ -73,7 +73,7 @@ export default async function SuperAdminExecutivesPage({
   ]);
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4 md:p-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-2xl font-bold text-slate-900">All Executives</h2>
@@ -95,7 +95,7 @@ export default async function SuperAdminExecutivesPage({
         method="GET"
         className="mt-6 flex flex-wrap items-center gap-3 rounded-2xl border-0 bg-white p-3 shadow-sm"
       >
-        <div className="relative min-w-[260px] flex-1">
+        <div className="relative min-w-0 flex-1 basis-full sm:basis-[260px]">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9ca3af]" />
           <input
             name="search"
@@ -132,7 +132,7 @@ export default async function SuperAdminExecutivesPage({
 
         <button
           type="submit"
-          className="rounded-full bg-brand-gradient px-5 py-2 text-sm font-bold text-white shadow-lg shadow-brand transition hover:shadow-xl"
+          className="w-full rounded-full bg-brand-gradient px-5 py-2 text-sm font-bold text-white shadow-lg shadow-brand transition hover:shadow-xl sm:w-auto"
         >
           Apply
         </button>

@@ -174,7 +174,7 @@ export default function CompanyProfilePage() {
   }
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4 md:p-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-slate-500">
           These details appear on every LR PDF and the public QR landing.

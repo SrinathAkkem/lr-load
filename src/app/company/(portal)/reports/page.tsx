@@ -162,7 +162,7 @@ export default async function CompanyReportsPage({
   const dateRangeLabel = `${from.toLocaleDateString("en-IN", { month: "short", day: "2-digit" })}–${toRaw.toLocaleDateString("en-IN", { day: "2-digit" })}, ${from.getFullYear()}`;
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4 md:p-8">
       <ReportsFilters
         branches={branches}
         initial={{
@@ -210,7 +210,7 @@ export default async function CompanyReportsPage({
               {new Date(from).toLocaleDateString("en-IN", { month: "short", year: "numeric" })}
             </span>
           </div>
-          <div className="mt-8 flex items-end justify-between gap-4 px-4">
+          <div className="mt-8 flex items-end justify-between gap-2 overflow-x-auto px-1 sm:gap-4 sm:px-4">
             {weekBuckets.map((w) => {
               const maxCount = Math.max(...weekBuckets.map(b => b.count), 1);
               const barH = Math.max(12, (w.count / maxCount) * 120);
@@ -225,7 +225,7 @@ export default async function CompanyReportsPage({
               );
             })}
           </div>
-          <div className="mt-6 flex items-center gap-6 border-t border-slate-100 pt-4">
+          <div className="mt-6 flex flex-wrap items-center gap-4 border-t border-slate-100 pt-4 sm:gap-6">
             {weekBuckets.map((w) => (
               <div key={w.label}>
                 <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{w.fullLabel}</p>
@@ -282,7 +282,7 @@ export default async function CompanyReportsPage({
             <span className="rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">{monthLabel}</span>
           </div>
 
-          <div className="mt-5 grid grid-cols-3 gap-3">
+          <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
             {paymentBreakdown.map((p) => {
               const colors = { TO_PAY: "border-amber-200 bg-amber-50", PAID: "border-emerald-200 bg-emerald-50", TO_BE_BILLED: "border-indigo-200 bg-indigo-50" };
               const textColors = { TO_PAY: "text-amber-700", PAID: "text-emerald-700", TO_BE_BILLED: "text-indigo-700" };
@@ -367,9 +367,9 @@ export default async function CompanyReportsPage({
       </div>
 
       {/* Export Full Report */}
-      <div className="mt-8 flex items-center justify-between rounded-2xl bg-gradient-to-r from-[#1e1145] to-[#2d1b69] p-6 text-white">
+      <div className="mt-8 flex flex-col gap-5 rounded-2xl bg-gradient-to-r from-[#1e1145] to-[#2d1b69] p-5 text-white sm:flex-row sm:items-center sm:justify-between md:p-6">
         <div className="flex items-center gap-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10">
             <FileText className="h-5 w-5 text-white" />
           </div>
           <div>

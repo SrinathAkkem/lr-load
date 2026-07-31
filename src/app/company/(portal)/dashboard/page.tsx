@@ -80,7 +80,7 @@ export default async function CompanyDashboardPage() {
   const monthName = new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" });
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4 md:p-8">
       {/* 4 Stat Cards */}
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCardCustom
@@ -136,7 +136,7 @@ export default async function CompanyDashboardPage() {
             <LrVolumeChart daily={daily} monthly={monthly} title="" />
           </div>
 
-          <div className="mt-4 flex items-center gap-8 border-t border-slate-100 pt-4">
+          <div className="mt-4 flex flex-wrap items-center gap-6 border-t border-slate-100 pt-4 sm:gap-8">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Month Total</p>
               <p className="mt-0.5 text-2xl font-bold text-slate-900">{stats.totalLrs}</p>
@@ -207,7 +207,7 @@ export default async function CompanyDashboardPage() {
             Across {stats.totalLrs} LRs issued this month
           </p>
 
-          <div className="mt-6 grid grid-cols-3 gap-3">
+          <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-3">
             {payments.map((p) => (
               <div key={p.mode} className="text-center">
                 <p className="text-lg font-bold text-white">{formatCompact(p.amount)}</p>

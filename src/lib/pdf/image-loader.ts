@@ -22,11 +22,13 @@ export async function loadImageBytes(
     }
 
     if (url.startsWith("/uploads/")) {
-      const lower = url.toLowerCase();
-      if (lower.endsWith(".svg")) return null;
       const file = await getUpload(url);
       if (!file) return null;
-      const kind: "png" | "jpg" = lower.endsWith(".png") ? "png" : "jpg";
+      // Trust the stored mime (sniffed from real bytes at upload time and
+      // normalized to jpeg/png), not the filename extension — legacy
+      // records or edge cases could otherwise mismatch the extension.
+      if (file.mime === "image/svg+xml") return null;
+      const kind: "png" | "jpg" = file.mime === "image/png" ? "png" : "jpg";
       return { bytes: new Uint8Array(file.data), kind };
     }
 

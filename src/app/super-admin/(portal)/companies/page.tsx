@@ -79,7 +79,7 @@ export default async function CompaniesListPage({
   const totalPages = Math.ceil(totalCount / perPage);
 
   return (
-    <div className="p-6 md:p-8 bg-[#f4f6fb]">
+    <div className="p-4 md:p-8 bg-[#f4f6fb]">
       {/* Header with totals and Add Company */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-4 text-sm">
@@ -100,7 +100,7 @@ export default async function CompaniesListPage({
 
       {/* Section title + Filter bar */}
       <div className="mt-6 rounded-2xl border-0 bg-white shadow-sm">
-        <div className="border-b border-[#e8edf5] px-6 py-4">
+        <div className="border-b border-[#e8edf5] px-4 py-4 md:px-6">
           <h2 className="text-base font-bold text-[#2d2d4e]">All Onboarded Companies</h2>
           <div className="mt-3 flex flex-wrap items-center gap-3">
             <span className="text-xs font-bold text-[#6b7280]">Filter by:</span>
@@ -118,7 +118,7 @@ export default async function CompaniesListPage({
                 name="search"
                 defaultValue={search}
                 placeholder="Search by name or code…"
-                className="rounded-lg border border-[#e8edf5] bg-white px-3 py-1.5 text-xs font-semibold outline-none focus:border-brand focus:ring-2 focus:ring-brand min-w-[180px]"
+                className="min-w-0 flex-1 basis-full rounded-lg border border-[#e8edf5] bg-white px-3 py-1.5 text-xs font-semibold outline-none focus:border-brand focus:ring-2 focus:ring-brand sm:basis-auto sm:min-w-[180px]"
               />
               <button
                 type="submit"
@@ -227,11 +227,11 @@ export default async function CompaniesListPage({
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-[#e8edf5] px-6 py-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#e8edf5] px-4 py-3 md:px-6">
             <p className="text-xs font-semibold text-[#9ca3af]">
               Showing {(page - 1) * perPage + 1}–{Math.min(page * perPage, totalCount)} of {totalCount} companies
             </p>
-            <div className="flex items-center gap-1">
+            <div className="flex flex-wrap items-center gap-1">
               {page > 1 && (
                 <Link
                   href={`/super-admin/companies?page=${page - 1}${search ? `&search=${search}` : ""}${status !== "all" ? `&status=${status}` : ""}`}

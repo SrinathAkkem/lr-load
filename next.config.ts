@@ -7,17 +7,21 @@ import type { NextConfig } from "next";
  *  • Hostinger VPS / AWS EC2 / ECS Fargate
  *
  * Notes:
- *  - `images.unoptimized: true` keeps us off `sharp`, which is finicky on
- *    Hostinger shared hosting. The `/uploads/*` images we serve (logo, stamp,
- *    signatures, goods photos) are already small and pre-validated, so the
- *    optimizer doesn't add value here.
+ *  - `images.unoptimized: true` keeps Next's built-in image optimizer (which
+ *    also uses sharp internally) off the `/uploads/*` route — those images
+ *    are already small and pre-validated, so the optimizer doesn't add
+ *    value there. We still use `sharp` directly (server-side only, in
+ *    `src/lib/storage/image-normalize.ts`) to normalize uploaded photos —
+ *    it's guarded with a try/catch fallback so a missing/broken native
+ *    binary on a constrained host degrades gracefully instead of failing
+ *    uploads.
  *  - `output: "standalone"` produces `.next/standalone/server.js`, a
  *    self-contained server with the minimal `node_modules` it needs. Hostinger's
  *    Node.js App can target that file to keep memory/disk usage low.
  *  - `outputFileTracingIncludes` makes sure Prisma's query engine binary is
  *    copied into the standalone bundle (Next's tracer otherwise misses it).
- *  - `serverExternalPackages` keeps native modules (Prisma, bcryptjs) as
- *    runtime requires rather than bundled.
+ *  - `serverExternalPackages` keeps native modules (Prisma, bcryptjs, sharp)
+ *    as runtime requires rather than bundled.
  */
 const nextConfig: NextConfig = {
   output: "standalone",
@@ -45,7 +49,7 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  serverExternalPackages: ["@prisma/client", "prisma", "bcryptjs"],
+  serverExternalPackages: ["@prisma/client", "prisma", "bcryptjs", "sharp"],
 
   async redirects() {
     return [];

@@ -1,5 +1,6 @@
 import { randomBytes } from "crypto";
 import { prisma } from "@/lib/db/prisma";
+import { normalizeImage } from "./image-normalize";
 
 /**
  * File storage backed by MySQL LONGBLOB.
@@ -37,6 +38,46 @@ const EXT_FROM_MIME: Record<string, string> = {
   "image/svg+xml": "svg",
 };
 
+/**
+ * Sniff the real image format from magic bytes instead of trusting the
+ * caller-provided MIME type. Clients (mobile in particular) sometimes send
+ * a hardcoded/incorrect Content-Type (e.g. a PNG logo uploaded as
+ * "image/jpeg"), which then gets the wrong file extension and later fails
+ * to embed in generated PDFs (embedJpg throws on non-JPEG bytes). Detecting
+ * the real format here keeps storage + downstream PDF embedding correct
+ * regardless of what the client claims.
+ */
+function detectRealMime(data: Buffer | Uint8Array, fallback: string): string {
+  const b = data instanceof Buffer ? data : Buffer.from(data);
+  if (b.length >= 8 && b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47) {
+    return "image/png";
+  }
+  if (b.length >= 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) {
+    return "image/jpeg";
+  }
+  if (
+    b.length >= 12 &&
+    b[0] === 0x52 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x46 &&
+    b[8] === 0x57 && b[9] === 0x45 && b[10] === 0x42 && b[11] === 0x50
+  ) {
+    return "image/webp";
+  }
+  if (b.length >= 4 && b[0] === 0x00 && b[1] === 0x00 && b[2] === 0x00 && (b[3] === 0x18 || b[3] === 0x1c || b[3] === 0x20)) {
+    // HEIC/HEIF ftyp box heuristic — only used if the box actually says heic.
+    const boxType = b.slice(4, 8).toString("ascii");
+    if (boxType === "ftyp") {
+      const brand = b.slice(8, 12).toString("ascii");
+      if (/^(heic|heix|hevc|heim|heis|mif1)$/i.test(brand)) return "image/heic";
+    }
+  }
+  // SVG is text-based — sniff for the tag rather than magic bytes.
+  const head = b.slice(0, 256).toString("utf8").trim().toLowerCase();
+  if (head.startsWith("<?xml") || head.startsWith("<svg")) {
+    return "image/svg+xml";
+  }
+  return fallback;
+}
+
 export interface SaveResult {
   url: string;
   bytes: number;
@@ -72,25 +113,44 @@ function validate(args: SaveArgs): void {
 }
 
 export async function saveUpload(args: SaveArgs): Promise<SaveResult> {
-  validate(args);
+  // Trust the actual file bytes over whatever Content-Type the client sent —
+  // this keeps the stored extension/mime accurate even when a client
+  // mislabels the upload (see detectRealMime for why this matters).
+  const realMime = detectRealMime(args.data, args.mime.toLowerCase());
 
-  const filename = buildFilename(args);
+  // Re-encode to a pdf-lib-safe format (JPEG/PNG) and bake in EXIF
+  // orientation, so PDFs never silently drop/misrotate an image because of
+  // an unsupported source format (HEIC/WebP) or ignored orientation tag.
+  // Falls back to the original bytes if normalization isn't possible.
+  const preferPng = args.kind === "logos" || args.kind === "stamps";
+  const normalized =
+    realMime === "image/svg+xml"
+      ? null
+      : await normalizeImage(Buffer.from(args.data), realMime, { preferPng });
+
+  const finalData = normalized ? normalized.data : Buffer.from(args.data);
+  const finalMime = normalized ? normalized.mime : realMime;
+
+  const resolvedArgs: SaveArgs = { ...args, data: finalData, mime: finalMime };
+  validate(resolvedArgs);
+
+  const filename = buildFilename(resolvedArgs);
   const urlPath = `/uploads/${args.kind}/${filename}`;
 
   await prisma.upload.create({
     data: {
       path: urlPath,
-      data: Buffer.from(args.data),
-      mime: args.mime,
-      size: args.data.byteLength,
+      data: new Uint8Array(finalData),
+      mime: finalMime,
+      size: finalData.byteLength,
       ownerId: args.ownerId,
     },
   });
 
   return {
     url: urlPath,
-    bytes: args.data.byteLength,
-    mime: args.mime,
+    bytes: finalData.byteLength,
+    mime: finalMime,
   };
 }
 

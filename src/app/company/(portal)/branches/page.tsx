@@ -157,7 +157,7 @@ export default function BranchesPage() {
   const remaining = Math.max(0, max - used);
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4 md:p-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-lg font-bold text-slate-900">Your Branches</h1>

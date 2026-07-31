@@ -169,9 +169,9 @@ export default function CompanyLRPage() {
     name.split(/\s+/).map(n => n[0]).join("").slice(0, 2).toUpperCase();
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4 md:p-8">
       {/* Top 5 stat boxes */}
-      <div className="grid grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
         <StatBox label="All LRs" value={counts.all ?? 0} color="slate" active={filter === "all"} onClick={() => setFilter("all")} />
         <StatBox label="Pending" value={counts.pending ?? 0} color="orange" active={filter === "pending"} onClick={() => setFilter("pending")} />
         <StatBox label="Approved" value={counts.approved ?? 0} color="emerald" active={filter === "approved"} onClick={() => setFilter("approved")} />
@@ -182,9 +182,9 @@ export default function CompanyLRPage() {
       {/* All LR Requests section */}
       <div className="mt-6 rounded-2xl border border-slate-100 bg-white shadow-sm">
         {/* Header */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-6 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-4 py-4 md:px-6">
           <h2 className="text-base font-semibold text-slate-900">All LR Requests</h2>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">
               {counts.all} total
             </span>
@@ -216,8 +216,8 @@ export default function CompanyLRPage() {
         </div>
 
         {/* Filters + Search */}
-        <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-3">
-          <div className="flex items-center gap-1.5">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 md:px-6">
+          <div className="flex flex-wrap items-center gap-1.5">
             <span className="text-xs font-medium text-slate-500 mr-1">Status:</span>
             {FILTERS.map((f) => (
               <button
@@ -240,7 +240,7 @@ export default function CompanyLRPage() {
               </button>
             ))}
           </div>
-          <div className="relative w-56">
+          <div className="relative w-full sm:w-56">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
@@ -354,11 +354,11 @@ export default function CompanyLRPage() {
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-between border-t border-slate-100 px-6 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 px-4 py-3 md:px-6">
           <p className="text-xs text-slate-400">
             Showing {lrs.length === 0 ? 0 : (page - 1) * perPage + 1}–{Math.min(page * perPage, lrs.length)} of {lrs.length} LRs
           </p>
-          <div className="flex items-center gap-1">
+          <div className="flex flex-wrap items-center gap-1">
             <button
               onClick={() => setPage(Math.max(1, page - 1))}
               disabled={page <= 1}
@@ -447,7 +447,7 @@ export default function CompanyLRPage() {
               <div className="mt-4 space-y-2">
                 <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Name</p><p className="text-sm font-medium text-slate-800">{selectedLr.consigneeName}</p></div>
                 <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Address</p><p className="text-sm text-slate-600">{selectedLr.consigneeAddress}</p></div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Phone</p><p className="text-sm text-slate-600">+91 {selectedLr.consigneePhone}</p></div>
                   <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Destination</p><p className="text-sm font-medium text-primary">{selectedLr.destinationCity}</p></div>
                 </div>
@@ -462,7 +462,7 @@ export default function CompanyLRPage() {
                 </div>
                 <h3 className="text-sm font-bold text-slate-900">Shipment Details</h3>
               </div>
-              <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3">
+              <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
                 <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Goods Description</p><p className="text-sm text-slate-700">{selectedLr.goodsDescription}</p></div>
                 <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">No. of Packages</p><p className="text-sm font-medium text-slate-800">{selectedLr.noOfPackages} packages</p></div>
                 <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Weight</p><p className="text-sm font-medium text-slate-800">{selectedLr.weightKg} KG</p></div>
@@ -480,7 +480,7 @@ export default function CompanyLRPage() {
                 </div>
                 <h3 className="text-sm font-bold text-slate-900">Freight & Action</h3>
               </div>
-              <div className="mt-4 grid grid-cols-2 gap-4">
+              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Freight Amount</p><p className="text-2xl font-bold text-emerald-600">{formatINR(selectedLr.freightAmount)}</p></div>
                 <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Payment Mode</p><p className="text-sm font-medium text-primary">{selectedLr.paymentMode}</p></div>
               </div>
@@ -497,7 +497,7 @@ export default function CompanyLRPage() {
 
               {selectedLr.status === "pending" && (
                 <div className="mt-5 space-y-3">
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <button
                       onClick={() => handleApprove(selectedLr.id)}
                       disabled={actionBusy === selectedLr.id}

@@ -118,9 +118,9 @@ export default function ExecutivesPage() {
   const initials = (name: string) => name.split(/\s+/).map(n => n[0]).join("").slice(0, 2).toUpperCase();
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4 md:p-8">
       {/* Invite a New Executive section */}
-      <div className="rounded-2xl border border-primary/15 bg-primary/10 p-5">
+      <div className="rounded-2xl border border-primary/15 bg-primary/10 p-4 md:p-5">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15">
             <Send className="h-5 w-5 text-primary" />
@@ -146,7 +146,7 @@ export default function ExecutivesPage() {
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <Select value={inviteBranch} onValueChange={setInviteBranch}>
-            <SelectTrigger className="w-44 rounded-lg border-primary/20 bg-white text-xs">
+            <SelectTrigger className="w-full rounded-lg border-primary/20 bg-white text-xs sm:w-44">
               <SelectValue placeholder="Select branch" />
             </SelectTrigger>
             <SelectContent>
@@ -155,7 +155,7 @@ export default function ExecutivesPage() {
               ))}
             </SelectContent>
           </Select>
-          <div className="relative flex-1 max-w-md">
+          <div className="relative min-w-0 flex-1 basis-full sm:basis-0 sm:max-w-md">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">+91</span>
             <Input
               value={inviteMobile}
@@ -164,7 +164,7 @@ export default function ExecutivesPage() {
               className="pl-10 rounded-lg border-primary/20 bg-white text-sm"
             />
           </div>
-          <Button onClick={inviteExecutive} disabled={busy}>
+          <Button onClick={inviteExecutive} disabled={busy} className="w-full sm:w-auto">
             <Send className="mr-1.5 h-3.5 w-3.5" />
             {busy ? "Sending…" : "Send Invite"}
           </Button>
@@ -174,9 +174,9 @@ export default function ExecutivesPage() {
       {/* All Executives section */}
       <div className="mt-6 rounded-2xl border border-slate-100 bg-white shadow-sm">
         {/* Header */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-6 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-4 py-4 md:px-6">
           <h2 className="text-base font-semibold text-slate-900">All Executives</h2>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">
               {executives.length} executives
             </span>
@@ -190,8 +190,8 @@ export default function ExecutivesPage() {
         </div>
 
         {/* Filters + Search */}
-        <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-3">
-          <div className="flex items-center gap-1.5">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 md:px-6">
+          <div className="flex flex-wrap items-center gap-1.5">
             <span className="text-xs font-medium text-slate-500 mr-1">Filter:</span>
             {([
               { key: "all", label: "All Executives" },
@@ -212,7 +212,7 @@ export default function ExecutivesPage() {
               </button>
             ))}
           </div>
-          <div className="relative w-52">
+          <div className="relative w-full sm:w-52">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
@@ -335,9 +335,9 @@ export default function ExecutivesPage() {
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-between border-t border-slate-100 px-6 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 px-4 py-3 md:px-6">
           <p className="text-xs text-slate-400">Showing 1–{Math.min(6, filtered.length)} of {filtered.length} executives</p>
-          <div className="flex items-center gap-1">
+          <div className="flex flex-wrap items-center gap-1">
             <span className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-400">←</span>
             <span className="rounded-md bg-primary px-2.5 py-1 text-xs font-semibold text-white">1</span>
             <span className="rounded-md border border-slate-200 px-2.5 py-1 text-xs text-slate-600">2</span>

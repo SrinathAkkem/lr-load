@@ -63,7 +63,7 @@ export default async function SuperAdminDashboardPage() {
   const monthName = new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" });
 
   return (
-    <div className="p-6 md:p-8 bg-[#f4f6fb]">
+    <div className="p-4 md:p-8 bg-[#f4f6fb]">
       {/* 3 Stat Cards with Figma design */}
       <div className="grid gap-5 md:grid-cols-3">
         <div className="flex items-center gap-4 rounded-2xl border-0 bg-white p-6 shadow-sm">
@@ -122,7 +122,7 @@ export default async function SuperAdminDashboardPage() {
           </div>
 
           {/* MONTH TOTAL / DAILY AVG below chart */}
-          <div className="mt-4 flex items-center gap-8 border-t border-[#e8edf5] pt-4">
+          <div className="mt-4 flex flex-wrap items-center gap-6 border-t border-[#e8edf5] pt-4 sm:gap-8">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-wider text-[#9ca3af]">Month Total</p>
               <p className="mt-0.5 text-2xl font-extrabold text-[#2d2d4e]">{monthLrCount.toLocaleString("en-IN")}</p>

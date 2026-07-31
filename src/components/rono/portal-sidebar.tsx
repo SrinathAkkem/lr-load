@@ -18,7 +18,9 @@ import {
   LogOut,
   ChevronRight,
   CreditCard,
+  X,
 } from "lucide-react";
+import { useSidebarMobile } from "@/components/rono/sidebar-context";
 
 type NavItem = {
   title: string;
@@ -96,6 +98,7 @@ export function PortalSidebar({
   const [menuOpen, setMenuOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const groups = variant === "super_admin" ? superAdminNav : companyAdminNav;
+  const { open: mobileOpen, setOpen: setMobileOpen } = useSidebarMobile();
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -136,12 +139,35 @@ export function PortalSidebar({
   };
 
   return (
-    <aside className="relative sticky top-0 flex h-screen w-[260px] shrink-0 flex-col overflow-hidden border-r border-white/10 bg-brand-gradient-sidebar text-white">
+    <>
+      {/* Mobile backdrop - only rendered/visible when the drawer is open on small screens */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          onClick={() => setMobileOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 flex h-screen w-[260px] shrink-0 flex-col overflow-hidden border-r border-white/10 bg-brand-gradient-sidebar text-white transition-transform duration-300 ease-in-out",
+          "md:sticky md:top-0 md:z-auto md:translate-x-0",
+          mobileOpen ? "translate-x-0" : "-translate-x-full",
+        )}
+      >
       {/* Decorative circles */}
       <div className="absolute -right-8 top-20 h-32 w-32 rounded-full bg-white/5" />
       <div className="absolute -left-8 bottom-32 h-24 w-24 rounded-full bg-white/5" />
       {/* Logo + Platform Box */}
       <div className="relative z-10 p-5 pb-4">
+        <button
+          type="button"
+          onClick={() => setMobileOpen(false)}
+          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-lg text-white/70 transition hover:bg-white/10 hover:text-white md:hidden"
+          aria-label="Close menu"
+        >
+          <X className="h-5 w-5" />
+        </button>
         <Link href={variant === "super_admin" ? "/super-admin/dashboard" : "/company/dashboard"}>
           <RonoLogo className="text-white [&_span]:text-white" />
         </Link>
@@ -182,6 +208,7 @@ export function PortalSidebar({
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={() => setMobileOpen(false)}
                   className={cn(
                     "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-semibold transition-all duration-200",
                     active
@@ -235,7 +262,10 @@ export function PortalSidebar({
             {variant === "company_admin" && (
               <Link
                 href="/company/profile"
-                onClick={() => setMenuOpen(false)}
+                onClick={() => {
+                  setMenuOpen(false);
+                  setMobileOpen(false);
+                }}
                 className="flex items-center gap-2 rounded-lg px-3 py-2 font-semibold text-white transition hover:bg-white/10"
               >
                 <UserCircle2 className="h-4 w-4" />
@@ -245,7 +275,10 @@ export function PortalSidebar({
             {variant === "super_admin" && (
               <Link
                 href="/super-admin/settings"
-                onClick={() => setMenuOpen(false)}
+                onClick={() => {
+                  setMenuOpen(false);
+                  setMobileOpen(false);
+                }}
                 className="flex items-center gap-2 rounded-lg px-3 py-2 font-semibold text-white transition hover:bg-white/10"
               >
                 <Settings className="h-4 w-4" />
@@ -264,6 +297,7 @@ export function PortalSidebar({
           </div>
         )}
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }

@@ -37,7 +37,7 @@ export default async function CompanyLRDetailPage({
   const lr = toLR(lrRow);
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <Link
         href="/company/lr"
         className="inline-flex items-center gap-1 text-sm font-medium text-slate-500 transition hover:text-slate-900"
@@ -51,7 +51,7 @@ export default async function CompanyLRDetailPage({
           <p className="text-xs font-semibold uppercase tracking-wide text-primary">
             Lorry Receipt
           </p>
-          <h1 className="text-3xl font-bold">{lr.trackingId}</h1>
+          <h1 className="text-2xl font-bold sm:text-3xl">{lr.trackingId}</h1>
           <p className="mt-1 text-sm text-slate-500">
             Submitted {formatDate(lr.createdAt)} · Executive: {lrRow.executive.name}
           </p>

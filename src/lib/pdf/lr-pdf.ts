@@ -47,10 +47,11 @@ export async function generateLrPdf(
   const width = page.getWidth();
   let y = page.getHeight() - margin;
 
-  const [logo, signature, stamp] = await Promise.all([
+  const [logo, signature, stamp, photos] = await Promise.all([
     loadImageBytes(company.logoUrl),
     loadImageBytes(view.signatureUrl ?? null),
     loadImageBytes(company.stampUrl),
+    Promise.all((view.photos ?? []).map((url) => loadImageBytes(url))),
   ]);
 
   // ─── Header ─────────────────────────────────────────────────────────────
@@ -293,7 +294,103 @@ export async function generateLrPdf(
     color: BRAND.muted,
   });
 
+  // ─── Goods Photos (optional extra page) ───────────────────────────────
+  const validPhotos = photos.filter(
+    (p): p is { bytes: Uint8Array; kind: "png" | "jpg" } => p !== null,
+  );
+  if (validPhotos.length > 0) {
+    await drawGoodsPhotosPage(pdf, helv, helvBold, {
+      margin,
+      photos: validPhotos,
+      lrLabel: view.lrNumber ?? view.trackingId,
+    });
+  }
+
   return await pdf.save();
+}
+
+async function drawGoodsPhotosPage(
+  pdf: PDFDocument,
+  helv: import("pdf-lib").PDFFont,
+  helvBold: import("pdf-lib").PDFFont,
+  args: {
+    margin: number;
+    photos: { bytes: Uint8Array; kind: "png" | "jpg" }[];
+    lrLabel: string;
+  },
+) {
+  const page = pdf.addPage([595, 842]); // A4 portrait
+  const width = page.getWidth();
+  const height = page.getHeight();
+  const { margin } = args;
+
+  page.drawText(pdfText(`Goods Photos — LR ${args.lrLabel}`), {
+    x: margin,
+    y: height - margin,
+    size: 14,
+    font: helvBold,
+    color: BRAND.primary,
+  });
+  page.drawLine({
+    start: { x: margin, y: height - margin - 10 },
+    end: { x: width - margin, y: height - margin - 10 },
+    thickness: 1,
+    color: BRAND.border,
+  });
+
+  const cols = 2;
+  const gap = 14;
+  const cellW = (width - 2 * margin - gap * (cols - 1)) / cols;
+  const cellH = 200;
+  const startY = height - margin - 30;
+
+  for (let i = 0; i < args.photos.length; i++) {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const cellX = margin + col * (cellW + gap);
+    const cellY = startY - row * (cellH + gap) - cellH;
+
+    page.drawRectangle({
+      x: cellX,
+      y: cellY,
+      width: cellW,
+      height: cellH,
+      borderColor: BRAND.border,
+      borderWidth: 0.6,
+      color: BRAND.paper,
+    });
+
+    try {
+      const photo = args.photos[i];
+      const img =
+        photo.kind === "png"
+          ? await pdf.embedPng(photo.bytes)
+          : await pdf.embedJpg(photo.bytes);
+      const dims = img.scaleToFit(cellW - 12, cellH - 12);
+      page.drawImage(img, {
+        x: cellX + (cellW - dims.width) / 2,
+        y: cellY + (cellH - dims.height) / 2,
+        width: dims.width,
+        height: dims.height,
+      });
+    } catch {
+      drawCenteredText(page, helv, "(photo unavailable)", {
+        x: cellX,
+        y: cellY + cellH / 2 - 4,
+        w: cellW,
+        size: 9,
+        color: BRAND.muted,
+      });
+    }
+
+    page.drawText(`Photo ${i + 1}`, {
+      x: cellX + 6,
+      y: cellY + cellH - 14,
+      size: 8,
+      font: helvBold,
+      color: BRAND.muted,
+    });
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────

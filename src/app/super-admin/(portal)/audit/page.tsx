@@ -59,7 +59,7 @@ export default async function SuperAdminAuditPage({
     : events;
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4 md:p-8">
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--brand-gradient-start)]/10 to-[var(--brand-gradient-end)]/10">
           <ScrollText className="h-5 w-5 text-brand" />
@@ -81,7 +81,7 @@ export default async function SuperAdminAuditPage({
           name="search"
           defaultValue={search}
           placeholder="Search by actor, target, or action..."
-          className="min-w-[260px] flex-1 rounded-full border border-[#e8edf5] bg-white px-4 py-2 text-sm font-semibold outline-none focus:border-brand focus:bg-white focus:ring-2 focus:ring-brand"
+          className="min-w-0 flex-1 basis-full rounded-full border border-[#e8edf5] bg-white px-4 py-2 text-sm font-semibold outline-none focus:border-brand focus:bg-white focus:ring-2 focus:ring-brand sm:basis-[260px]"
         />
         <select
           name="action"
@@ -97,7 +97,7 @@ export default async function SuperAdminAuditPage({
         </select>
         <button
           type="submit"
-          className="rounded-full bg-brand-gradient px-5 py-2 text-sm font-bold text-white shadow-lg shadow-brand transition hover:shadow-xl"
+          className="w-full rounded-full bg-brand-gradient px-5 py-2 text-sm font-bold text-white shadow-lg shadow-brand transition hover:shadow-xl sm:w-auto"
         >
           Filter
         </button>

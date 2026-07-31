@@ -118,9 +118,9 @@ export default function CompanyDetailPage() {
   });
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4 md:p-8">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-[#9ca3af]">
+      <div className="flex flex-wrap items-center gap-2 text-sm text-[#9ca3af]">
         <Link href="/super-admin/companies" className="hover:text-brand transition font-semibold">Companies</Link>
         <span>/</span>
         <span className="font-bold text-[#2d2d4e]">{company.name}</span>

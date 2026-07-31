@@ -1,10 +1,11 @@
 "use client";
 
-import { Bell, Search } from "lucide-react";
+import { Bell, Menu, Search } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useSidebarMobile } from "@/components/rono/sidebar-context";
 
 interface NotificationItem {
   id: string;
@@ -111,6 +112,7 @@ export function PortalTopbar({ variant, userName, userRole }: TopbarProps) {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("search") ?? searchParams.get("q") ?? "";
   const [search, setSearch] = useState(initialQuery);
+  const { toggle: toggleSidebar } = useSidebarMobile();
   const [notifsOpen, setNotifsOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loadingNotifs, setLoadingNotifs] = useState(false);
@@ -181,8 +183,17 @@ export function PortalTopbar({ variant, userName, userRole }: TopbarProps) {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <header className="sticky top-0 z-30 flex items-center gap-4 border-b border-[#e8edf5] bg-white px-6 py-3.5 md:px-8">
-      <h1 className="text-base font-extrabold text-[#2d2d4e] md:text-lg">
+    <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-[#e8edf5] bg-white px-4 py-3.5 md:gap-4 md:px-8">
+      <button
+        type="button"
+        onClick={toggleSidebar}
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--brand-border)] bg-white text-[var(--brand-text-muted)] transition hover:border-brand hover:text-brand md:hidden"
+        aria-label="Toggle menu"
+      >
+        <Menu className="h-5 w-5" />
+      </button>
+
+      <h1 className="truncate text-base font-extrabold text-[#2d2d4e] md:text-lg">
         {title}
       </h1>
 

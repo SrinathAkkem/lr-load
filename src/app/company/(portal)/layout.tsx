@@ -1,5 +1,6 @@
 import { PortalSidebar } from "@/components/rono/portal-sidebar";
 import { PortalTopbar } from "@/components/rono/portal-topbar";
+import { SidebarMobileProvider } from "@/components/rono/sidebar-context";
 import { getSession } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 import { getCompanyById } from "@/lib/services/lr-service";
@@ -28,23 +29,25 @@ export default async function CompanyPortalLayout({
     : 0;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50">
-      <PortalSidebar
-        variant="company_admin"
-        userName={session.name}
-        userRole="Company Admin"
-        companyName={company?.name}
-        companyCode={company?.lrCode}
-        badges={{ pendingLrs }}
-      />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <PortalTopbar
+    <SidebarMobileProvider>
+      <div className="flex h-screen overflow-hidden bg-slate-50">
+        <PortalSidebar
           variant="company_admin"
           userName={session.name}
-          userRole={company?.name ?? "Company Admin"}
+          userRole="Company Admin"
+          companyName={company?.name}
+          companyCode={company?.lrCode}
+          badges={{ pendingLrs }}
         />
-        <main className="flex-1 overflow-y-auto">{children}</main>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <PortalTopbar
+            variant="company_admin"
+            userName={session.name}
+            userRole={company?.name ?? "Company Admin"}
+          />
+          <main className="flex-1 overflow-y-auto">{children}</main>
+        </div>
       </div>
-    </div>
+    </SidebarMobileProvider>
   );
 }

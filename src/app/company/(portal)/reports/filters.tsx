@@ -68,7 +68,7 @@ export function ReportsFilters({
   return (
     <form
       onSubmit={handleSubmit}
-      className="mt-6 grid gap-3 rounded-2xl border-0 bg-white p-5 shadow-sm md:grid-cols-6"
+      className="mt-6 grid gap-3 rounded-2xl border-0 bg-white p-4 shadow-sm sm:grid-cols-2 md:grid-cols-6 md:p-5"
     >
       <FilterField label="From">
         <Input type="date" name="from" defaultValue={initial.from} />
@@ -99,7 +99,7 @@ export function ReportsFilters({
           ]}
         />
       </FilterField>
-      <div className="flex items-end gap-2">
+      <div className="flex items-end gap-2 sm:col-span-2 md:col-span-1">
         <Button type="submit">
           Apply
         </Button>
