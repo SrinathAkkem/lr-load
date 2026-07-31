@@ -281,15 +281,15 @@ export default function BranchesPage() {
       </div>
 
       {showAdd && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 p-4 backdrop-blur sm:items-center">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 p-0 backdrop-blur sm:items-center sm:p-4">
           <form
             onSubmit={(e) => {
               e.preventDefault();
               createBranch();
             }}
-            className="w-full max-w-lg rounded-2xl bg-white shadow-2xl"
+            className="flex max-h-[92vh] w-full max-w-lg flex-col rounded-t-2xl bg-white shadow-2xl sm:max-h-[85vh] sm:rounded-2xl"
           >
-            <div className="flex items-center justify-between border-b p-5">
+            <div className="flex shrink-0 items-center justify-between border-b p-4 sm:p-5">
               <div>
                 <h2 className="text-lg font-bold text-slate-900">Add New Branch</h2>
                 <p className="text-xs text-slate-500">
@@ -304,7 +304,7 @@ export default function BranchesPage() {
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <div className="space-y-4 p-5">
+            <div className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-5">
               <div>
                 <Label>Branch Name *</Label>
                 <Input
@@ -335,7 +335,7 @@ export default function BranchesPage() {
                 />
               </div>
             </div>
-            <div className="flex items-center justify-end gap-3 border-t bg-slate-50 p-5">
+            <div className="flex shrink-0 items-center justify-end gap-3 border-t bg-slate-50 p-4 sm:p-5">
               <Button
                 type="button"
                 variant="outline"
@@ -358,9 +358,9 @@ export default function BranchesPage() {
       )}
 
       {editing && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 p-4 backdrop-blur sm:items-center">
-          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b p-5">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 p-0 backdrop-blur sm:items-center sm:p-4">
+          <div className="flex max-h-[92vh] w-full max-w-md flex-col rounded-t-2xl bg-white shadow-2xl sm:max-h-[85vh] sm:rounded-2xl">
+            <div className="flex shrink-0 items-center justify-between border-b p-4 sm:p-5">
               <h2 className="text-lg font-bold">Edit {editing.name}</h2>
               <button
                 type="button"
@@ -370,7 +370,7 @@ export default function BranchesPage() {
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <div className="space-y-4 p-5">
+            <div className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-5">
               <div>
                 <Label>Branch Name *</Label>
                 <Input
@@ -396,7 +396,7 @@ export default function BranchesPage() {
                 />
               </div>
             </div>
-            <div className="flex items-center justify-between gap-3 border-t bg-slate-50 p-5">
+            <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t bg-slate-50 p-4 sm:p-5">
               <Button
                 type="button"
                 variant="outline"

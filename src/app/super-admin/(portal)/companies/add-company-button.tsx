@@ -102,14 +102,14 @@ export function AddCompanyButton() {
       </Button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 p-4 backdrop-blur sm:items-center">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 p-0 backdrop-blur sm:items-center sm:p-4">
           <form
             onSubmit={handleSubmit}
-            className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl"
+            className="flex max-h-[92vh] w-full max-w-2xl flex-col rounded-t-2xl bg-white shadow-2xl sm:max-h-[85vh] sm:rounded-2xl"
           >
-            <div className="flex items-center justify-between border-b border-[#e8edf5] p-5">
+            <div className="flex shrink-0 items-center justify-between border-b border-[#e8edf5] p-4 sm:p-5">
               <div>
-                <h2 className="text-lg font-extrabold text-[#2d2d4e]">Onboard a new company</h2>
+                <h2 className="text-base font-extrabold text-[#2d2d4e] sm:text-lg">Onboard a new company</h2>
                 <p className="text-xs font-semibold text-[#6b7280]">
                   Creates the company, default LR counter, and a company admin user.
                 </p>
@@ -123,7 +123,7 @@ export function AddCompanyButton() {
               </button>
             </div>
 
-            <div className="grid gap-4 p-5 sm:grid-cols-2">
+            <div className="grid flex-1 gap-4 overflow-y-auto p-4 sm:grid-cols-2 sm:p-5">
               <Field label="Company Name *">
                 <Input
                   required
@@ -206,7 +206,7 @@ export function AddCompanyButton() {
               </Field>
             </div>
 
-            <div className="flex items-center justify-end gap-3 border-t border-[#e8edf5] bg-[#fafbff] p-5">
+            <div className="flex shrink-0 items-center justify-end gap-3 border-t border-[#e8edf5] bg-[#fafbff] p-4 sm:p-5">
               <Button
                 type="button"
                 variant="outline"

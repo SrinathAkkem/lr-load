@@ -31,7 +31,16 @@ export default function CompanyLoginPage() {
       const data = await res.json();
       if (data.success) {
         setOtpSent(true);
-        toast.success("OTP sent. Please check your phone.");
+        if (data.data?.devOtp) {
+          // SMS isn't configured in this environment — surface the dev OTP
+          // the same way the mobile app does, instead of leaving the user
+          // waiting for an SMS that will never arrive.
+          toast.success(`SMS not configured — use OTP: ${data.data.devOtp}`, {
+            duration: 10000,
+          });
+        } else {
+          toast.success("OTP sent. Please check your phone.");
+        }
       } else {
         toast.error(data.error ?? "Couldn't send OTP");
       }
