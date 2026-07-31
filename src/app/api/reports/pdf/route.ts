@@ -3,6 +3,7 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { getAuthFromRequest, forbidden } from "@/lib/api/auth-middleware";
 import { prisma } from "@/lib/db/prisma";
 import { formatCurrency } from "@/lib/services/lr-service";
+import { pdfText } from "@/lib/pdf/pdf-text";
 import type { LRStatus } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -109,7 +110,7 @@ export async function GET(req: NextRequest) {
       color?: import("pdf-lib").RGB;
     },
   ) => {
-    page.drawText(text, {
+    page.drawText(pdfText(text), {
       x: options.x,
       y: options.y,
       size: options.size ?? 10,

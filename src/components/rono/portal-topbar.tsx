@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useSidebarMobile } from "@/components/rono/sidebar-context";
+import { mediaUrl } from "@/lib/media-url";
 
 interface NotificationItem {
   id: string;
@@ -20,6 +21,7 @@ interface TopbarProps {
   variant: "super_admin" | "company_admin";
   userName: string;
   userRole: string;
+  companyLogoUrl?: string | null;
 }
 
 const SEARCH_TARGETS: Record<TopbarProps["variant"], string> = {
@@ -106,7 +108,7 @@ function deriveContext(pathname: string) {
   return { title: "RonoHub", placeholder: "Search anything..." };
 }
 
-export function PortalTopbar({ variant, userName, userRole }: TopbarProps) {
+export function PortalTopbar({ variant, userName, userRole, companyLogoUrl }: TopbarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -274,9 +276,18 @@ export function PortalTopbar({ variant, userName, userRole }: TopbarProps) {
           }
           className="flex items-center gap-2.5 rounded-lg border border-[var(--brand-border)] bg-white px-3 py-1.5 text-left transition hover:border-brand"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-[10px] font-bold text-white">
-            {initials || "U"}
-          </span>
+          {companyLogoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={mediaUrl(companyLogoUrl)}
+              alt={userName}
+              className="h-8 w-8 shrink-0 rounded-full border border-[var(--brand-border)] object-cover"
+            />
+          ) : (
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand text-[10px] font-bold text-white">
+              {initials || "U"}
+            </span>
+          )}
           <span className="hidden md:block">
             <span className="block text-[13px] font-bold leading-4 text-[#2d2d4e]">
               {userName}

@@ -37,6 +37,7 @@ export default async function CompanyPortalLayout({
           userRole="Company Admin"
           companyName={company?.name}
           companyCode={company?.lrCode}
+          companyLogoUrl={company?.logoUrl}
           badges={{ pendingLrs }}
         />
         <div className="flex min-w-0 flex-1 flex-col">
@@ -44,6 +45,7 @@ export default async function CompanyPortalLayout({
             variant="company_admin"
             userName={session.name}
             userRole={company?.name ?? "Company Admin"}
+            companyLogoUrl={company?.logoUrl}
           />
           <main className="flex-1 overflow-y-auto">{children}</main>
         </div>

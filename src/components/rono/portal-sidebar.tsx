@@ -21,6 +21,7 @@ import {
   X,
 } from "lucide-react";
 import { useSidebarMobile } from "@/components/rono/sidebar-context";
+import { mediaUrl } from "@/lib/media-url";
 
 type NavItem = {
   title: string;
@@ -82,6 +83,7 @@ interface SidebarProps {
   userRole: string;
   companyName?: string;
   companyCode?: string;
+  companyLogoUrl?: string | null;
   badges?: SidebarBadges;
 }
 
@@ -91,6 +93,7 @@ export function PortalSidebar({
   userRole,
   companyName,
   companyCode,
+  companyLogoUrl,
   badges,
 }: SidebarProps) {
   const pathname = usePathname();
@@ -240,9 +243,18 @@ export function PortalSidebar({
           onClick={() => setMenuOpen((v) => !v)}
           className="flex w-full items-center gap-3 rounded-xl p-2.5 text-left transition hover:bg-white/[0.08]"
         >
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-gradient text-xs font-bold text-white shadow-md">
-                {initials || "U"}
-              </div>
+              {companyLogoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={mediaUrl(companyLogoUrl)}
+                  alt={userName}
+                  className="h-9 w-9 shrink-0 rounded-full border border-white/20 object-cover shadow-md"
+                />
+              ) : (
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-gradient text-xs font-bold text-white shadow-md">
+                  {initials || "U"}
+                </div>
+              )}
           <div className="min-w-0 flex-1">
             <p className="truncate text-[13px] font-bold text-white">{userName}</p>
             <p className="truncate text-[10px] font-bold uppercase tracking-[0.15em] text-[#9ca3af]">
