@@ -15,6 +15,12 @@ interface CompanyDetail extends Company {
   branchCount?: number;
   executiveCount?: number;
   lrsThisMonth?: number;
+  adminUser?: {
+    id: string;
+    mobile: string;
+    name: string;
+    status: string;
+  } | null;
 }
 
 export default function CompanyDetailPage() {
@@ -139,6 +145,11 @@ export default function CompanyDetailPage() {
               <span>Code: <span className="font-bold text-[#2d2d4e]">{company.lrCode}</span></span>
               <span>GST: <span className="font-mono font-bold text-[#2d2d4e]">{company.gstNumber}</span></span>
               <span>{company.contactPhone}</span>
+              {company.adminUser?.mobile && (
+                <span>
+                  Login Mobile: <span className="font-mono font-bold text-brand">{company.adminUser.mobile.slice(0, 5)} {company.adminUser.mobile.slice(5)}</span>
+                </span>
+              )}
               <span>Onboarded: {onboardedDate}</span>
             </div>
           </div>

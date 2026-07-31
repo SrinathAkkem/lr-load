@@ -21,6 +21,12 @@ const PAYMENT_VALUES = ["TO_PAY", "PAID", "TO_BE_BILLED"] as const;
 
 function parseDate(s: string | undefined, fallback: Date) {
   if (!s) return fallback;
+  // Parse YYYY-MM-DD as local date to avoid UTC offset issues
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
+  if (match) {
+    const [, year, month, day] = match;
+    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+  }
   const d = new Date(s);
   return isNaN(d.getTime()) ? fallback : d;
 }
@@ -107,15 +113,33 @@ export default async function CompanyReportsPage({
   for (const lr of lrs) branchLrCounts.set(lr.branchId, (branchLrCounts.get(lr.branchId) ?? 0) + 1);
   const lrsByBranch = branches.map((b) => ({ ...b, count: branchLrCounts.get(b.id) ?? 0 })).sort((a, b) => b.count - a.count);
 
-  // Weekly volume
+  // Weekly volume - divide the actual date range into weeks
   const weekBuckets: { label: string; fullLabel: string; count: number; current: boolean }[] = [];
-  const monthStart = new Date(from.getFullYear(), from.getMonth(), 1);
-  for (let w = 0; w < 4; w++) {
-    const wStart = new Date(monthStart); wStart.setDate(wStart.getDate() + w * 7);
-    const wEnd = new Date(wStart); wEnd.setDate(wEnd.getDate() + 7);
-    const wCount = lrs.filter((lr) => { const d = new Date(lr.createdAt); return d >= wStart && d < wEnd; }).length;
+  const rangeStart = new Date(from);
+  rangeStart.setHours(0, 0, 0, 0);
+  const rangeEnd = new Date(to);
+  rangeEnd.setHours(23, 59, 59, 999);
+  const rangeDays = Math.ceil((rangeEnd.getTime() - rangeStart.getTime()) / (1000 * 60 * 60 * 24));
+  const numWeeks = Math.min(4, Math.ceil(rangeDays / 7));
+  
+  for (let w = 0; w < numWeeks; w++) {
+    const wStart = new Date(rangeStart);
+    wStart.setDate(rangeStart.getDate() + w * 7);
+    const wEnd = new Date(wStart);
+    wEnd.setDate(wStart.getDate() + 7);
+    if (wEnd > rangeEnd) wEnd.setTime(rangeEnd.getTime());
+    
+    const wCount = lrs.filter((lr) => {
+      const d = new Date(lr.createdAt);
+      return d >= wStart && d < wEnd;
+    }).length;
     const isCurrent = today >= wStart && today < wEnd;
-    weekBuckets.push({ label: `W${w + 1}`, fullLabel: `Week ${w + 1}${isCurrent ? " (Curr.)" : ""}`, count: wCount, current: isCurrent });
+    weekBuckets.push({
+      label: `W${w + 1}`,
+      fullLabel: `Week ${w + 1}${isCurrent ? " (Curr.)" : ""}`,
+      count: wCount,
+      current: isCurrent,
+    });
   }
 
   const routeMap = new Map<string, { count: number; freight: number }>();

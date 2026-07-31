@@ -4,6 +4,7 @@ import { createToken, setSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 import { verifyOtpSchema } from "@/lib/validations/lr";
 import { clearOtpForMobile, validateOtpCode } from "@/lib/otp/validate";
+import { normalizeIndianMobile } from "@/lib/phone";
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
@@ -12,8 +13,15 @@ export async function POST(req: NextRequest) {
     return jsonError(parsed.error.errors[0]?.message ?? "Invalid input");
   }
 
-  const { mobile, otp } = parsed.data;
+  const rawMobile = parsed.data.mobile;
+  const mobile = normalizeIndianMobile(rawMobile);
+  const otp = parsed.data.otp;
   const isMobileClient = req.headers.get("x-client") === "mobile";
+  
+  // Validate normalized mobile is 10 digits
+  if (!/^\d{10}$/.test(mobile)) {
+    return jsonError("Invalid mobile number", 400);
+  }
 
   const otpResult = await validateOtpCode(mobile, otp);
   if (!otpResult.valid) {

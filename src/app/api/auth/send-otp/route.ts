@@ -14,6 +14,7 @@ import {
 import { isProduction } from "@/lib/env";
 import { randomInt } from "crypto";
 import { z } from "zod";
+import { normalizeIndianMobile } from "@/lib/phone";
 
 const SMS_TIMEOUT_MS = 12000;
 
@@ -37,7 +38,14 @@ export async function POST(req: NextRequest) {
     return jsonError(parsed.error.errors[0]?.message ?? "Invalid mobile");
   }
 
-  const { mobile, purpose = "login" } = parsed.data;
+  const rawMobile = parsed.data.mobile;
+  const mobile = normalizeIndianMobile(rawMobile);
+  const purpose = parsed.data.purpose ?? "login";
+  
+  // Validate normalized mobile is 10 digits
+  if (!/^\d{10}$/.test(mobile)) {
+    return jsonError("Mobile must be 10 digits", 400);
+  }
 
   if (purpose === "profile_update") {
     const session = await getAuthFromRequest(req);

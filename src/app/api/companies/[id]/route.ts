@@ -50,6 +50,12 @@ export async function GET(
   });
   if (!company) return jsonError("Company not found", 404);
 
+  // Get company admin user info
+  const adminUser = await prisma.user.findFirst({
+    where: { companyId: id, role: "company_admin" },
+    select: { id: true, mobile: true, name: true, status: true },
+  });
+
   return jsonOk({
     ...toCompany(company),
     branchCount: company._count.branches,
@@ -57,6 +63,12 @@ export async function GET(
     lrsThisMonth: company._count.lrRequests,
     branches: company.branches.map(toBranch),
     executives: company.users.map(toUser),
+    adminUser: adminUser ? {
+      id: adminUser.id,
+      mobile: adminUser.mobile,
+      name: adminUser.name,
+      status: adminUser.status,
+    } : null,
   });
 }
 

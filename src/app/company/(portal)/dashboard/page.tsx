@@ -2,6 +2,7 @@ import { getSession } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 import {
   computeDashboardStats,
+  computeDashboardStatsAllTime,
   formatCurrency,
   getCompanyById,
   getDailyLrCounts,
@@ -27,6 +28,7 @@ export default async function CompanyDashboardPage() {
   const [
     company,
     stats,
+    monthStats,
     topRoutes,
     recentRows,
     daily,
@@ -36,6 +38,7 @@ export default async function CompanyDashboardPage() {
     branchCount,
   ] = await Promise.all([
     getCompanyById(companyId),
+    computeDashboardStatsAllTime(companyId),
     computeDashboardStats(companyId),
     getTopRoutes(companyId),
     prisma.lRRequest.findMany({
@@ -59,7 +62,7 @@ export default async function CompanyDashboardPage() {
   }));
 
   const lrUsagePct = company
-    ? Math.min(100, Math.round((stats.totalLrs / company.maxLrPerMonth) * 100))
+    ? Math.min(100, Math.round((monthStats.totalLrs / company.maxLrPerMonth) * 100))
     : 0;
   const executiveUsagePct = company
     ? Math.min(100, Math.round((activeExecutiveCount / company.maxExecutives) * 100))
@@ -72,7 +75,7 @@ export default async function CompanyDashboardPage() {
     ? Math.round(daily.reduce((s, d) => s + d.count, 0) / daily.length)
     : 0;
   const todayCount = daily[daily.length - 1]?.count ?? 0;
-  const lrsRemaining = company ? Math.max(0, company.maxLrPerMonth - stats.totalLrs) : 0;
+  const lrsRemaining = company ? Math.max(0, company.maxLrPerMonth - monthStats.totalLrs) : 0;
 
   const monthName = new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" });
 

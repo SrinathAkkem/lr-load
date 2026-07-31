@@ -6,7 +6,8 @@ import {
 } from "@/lib/api/auth-middleware";
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { prisma } from "@/lib/db/prisma";
-import { toBranch, toCompany, toLR, toUser } from "@/lib/db/serialize";
+import { toBranch, toCompany, toLR, toUser, paymentModeToDb } from "@/lib/db/serialize";
+import type { PaymentMode } from "@/lib/types";
 import { rejectLRSchema } from "@/lib/validations/lr";
 import {
   approveLR,
@@ -153,6 +154,8 @@ export async function PATCH(
         data[key] = Number(body[key]);
       } else if (["weightKg", "declaredValue", "freightAmount"].includes(key)) {
         data[key] = Number(body[key]);
+      } else if (key === "paymentMode") {
+        data[key] = paymentModeToDb(body[key] as PaymentMode);
       } else {
         data[key] = body[key];
       }

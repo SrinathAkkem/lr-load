@@ -143,6 +143,40 @@ export async function computeDashboardStats(
   };
 }
 
+export async function computeDashboardStatsAllTime(
+  companyId: string,
+): Promise<DashboardStats> {
+  const allLrs = await prisma.lRRequest.findMany({
+    where: { companyId },
+    select: { status: true, freightAmount: true },
+  });
+
+  const pending = allLrs.filter((lr) => lr.status === "pending").length;
+  const approved = allLrs.filter(
+    (lr) => lr.status === "approved" || lr.status === "in_transit",
+  ).length;
+  const rejected = allLrs.filter((lr) => lr.status === "rejected").length;
+  const delivered = allLrs.filter((lr) => lr.status === "delivered").length;
+  const inTransit = Math.max(0, approved - delivered);
+  const freightTotal = allLrs.reduce(
+    (sum, lr) => sum + Number(lr.freightAmount.toString()),
+    0,
+  );
+  const decided = approved + rejected + delivered;
+  const approvalRate = decided > 0 ? ((approved + delivered) / decided) * 100 : 0;
+
+  return {
+    totalLrs: allLrs.length,
+    pending,
+    approved,
+    rejected,
+    delivered,
+    inTransit,
+    freightTotal,
+    approvalRate,
+  };
+}
+
 export async function generateLRNumber(companyId: string): Promise<string> {
   const company = await prisma.company.findUnique({ where: { id: companyId } });
   if (!company) throw new Error("Company not found");
@@ -354,6 +388,7 @@ function formatMonthLabel(d: Date): string {
 /**
  * Returns an array of {date, count} for the last `days` days. `companyId`
  * scopes to a single company; pass `null` for platform-wide totals (super admin).
+ * Uses local IST timezone for date bucketing.
  */
 export async function getDailyLrCounts(
   companyId: string | null,
@@ -380,15 +415,18 @@ export async function getDailyLrCounts(
     const key = d.toISOString().slice(0, 10);
     buckets.set(key, 0);
   }
+  
+  // Use local date for bucketing (IST) instead of UTC
   for (const row of rows) {
-    const key = row.createdAt.toISOString().slice(0, 10);
+    const localDate = new Date(row.createdAt);
+    const key = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, "0")}-${String(localDate.getDate()).padStart(2, "0")}`;
     if (buckets.has(key)) {
       buckets.set(key, (buckets.get(key) ?? 0) + 1);
     }
   }
 
   return [...buckets.entries()].map(([key, count]) => {
-    const d = new Date(key);
+    const d = new Date(key + "T00:00:00");
     return { date: formatDayLabel(d), count };
   });
 }

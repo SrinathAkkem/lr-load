@@ -9,17 +9,21 @@ import { prisma } from "@/lib/db/prisma";
 import { toCompany, toLR } from "@/lib/db/serialize";
 import {
   computeDashboardStats,
+  computeDashboardStatsAllTime,
   getTopRoutes,
 } from "@/lib/services/lr-service";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   const session = await getAuthFromRequest(req);
   if (!session) return unauthorized();
   if (session.role !== "company_admin" || !session.companyId) return forbidden();
 
-  const [company, stats, topRoutes, branchCount, executiveCount, recentLrs] =
+  const [company, stats, monthStats, topRoutes, branchCount, executiveCount, recentLrs] =
     await Promise.all([
       prisma.company.findUnique({ where: { id: session.companyId } }),
+      computeDashboardStatsAllTime(session.companyId),
       computeDashboardStats(session.companyId),
       getTopRoutes(session.companyId),
       prisma.branch.count({ where: { companyId: session.companyId } }),
@@ -40,7 +44,7 @@ export async function GET(req: NextRequest) {
     quota: {
       branches: { used: branchCount, max: company?.maxBranches ?? 0 },
       executives: { used: executiveCount, max: company?.maxExecutives ?? 0 },
-      lrs: { used: stats.totalLrs, max: company?.maxLrPerMonth ?? 0 },
+      lrs: { used: monthStats.totalLrs, max: company?.maxLrPerMonth ?? 0 },
     },
     recentLrs: recentLrs.map(toLR),
   });

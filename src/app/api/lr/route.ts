@@ -11,6 +11,8 @@ import { createLRSchema } from "@/lib/validations/lr";
 import { createLR } from "@/lib/services/lr-service";
 import type { Prisma } from "@prisma/client";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   const session = await getAuthFromRequest(req);
   if (!session) return unauthorized();
