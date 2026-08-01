@@ -1,0 +1,179 @@
+/**
+ * Temporary, throwaway script to visually sanity-check the reports PDF
+ * layout with mock data (no DB/auth needed). Not wired into any npm script;
+ * delete after verifying visually.
+ */
+import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { writeFileSync } from "fs";
+import { pdfText } from "../src/lib/pdf/pdf-text";
+
+const BRAND = {
+  primary: rgb(0.369, 0.243, 0.631),
+  accent: rgb(0.95, 0.92, 1),
+  ink: rgb(0.06, 0.09, 0.16),
+  muted: rgb(0.42, 0.45, 0.55),
+  border: rgb(0.85, 0.86, 0.92),
+} as const;
+
+const PAGE_SIZE: [number, number] = [595, 842];
+const MARGIN = 34;
+
+const TABLE_COLS = [
+  { label: "LR No.", w: 0.15 },
+  { label: "Date", w: 0.09 },
+  { label: "Route", w: 0.22 },
+  { label: "Executive", w: 0.16 },
+  { label: "Status", w: 0.13 },
+  { label: "Payment", w: 0.11 },
+  { label: "Freight", w: 0.14 },
+] as const;
+
+const truncate = (s: string, max: number) => (s.length <= max ? s : s.slice(0, Math.max(0, max - 1)) + "…");
+
+function wrap(text: string, maxWidth: number, font: import("pdf-lib").PDFFont, size: number): string[] {
+  const out: string[] = [];
+  for (const paragraph of text.split(/\n+/)) {
+    const words = paragraph.split(/\s+/);
+    let line = "";
+    for (const word of words) {
+      const candidate = line ? `${line} ${word}` : word;
+      if (font.widthOfTextAtSize(candidate, size) > maxWidth && line) {
+        out.push(line);
+        line = word;
+      } else {
+        line = candidate;
+      }
+    }
+    if (line) out.push(line);
+  }
+  return out;
+}
+
+async function main() {
+  const pdf = await PDFDocument.create();
+  const helv = await pdf.embedFont(StandardFonts.Helvetica);
+  const helvBold = await pdf.embedFont(StandardFonts.HelveticaBold);
+  const [width, height] = PAGE_SIZE;
+  const margin = MARGIN;
+  const contentW = width - 2 * margin;
+
+  let page = pdf.addPage(PAGE_SIZE);
+  let y = height - margin;
+
+  page.drawRectangle({ x: 0, y: height - 74, width, height: 74, color: BRAND.primary });
+  page.drawText(pdfText("Lorry Receipt Report"), { x: margin, y: height - 38, size: 17, font: helvBold, color: rgb(1, 1, 1) });
+  page.drawText(pdfText("Mahadev Road Lines"), { x: margin, y: height - 56, size: 10.5, font: helv, color: rgb(0.92, 0.9, 1) });
+  page.drawText(pdfText("GSTIN: 45RSSRRFGHJJJ56  ·  CIN: U41001AP2023PTC111480"), { x: margin, y: height - 68, size: 7.5, font: helv, color: rgb(0.85, 0.82, 1) });
+
+  y = height - 74 - 20;
+  page.drawText(pdfText("Filters: Status: approved  ·  Payment: Paid"), { x: margin, y, size: 8.5, font: helv, color: BRAND.muted });
+  y -= 22;
+
+  const kpis = [
+    { label: "Total LRs", value: "128" },
+    { label: "Total Freight", value: "Rs.4,52,300" },
+    { label: "Approval Rate", value: "91.3%" },
+    { label: "Rejected", value: "6" },
+  ];
+  const gap = 8;
+  const kpiW = (contentW - gap * (kpis.length - 1)) / kpis.length;
+  kpis.forEach((kpi, i) => {
+    const x = margin + i * (kpiW + gap);
+    page.drawRectangle({ x, y: y - 46, width: kpiW, height: 46, borderColor: BRAND.border, borderWidth: 1, color: BRAND.accent });
+    page.drawText(pdfText(kpi.label.toUpperCase()), { x: x + 10, y: y - 16, size: 7, font: helvBold, color: BRAND.muted });
+    page.drawText(pdfText(kpi.value), { x: x + 10, y: y - 34, size: 13, font: helvBold, color: BRAND.primary });
+  });
+  y -= 46 + 18;
+
+  function drawTableHeaderRow() {
+    page.drawRectangle({ x: margin, y: y - 16, width: contentW, height: 18, color: BRAND.accent });
+    let x = margin;
+    TABLE_COLS.forEach((col) => {
+      const colW = contentW * col.w;
+      page.drawText(pdfText(col.label.toUpperCase()), { x: x + 4, y: y - 11, size: 7, font: helvBold, color: BRAND.primary });
+      x += colW;
+    });
+    y -= 22;
+  }
+  drawTableHeaderRow();
+
+  const mockRows = Array.from({ length: 14 }).map((_, i) => ({
+    lrNumber: `RONO/${2026}/${1000 + i}`,
+    date: "31 Jul",
+    route: "Hyderabad to Chennai",
+    executive: "Ramesh Kumar",
+    status: i % 4 === 0 ? "pending" : "approved",
+    payment: i % 3 === 0 ? "To Pay" : "Paid",
+    freight: "Rs.3,450",
+    consignor: "Fghh Traders",
+    consignee: "Vhh Enterprises",
+    branch: i % 2 === 0 ? "Hyderabad HQ" : undefined,
+    weight: "555kg",
+    pkgs: "12",
+    declared: "Rs.8,885",
+    invoice: i % 2 === 0 ? `INV-2026-00${i}` : undefined,
+    wo: i % 3 === 0 ? `WO-45${i}` : undefined,
+    driver: "Ramesh Kumar",
+    driverPh: "9876543210",
+    license: "TS0920021001234",
+    insurance: i % 2 === 0 ? "Insured - Policy #INS-99812" : undefined,
+    loading: "Plot 12, Industrial Estate, Hyderabad",
+    unloading: "Warehouse 4, Logistics Park, Chennai",
+    vehicle: "TS09FF4566",
+  }));
+
+  for (const row of mockRows) {
+    const detailParts = [
+      `Consignor: ${row.consignor}`,
+      `Consignee: ${row.consignee}`,
+      row.branch && `Branch: ${row.branch}`,
+      `Weight: ${row.weight}`,
+      `Pkgs: ${row.pkgs}`,
+      `Declared: ${row.declared}`,
+      row.invoice && `Invoice: ${row.invoice}`,
+      row.wo && `WO: ${row.wo}`,
+      `Driver: ${row.driver}`,
+      `Driver Ph: ${row.driverPh}`,
+      `License: ${row.license}`,
+      row.insurance && `Insurance: ${row.insurance}`,
+      `Loading: ${row.loading}`,
+      `Unloading: ${row.unloading}`,
+      `Vehicle: ${row.vehicle}`,
+    ].filter((v): v is string => Boolean(v));
+
+    const detailLines = wrap(detailParts.join("   ·   "), contentW - 8, helv, 6.5).slice(0, 2);
+    const rowH = 14 + detailLines.length * 8;
+
+    if (y - rowH < margin + 20) {
+      page = pdf.addPage(PAGE_SIZE);
+      y = height - margin;
+      page.drawText(pdfText("Lorry Receipt Report — Mahadev Road Lines (continued)"), { x: margin, y, size: 10, font: helvBold, color: BRAND.primary });
+      y -= 16;
+      drawTableHeaderRow();
+    }
+
+    let x = margin;
+    [row.lrNumber, row.date, row.route, row.executive, row.status, row.payment, row.freight].forEach((cell, i) => {
+      const colW = contentW * TABLE_COLS[i].w;
+      const maxChars = Math.max(6, Math.floor(colW / 4.6));
+      page.drawText(pdfText(truncate(cell, maxChars)), { x: x + 4, y, size: 8.5, font: helv, color: BRAND.ink });
+      x += colW;
+    });
+    y -= 14;
+
+    detailLines.forEach((line) => {
+      page.drawText(pdfText(line), { x: margin + 4, y, size: 6.5, font: helv, color: BRAND.muted });
+      y -= 8;
+    });
+    y -= 2;
+    page.drawLine({ start: { x: margin, y: y + 4 }, end: { x: margin + contentW, y: y + 4 }, thickness: 0.4, color: BRAND.border });
+  }
+
+  page.drawText(pdfText("Empowered by Rayudu Group · RonoHub  —  Page 1"), { x: margin, y: 22, size: 7.5, font: helv, color: BRAND.muted });
+
+  const bytes = await pdf.save();
+  writeFileSync("/tmp/test-report.pdf", bytes);
+  console.log("wrote /tmp/test-report.pdf, pages:", pdf.getPageCount());
+}
+
+main();
