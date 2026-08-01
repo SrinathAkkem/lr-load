@@ -49,6 +49,9 @@ type PrismaCompany = {
   logoUrl: string | null;
   address: string;
   gstNumber: string;
+  cin: string | null;
+  email: string | null;
+  website: string | null;
   stampUrl: string | null;
   lrCode: string;
   contactPhone: string;
@@ -97,12 +100,20 @@ type PrismaLR = {
   originCity: string;
   destinationCity: string;
   vehicleNumber: string;
+  driverName: string | null;
+  driverPhone: string | null;
+  drivingLicenseNumber: string | null;
+  loadingPoint: string | null;
+  unloadingPoint: string | null;
   goodsDescription: string;
   noOfPackages: number;
   weightKg: Prisma.Decimal;
   declaredValue: Prisma.Decimal;
   freightAmount: Prisma.Decimal;
   paymentMode: "TO_PAY" | "PAID" | "TO_BE_BILLED";
+  invoiceNumber: string | null;
+  workOrderNo: string | null;
+  insurance: string | null;
   dispatchDate: string;
   specialInstructions: string | null;
   photos: Prisma.JsonValue;
@@ -133,6 +144,9 @@ export function toCompany(c: PrismaCompany): Company {
     logoUrl: c.logoUrl ?? undefined,
     address: c.address,
     gstNumber: c.gstNumber,
+    cin: c.cin ?? undefined,
+    email: c.email ?? undefined,
+    website: c.website ?? undefined,
     stampUrl: c.stampUrl ?? undefined,
     lrCode: c.lrCode,
     contactPhone: c.contactPhone,
@@ -189,12 +203,20 @@ export function toLR(lr: PrismaLR): LRRequest {
     originCity: lr.originCity,
     destinationCity: lr.destinationCity,
     vehicleNumber: lr.vehicleNumber,
+    driverName: lr.driverName ?? undefined,
+    driverPhone: lr.driverPhone ?? undefined,
+    drivingLicenseNumber: lr.drivingLicenseNumber ?? undefined,
+    loadingPoint: lr.loadingPoint ?? undefined,
+    unloadingPoint: lr.unloadingPoint ?? undefined,
     goodsDescription: lr.goodsDescription,
     noOfPackages: lr.noOfPackages,
     weightKg: decimalToNumber(lr.weightKg),
     declaredValue: decimalToNumber(lr.declaredValue),
     freightAmount: decimalToNumber(lr.freightAmount),
     paymentMode: paymentModeToApi(lr.paymentMode),
+    invoiceNumber: lr.invoiceNumber ?? undefined,
+    workOrderNo: lr.workOrderNo ?? undefined,
+    insurance: lr.insurance ?? undefined,
     dispatchDate: lr.dispatchDate,
     specialInstructions: lr.specialInstructions ?? undefined,
     photos,

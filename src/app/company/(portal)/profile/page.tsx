@@ -14,6 +14,9 @@ interface FormState {
   name: string;
   address: string;
   gstNumber: string;
+  cin: string;
+  email: string;
+  website: string;
   logoUrl: string;
   stampUrl: string;
   lrCode: string;
@@ -29,6 +32,9 @@ const INITIAL: FormState = {
   name: "",
   address: "",
   gstNumber: "",
+  cin: "",
+  email: "",
+  website: "",
   logoUrl: "",
   stampUrl: "",
   lrCode: "",
@@ -60,6 +66,9 @@ export default function CompanyProfilePage() {
             name: c.name ?? "",
             address: c.address ?? "",
             gstNumber: c.gstNumber ?? "",
+            cin: c.cin ?? "",
+            email: c.email ?? "",
+            website: c.website ?? "",
             logoUrl: c.logoUrl ?? "",
             stampUrl: c.stampUrl ?? "",
             lrCode: c.lrCode ?? "",
@@ -79,6 +88,9 @@ export default function CompanyProfilePage() {
           name: form.name,
           address: form.address,
           gstNumber: form.gstNumber,
+          cin: form.cin,
+          email: form.email,
+          website: form.website,
           logoUrl: form.logoUrl,
           stampUrl: form.stampUrl,
         }),
@@ -225,6 +237,41 @@ export default function CompanyProfilePage() {
                 }
                 className="mt-1.5"
               />
+            </div>
+            <div>
+              <Label>CIN (Optional)</Label>
+              <Input
+                value={form.cin}
+                onChange={(e) =>
+                  setForm({ ...form, cin: e.target.value.toUpperCase() })
+                }
+                placeholder="U41001AP2023PTC111480"
+                className="mt-1.5"
+              />
+              <p className="mt-1 text-[11px] text-slate-400">
+                Corporate Identification Number — shown in the LR PDF header if set.
+              </p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label>Email (Optional)</Label>
+                <Input
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  placeholder="ops@company.com"
+                  className="mt-1.5"
+                />
+              </div>
+              <div>
+                <Label>Website (Optional)</Label>
+                <Input
+                  value={form.website}
+                  onChange={(e) => setForm({ ...form, website: e.target.value })}
+                  placeholder="www.company.com"
+                  className="mt-1.5"
+                />
+              </div>
             </div>
             <Button
               onClick={save}

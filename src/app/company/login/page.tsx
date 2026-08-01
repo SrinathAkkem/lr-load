@@ -116,12 +116,16 @@ export default function CompanyLoginPage() {
         </div>
       </aside>
 
-      <div className="flex flex-1 items-center justify-center bg-white p-6 sm:p-10">
-        <div className="w-full max-w-md">
-          <div className="mb-8 lg:hidden">
-            <RonoLogo />
-          </div>
+      <div className="flex flex-1 flex-col bg-white">
+        <div className="bg-brand-gradient-sidebar px-6 py-8 text-white lg:hidden">
+          <RonoLogo className="text-white [&_span]:text-white" />
+          <p className="mt-3 text-sm font-semibold text-white/70">
+            Run your transport company on autopilot.
+          </p>
+        </div>
 
+        <div className="flex flex-1 items-center justify-center p-6 sm:p-10">
+        <div className="w-full max-w-md">
           <h2 className="text-2xl font-extrabold text-[#2d2d4e]">Welcome back</h2>
           <p className="mt-2 text-sm font-semibold text-[#9ca3af]">
             Sign in with the mobile number registered by your platform admin.
@@ -204,6 +208,7 @@ export default function CompanyLoginPage() {
             By signing in you agree to RonoHub&apos;s acceptable-use policy. All
             sign-in events are logged for audit and security review.
           </div>
+        </div>
         </div>
       </div>
     </div>

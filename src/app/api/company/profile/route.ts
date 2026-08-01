@@ -40,6 +40,9 @@ export async function POST(req: NextRequest) {
     address: body.address === undefined ? undefined : String(body.address),
     gstNumber:
       body.gstNumber === undefined ? undefined : String(body.gstNumber),
+    cin: body.cin === undefined ? undefined : String(body.cin) || null,
+    email: body.email === undefined ? undefined : String(body.email) || null,
+    website: body.website === undefined ? undefined : String(body.website) || null,
     logoUrl: body.logoUrl === undefined ? undefined : String(body.logoUrl) || null,
     stampUrl:
       body.stampUrl === undefined ? undefined : String(body.stampUrl) || null,
@@ -56,6 +59,9 @@ export async function POST(req: NextRequest) {
       name: partial.name,
       address: partial.address,
       gstNumber: partial.gstNumber,
+      cin: partial.cin ?? undefined,
+      email: partial.email ?? undefined,
+      website: partial.website ?? undefined,
       logoUrl: partial.logoUrl ?? undefined,
       stampUrl: partial.stampUrl ?? undefined,
     });

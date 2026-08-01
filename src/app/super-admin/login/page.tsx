@@ -79,7 +79,15 @@ export default function SuperAdminLoginPage() {
       </div>
 
       {/* Right Panel - Login Form */}
-      <div className="flex flex-1 items-center justify-center bg-[#f4f6fb] p-8">
+      <div className="flex flex-1 flex-col bg-[#f4f6fb]">
+        <div className="bg-brand-gradient-sidebar px-6 py-8 text-white lg:hidden">
+          <RonoLogo className="text-white [&_span]:text-white" />
+          <p className="mt-3 text-sm font-semibold text-white/70">
+            Super Admin Portal — Powered by RonoHub.
+          </p>
+        </div>
+
+        <div className="flex flex-1 items-center justify-center p-8">
         <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-6">
           <div>
             <h2 className="text-2xl font-extrabold text-[#2d2d4e]">Welcome back</h2>
@@ -134,6 +142,7 @@ export default function SuperAdminLoginPage() {
             </div>
           </div>
         </form>
+        </div>
       </div>
     </div>
   );

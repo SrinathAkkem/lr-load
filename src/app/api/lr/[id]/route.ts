@@ -141,8 +141,11 @@ export async function PATCH(
     "consignorName", "consignorAddress",
     "consigneeCompany", "consigneeName", "consigneeAddress", "consigneePhone",
     "originCity", "destinationCity", "vehicleNumber",
+    "driverName", "driverPhone", "drivingLicenseNumber",
+    "loadingPoint", "unloadingPoint",
     "goodsDescription", "noOfPackages", "weightKg",
     "declaredValue", "freightAmount", "paymentMode",
+    "invoiceNumber", "workOrderNo", "insurance",
     "specialInstructions", "signatureUrl", "photos",
     "dispatchDate",
   ] as const;
