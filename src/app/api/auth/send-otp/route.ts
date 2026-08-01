@@ -9,6 +9,7 @@ import {
   isDevOtpBypassAllowed,
   isOtpSmsDisabled,
   isSmsConfigured,
+  isStaticTestMobile,
   shouldSendRealSms,
 } from "@/lib/otp/config";
 import { isProduction } from "@/lib/env";
@@ -71,14 +72,18 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  if (isProduction() && !isSmsConfigured() && !isOtpSmsDisabled()) {
+  const isStaticTest = isStaticTestMobile(mobile);
+
+  if (isProduction() && !isSmsConfigured() && !isOtpSmsDisabled() && !isStaticTest) {
     console.error("[send-otp] Production requires SMSLOGIN_* or TWILIO_* env vars");
     return jsonError("SMS service is not configured. Contact support.", 503);
   }
 
-  const code = shouldSendRealSms()
-    ? String(randomInt(100000, 999999))
-    : DEV_OTP_CODE;
+  const code = isStaticTest
+    ? DEV_OTP_CODE
+    : shouldSendRealSms()
+      ? String(randomInt(100000, 999999))
+      : DEV_OTP_CODE;
   const expiresAt = new Date(Date.now() + 2 * 60 * 1000);
 
   await prisma.otp.upsert({
@@ -88,7 +93,7 @@ export async function POST(req: NextRequest) {
   });
 
   let smsSent = false;
-  if (shouldSendRealSms()) {
+  if (shouldSendRealSms() && !isStaticTest) {
     try {
       await sendOtpWithTimeout(mobile, code);
       smsSent = true;
@@ -105,7 +110,7 @@ export async function POST(req: NextRequest) {
 
   return jsonOk({
     message: smsSent ? "OTP sent to your mobile" : "OTP generated (dev mode)",
-    devOtp: isDevOtpBypassAllowed() ? code : undefined,
+    devOtp: isStaticTest || isDevOtpBypassAllowed() ? code : undefined,
     smsSent,
   });
 }

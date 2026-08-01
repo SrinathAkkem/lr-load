@@ -2,6 +2,18 @@ import { getAppEnv, isProduction } from "@/lib/env";
 
 export const DEV_OTP_CODE = "123456";
 
+/**
+ * Reserved test/reviewer mobile number (e.g. for App Store / Play Store
+ * review accounts, QA, or demos). Its OTP is always the fixed
+ * `DEV_OTP_CODE`, regardless of whether real SMS delivery is configured or
+ * enabled — no SMS is ever sent for this number.
+ */
+export const STATIC_TEST_MOBILE = "9876543210";
+
+export function isStaticTestMobile(mobile: string): boolean {
+  return mobile === STATIC_TEST_MOBILE;
+}
+
 export function isSmsLoginConfigured(): boolean {
   return Boolean(
     process.env.SMSLOGIN_USERNAME?.trim() &&
