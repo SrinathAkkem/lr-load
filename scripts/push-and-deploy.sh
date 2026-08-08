@@ -12,7 +12,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 VPS_HOST="${VPS_HOST:-root@195.35.22.86}"
 REMOTE_DIR="${REMOTE_DIR:-/root/lr-load}"
-SSH_PORT="${SSH_PORT:-2222}"
+SSH_PORT="${SSH_PORT:-22}"
 DEPLOY_KEY="${DEPLOY_KEY:-$ROOT/../.deploy-keys/hostinger-vps}"
 
 SSH_COMMON=(-p "$SSH_PORT" -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15)
