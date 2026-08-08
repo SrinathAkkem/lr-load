@@ -2,7 +2,7 @@
 # Safe deploy for lr-load on existing FASTPANEL VPS — does not touch other PM2 apps.
 set -euo pipefail
 
-APP_DIR="${APP_DIR:-/root/lr-load-v2}"
+APP_DIR="${APP_DIR:-/root/lr-load}"
 PORT="${LR_PORT:-3010}"
 DOMAIN="${LR_DOMAIN:-ronolr.com}"
 NODE_VERSION="${NODE_VERSION:-20}"
