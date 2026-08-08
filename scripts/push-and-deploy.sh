@@ -11,10 +11,11 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 VPS_HOST="${VPS_HOST:-root@195.35.22.86}"
-REMOTE_DIR="${REMOTE_DIR:-/root/lr-load-v2}"
+REMOTE_DIR="${REMOTE_DIR:-/root/lr-load}"
+SSH_PORT="${SSH_PORT:-2222}"
 DEPLOY_KEY="${DEPLOY_KEY:-$ROOT/../.deploy-keys/hostinger-vps}"
 
-SSH_COMMON=(-o StrictHostKeyChecking=accept-new -o ConnectTimeout=15)
+SSH_COMMON=(-p "$SSH_PORT" -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15)
 RSYNC_EXCLUDES=(
   --exclude node_modules
   --exclude .next

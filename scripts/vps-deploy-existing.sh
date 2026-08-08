@@ -26,6 +26,18 @@ if [ ! -f .env ]; then
   exit 1
 fi
 
+echo "==> Ensure NEXT_PUBLIC_APP_URL=https://$DOMAIN (baked in at build time)..."
+if grep -q '^NEXT_PUBLIC_APP_URL=' .env; then
+  sed -i "s|^NEXT_PUBLIC_APP_URL=.*|NEXT_PUBLIC_APP_URL=\"https://$DOMAIN\"|" .env
+else
+  echo "NEXT_PUBLIC_APP_URL=\"https://$DOMAIN\"" >> .env
+fi
+# Replace legacy domains left over from older deploys
+sed -i \
+  -e 's|lr\.ronohub\.com|'"$DOMAIN"'|g' \
+  -e 's|lightblue-partridge[^"]*|'"$DOMAIN"'|g' \
+  .env
+
 echo "==> Install dependencies..."
 "$NPM_BIN" install --legacy-peer-deps
 

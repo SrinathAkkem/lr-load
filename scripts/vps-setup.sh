@@ -6,7 +6,7 @@ set -euo pipefail
 APP_DIR="${APP_DIR:-/opt/rono/lr-load}"
 UPLOAD_DIR="${UPLOAD_DIR:-/var/lib/rono/uploads}"
 REPO_URL="${REPO_URL:-https://github.com/SrinathAkkem/lr-load.git}"
-DOMAIN="${DOMAIN:-lr.yourdomain.com}"
+DOMAIN="${DOMAIN:-ronolr.com}"
 
 echo "==> Installing Node 20, nginx, MySQL, PM2..."
 curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
