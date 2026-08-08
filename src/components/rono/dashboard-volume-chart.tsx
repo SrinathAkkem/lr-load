@@ -29,18 +29,19 @@ function TopLabel({
   value,
   highlight,
 }: {
-  x?: number;
-  y?: number;
-  width?: number;
-  value?: number;
+  x?: string | number;
+  y?: string | number;
+  width?: string | number;
+  value?: string | number;
   highlight: boolean;
 }) {
   if (!highlight || x === undefined || y === undefined || width === undefined) return null;
-  const cx = x + width / 2;
+  const cx = Number(x) + Number(width) / 2;
+  const cy = Number(y);
   return (
     <g>
-      <rect x={cx - 20} y={y - 28} width={40} height={22} rx={11} fill="#5E3EA1" />
-      <text x={cx} y={y - 13} textAnchor="middle" fontSize={11} fontWeight={700} fill="#fff">
+      <rect x={cx - 20} y={cy - 28} width={40} height={22} rx={11} fill="#5E3EA1" />
+      <text x={cx} y={cy - 13} textAnchor="middle" fontSize={11} fontWeight={700} fill="#fff">
         {value}
       </text>
     </g>
