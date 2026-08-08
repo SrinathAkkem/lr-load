@@ -1,16 +1,13 @@
+import { randomInt } from "crypto";
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { jsonError, jsonOk } from "@/lib/api/response";
+import { sendEmailOtpMail } from "@/lib/email/otp-mailer";
+import { isSmtpConfigured } from "@/lib/email/smtp";
 import { prisma } from "@/lib/db/prisma";
+import { isProduction } from "@/lib/env";
 import { DEV_OTP_CODE } from "@/lib/otp/config";
 
-/**
- * Email OTP is currently only used for self-service company registration.
- * There's no email-sending provider wired up yet (see AUTH.md / otp/config),
- * so — mirroring the SMS "dev bypass" pattern already used for mobile OTP —
- * the generated code is returned in the response for local/demo use until a
- * real provider (Resend/SES/SMTP) is configured.
- */
 const schema = z.object({
   email: z.string().email("Enter a valid email address"),
 });
@@ -35,11 +32,15 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // No email-sending provider is configured yet (see module docblock), so we
-  // always use the fixed dev code and hand it back in the response — the
-  // only way the caller can otherwise learn it. Swap this out once a real
-  // provider (Resend/SES/SMTP) is wired up.
-  const code = DEV_OTP_CODE;
+  if (isProduction() && !isSmtpConfigured()) {
+    console.error("[send-email-otp] Production requires SMTP_* env vars");
+    return jsonError("Email service is not configured. Contact support.", 503);
+  }
+
+  const shouldSendRealEmail = isSmtpConfigured();
+  const code = shouldSendRealEmail
+    ? String(randomInt(100000, 999999))
+    : DEV_OTP_CODE;
   const expiresAt = new Date(Date.now() + 2 * 60 * 1000);
 
   await prisma.emailOtp.upsert({
@@ -48,10 +49,22 @@ export async function POST(req: NextRequest) {
     update: { code, expiresAt },
   });
 
-  console.info(`[dev email OTP] ${email}: ${code}`);
+  let emailSent = false;
+  if (shouldSendRealEmail) {
+    try {
+      await sendEmailOtpMail(email, code);
+      emailSent = true;
+    } catch (error) {
+      console.error("[send-email-otp] Email delivery failed:", error);
+      return jsonError("Failed to send OTP email. Try again shortly.", 502);
+    }
+  } else {
+    console.info(`[dev email OTP] ${email}: ${code}`);
+  }
 
   return jsonOk({
-    message: "OTP generated for email verification (dev mode)",
-    devOtp: code,
+    message: emailSent ? "OTP sent to your email" : "OTP generated (dev mode)",
+    devOtp: emailSent ? undefined : code,
+    emailSent,
   });
 }

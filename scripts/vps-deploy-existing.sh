@@ -32,11 +32,27 @@ if grep -q '^NEXT_PUBLIC_APP_URL=' .env; then
 else
   echo "NEXT_PUBLIC_APP_URL=\"https://$DOMAIN\"" >> .env
 fi
-# Replace legacy domains left over from older deploys
 sed -i \
   -e 's|lr\.ronohub\.com|'"$DOMAIN"'|g' \
   -e 's|lightblue-partridge[^"]*|'"$DOMAIN"'|g' \
   .env
+
+if ! grep -q '^APP_ENV=' .env; then
+  echo 'APP_ENV="production"' >> .env
+fi
+if ! grep -q '^OTP_SMS_ENABLED=' .env; then
+  echo 'OTP_SMS_ENABLED="true"' >> .env
+fi
+if ! grep -q '^CONTACT_EMAIL_ENABLED=' .env; then
+  echo 'CONTACT_EMAIL_ENABLED="true"' >> .env
+fi
+if ! grep -q '^CONTACT_NOTIFY_EMAIL=' .env; then
+  echo 'CONTACT_NOTIFY_EMAIL="info@rayudugroup.in"' >> .env
+fi
+
+if grep -q '^SMTP_PASS=$' .env || grep -q '^SMTP_PASS=""' .env; then
+  echo "WARNING: SMTP_PASS is empty — email OTP and contact form emails will not send until set in .env"
+fi
 
 echo "==> Install dependencies..."
 "$NPM_BIN" install --legacy-peer-deps
@@ -53,6 +69,10 @@ echo "==> Build..."
 
 echo "==> PM2 (port $PORT only)..."
 pm2 delete rono-lr 2>/dev/null || true
+set -a
+# shellcheck disable=SC1091
+source "$APP_DIR/.env"
+set +a
 PORT="$PORT" pm2 start "$NPM_BIN" --name rono-lr --cwd "$APP_DIR" -- run start
 pm2 save
 

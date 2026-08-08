@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import { getSmtpFromAddress, getSmtpTransport } from "./smtp";
 
 export type ContactEmailPayload = {
   fullName: string;
@@ -9,7 +9,7 @@ export type ContactEmailPayload = {
   message: string;
 };
 
-const DEFAULT_NOTIFY_EMAIL = "rayudugroup01@gmail.com";
+const DEFAULT_NOTIFY_EMAIL = "info@rayudugroup.in";
 
 function isEmailEnabled() {
   return process.env.CONTACT_EMAIL_ENABLED === "true";
@@ -22,24 +22,6 @@ function escapeHtml(value: string) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
-}
-
-function getTransport() {
-  const host = process.env.SMTP_HOST ?? "smtp.gmail.com";
-  const port = Number(process.env.SMTP_PORT ?? "587");
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
-
-  if (!user || !pass) {
-    return null;
-  }
-
-  return nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465,
-    auth: { user, pass },
-  });
 }
 
 function buildPlainText(payload: ContactEmailPayload) {
@@ -115,9 +97,9 @@ export async function sendContactEnquiryEmail(payload: ContactEmailPayload) {
     return { sent: false, reason: "disabled" as const };
   }
 
-  const transport = getTransport();
+  const transport = getSmtpTransport();
   const to = process.env.CONTACT_NOTIFY_EMAIL ?? DEFAULT_NOTIFY_EMAIL;
-  const from = process.env.SMTP_FROM ?? process.env.SMTP_USER;
+  const from = getSmtpFromAddress();
 
   if (!transport || !from) {
     console.warn("[contact] SMTP not configured — enquiry stored only");
