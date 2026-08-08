@@ -55,10 +55,12 @@ type PrismaCompany = {
   stampUrl: string | null;
   lrCode: string;
   contactPhone: string;
+  ibaNumber: string | null;
+  rejectionReason: string | null;
   maxBranches: number;
   maxExecutives: number;
   maxLrPerMonth: number;
-  status: "active" | "suspended";
+  status: "pending" | "active" | "suspended";
   createdAt: Date;
 };
 
@@ -150,6 +152,8 @@ export function toCompany(c: PrismaCompany): Company {
     stampUrl: c.stampUrl ?? undefined,
     lrCode: c.lrCode,
     contactPhone: c.contactPhone,
+    ibaNumber: c.ibaNumber ?? undefined,
+    rejectionReason: c.rejectionReason ?? undefined,
     maxBranches: c.maxBranches,
     maxExecutives: c.maxExecutives,
     maxLrPerMonth: c.maxLrPerMonth,

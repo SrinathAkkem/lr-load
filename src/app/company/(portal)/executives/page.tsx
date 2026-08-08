@@ -1,17 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
-import { Send, Search, RotateCw, Trash2 } from "lucide-react";
+import { Eye, Pencil, RotateCw, Trash2 } from "lucide-react";
+import { IconSearch, IconUserGroup } from "@/components/rono/dashboard-icons";
+import { FilterDropdown } from "@/components/rono/filter-dropdown";
+import { ActionMenu } from "@/components/rono/action-menu";
+import { SendInviteModal } from "./send-invite-modal";
 
 interface Executive {
   id: string;
@@ -30,67 +26,56 @@ interface Branch {
   city: string;
 }
 
+const PER_PAGE = 10;
+
+const FILTERS: ReadonlyArray<{ key: "all" | "invited" | "active" | "inactive"; label: string }> = [
+  { key: "all", label: "All" },
+  { key: "invited", label: "Invited (Pending)" },
+  { key: "active", label: "Active" },
+  { key: "inactive", label: "Inactive" },
+];
+
+const FILTER_PILL_STYLES: Record<string, { active: string; inactive: string }> = {
+  all: { active: "bg-[#5E3EA1] text-white", inactive: "bg-[#F5F5F7] text-[#4D4D4D]" },
+  invited: { active: "bg-[#967E1C] text-white", inactive: "bg-[#F7CE25]/20 text-[#967E1C]" },
+  active: { active: "bg-[#0C6B24] text-white", inactive: "bg-[#0C6B24]/10 text-[#0C6B24]" },
+  inactive: { active: "bg-[#961C1C] text-white", inactive: "bg-[#961C1C]/20 text-[#961C1C]" },
+};
+
 export default function ExecutivesPage() {
   const [executives, setExecutives] = useState<Executive[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "invited" | "inactive">("all");
-  const [busy, setBusy] = useState(false);
+  const [branchFilter, setBranchFilter] = useState("all");
   const [removing, setRemoving] = useState<string | null>(null);
-  const [inviteMobile, setInviteMobile] = useState("");
-  const [inviteBranch, setInviteBranch] = useState("");
-  const [maxExecutives, setMaxExecutives] = useState(150);
+  const [resending, setResending] = useState<string | null>(null);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [lrCode, setLrCode] = useState("RONO1");
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     refresh();
     fetch("/api/branches")
       .then((r) => r.json())
       .then((d) => {
-        if (d.success) {
-          setBranches(d.data);
-          if (d.data[0]) setInviteBranch(d.data[0].id);
-        }
+        if (d.success) setBranches(d.data);
       });
     fetch("/api/company/profile")
       .then((r) => r.json())
       .then((d) => {
-        if (d?.success && d.data) setMaxExecutives(d.data.maxExecutives);
+        if (d?.success && d.data?.lrCode) setLrCode(d.data.lrCode);
       });
   }, []);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, statusFilter, branchFilter]);
 
   async function refresh() {
     const res = await fetch("/api/executives");
     const d = await res.json();
     if (d.success) setExecutives(d.data);
-  }
-
-  async function inviteExecutive() {
-    if (!/^\d{10}$/.test(inviteMobile)) {
-      toast.error("Mobile must be 10 digits");
-      return;
-    }
-    if (!inviteBranch) {
-      toast.error("Please select a branch");
-      return;
-    }
-    setBusy(true);
-    try {
-      const res = await fetch("/api/executives/invite", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mobile: inviteMobile, branchId: inviteBranch }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        toast.success("Invite sent — executive can now log in via OTP");
-        setInviteMobile("");
-        refresh();
-      } else {
-        toast.error(data.error ?? "Failed to invite");
-      }
-    } finally {
-      setBusy(false);
-    }
   }
 
   async function removeExecutive(id: string, name: string) {
@@ -99,233 +84,224 @@ export default function ExecutivesPage() {
     try {
       const res = await fetch(`/api/executives/${id}`, { method: "DELETE" });
       const data = await res.json();
-      if (data.success) { toast.success(`${name} deactivated`); refresh(); }
-      else toast.error(data.error ?? "Failed");
-    } finally { setRemoving(null); }
+      if (data.success) {
+        toast.success(`${name} deactivated`);
+        refresh();
+      } else toast.error(data.error ?? "Failed");
+    } finally {
+      setRemoving(null);
+    }
   }
 
-  const filtered = executives.filter((d) => {
-    if (statusFilter !== "all" && d.status !== statusFilter) return false;
-    const q = search.trim().toLowerCase();
-    if (!q) return true;
-    return d.name.toLowerCase().includes(q) || d.mobile.includes(q) || (d.branch?.name ?? "").toLowerCase().includes(q);
-  });
+  async function resendOtp(mobile: string) {
+    setResending(mobile);
+    try {
+      const res = await fetch("/api/auth/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mobile, purpose: "login" }),
+      });
+      const data = await res.json();
+      if (data.success) toast.success("OTP has been sent to mobile number");
+      else toast.error(data.error ?? "Failed to resend OTP");
+    } finally {
+      setResending(null);
+    }
+  }
 
-  const activeCount = executives.filter(d => d.status === "active").length;
-  const invitedCount = executives.filter(d => d.status === "invited").length;
-  const inactiveCount = executives.filter(d => d.status === "inactive").length;
+  const filtered = useMemo(() => {
+    return executives.filter((d) => {
+      if (statusFilter !== "all" && d.status !== statusFilter) return false;
+      if (branchFilter !== "all" && d.branch?.name !== branchFilter) return false;
+      const q = search.trim().toLowerCase();
+      if (!q) return true;
+      return (
+        d.name.toLowerCase().includes(q) ||
+        d.mobile.includes(q) ||
+        (d.branch?.name ?? "").toLowerCase().includes(q)
+      );
+    });
+  }, [executives, statusFilter, branchFilter, search]);
 
-  const initials = (name: string) => name.split(/\s+/).map(n => n[0]).join("").slice(0, 2).toUpperCase();
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const paged = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+
+  const counts = {
+    all: executives.length,
+    invited: executives.filter((d) => d.status === "invited").length,
+    active: executives.filter((d) => d.status === "active").length,
+    inactive: executives.filter((d) => d.status === "inactive").length,
+  };
+
+  const initials = (name: string) =>
+    name.split(/\s+/).map((n) => n[0]).join("").slice(0, 2).toUpperCase();
 
   return (
     <div className="p-4 md:p-8">
-      {/* Invite a New Executive section */}
-      <div className="rounded-2xl border border-primary/15 bg-primary/10 p-4 md:p-5">
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15">
-            <Send className="h-5 w-5 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-bold text-primary">Invite a New Executive</h3>
-            <p className="text-xs text-primary/70">
-              Enter the executive&apos;s mobile number. They will receive an OTP to set up their account and join this company.
-            </p>
-          </div>
-          <div className="flex items-center gap-3 text-right">
-            <div>
-              <p className="text-3xl font-bold text-primary">{executives.length} / {maxExecutives}</p>
-              <p className="text-[10px] font-medium text-primary">executives used</p>
-            </div>
-            <div className="h-1.5 w-16 rounded-full bg-primary/20">
-              <div
-                className="h-1.5 rounded-full bg-primary"
-                style={{ width: `${Math.min(100, (executives.length / maxExecutives) * 100)}%` }}
+      <div className="rounded-2xl border border-black/[0.06] bg-white shadow-sm">
+        {/* Header */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/[0.06] px-4 py-4 md:px-6">
+          <h2 className="text-base font-semibold text-black">List of Executive</h2>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <div className="relative">
+              <IconSearch className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#9CA3AF]" />
+              <input
+                type="text"
+                placeholder="Search Executive Name"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-48 rounded-lg border border-black/10 bg-white py-2 pl-9 pr-3 text-xs text-black outline-none focus:border-[#5E3EA1]/40 focus:ring-1 focus:ring-[#5E3EA1]/30"
               />
             </div>
-          </div>
-        </div>
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <Select value={inviteBranch} onValueChange={setInviteBranch}>
-            <SelectTrigger className="w-full rounded-lg border-primary/20 bg-white text-xs sm:w-44">
-              <SelectValue placeholder="Select branch" />
-            </SelectTrigger>
-            <SelectContent>
-              {branches.map((b) => (
-                <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <div className="relative min-w-0 flex-1 basis-full sm:basis-0 sm:max-w-md">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">+91</span>
-            <Input
-              value={inviteMobile}
-              onChange={(e) => setInviteMobile(e.target.value.replace(/\D/g, "").slice(0, 10))}
-              placeholder="Enter 10-digit mobile number"
-              className="pl-10 rounded-lg border-primary/20 bg-white text-sm"
+            <FilterDropdown
+              label="Status"
+              value={statusFilter}
+              onChange={(v) => setStatusFilter(v as typeof statusFilter)}
+              options={[
+                { value: "all", label: "All Status" },
+                { value: "active", label: "Active" },
+                { value: "invited", label: "Invited (Pending)" },
+                { value: "inactive", label: "Inactive" },
+              ]}
             />
-          </div>
-          <Button onClick={inviteExecutive} disabled={busy} className="w-full sm:w-auto">
-            <Send className="mr-1.5 h-3.5 w-3.5" />
-            {busy ? "Sending…" : "Send Invite"}
-          </Button>
-        </div>
-      </div>
-
-      {/* All Executives section */}
-      <div className="mt-6 rounded-2xl border border-slate-100 bg-white shadow-sm">
-        {/* Header */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-4 py-4 md:px-6">
-          <h2 className="text-base font-semibold text-slate-900">All Executives</h2>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">
-              {executives.length} executives
+            <span className="flex h-10 items-center gap-1.5 rounded-lg border border-black/10 bg-white px-3.5 text-xs font-semibold text-black">
+              <IconUserGroup className="h-3.5 w-3.5 text-[#5E3EA1]" />
+              Total Executive : {executives.length}
             </span>
-            <span className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-medium text-slate-600">
-              Branch: All ▼
-            </span>
-            <span className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-medium text-slate-600">
-              Status: All ▼
-            </span>
+            <button
+              type="button"
+              onClick={() => setInviteOpen(true)}
+              className="flex h-10 items-center gap-1.5 rounded-lg bg-[#5E3EA1] px-4 text-xs font-semibold text-white transition hover:opacity-90"
+            >
+              + Send Invite
+            </button>
           </div>
         </div>
 
-        {/* Filters + Search */}
-        <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 md:px-6">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-xs font-medium text-slate-500 mr-1">Filter:</span>
-            {([
-              { key: "all", label: "All Executives" },
-              { key: "active", label: "Active" },
-              { key: "invited", label: "Invited (Pending)" },
-              { key: "inactive", label: "Inactive" },
-            ] as const).map((f) => (
+        {/* Filter pills */}
+        <div className="flex flex-wrap items-center gap-1.5 px-4 py-3 md:px-6">
+          {FILTERS.map((f) => {
+            const styles = FILTER_PILL_STYLES[f.key];
+            const isActive = statusFilter === f.key;
+            return (
               <button
                 key={f.key}
                 onClick={() => setStatusFilter(f.key)}
                 className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
-                  statusFilter === f.key
-                    ? "bg-primary text-white shadow-sm"
-                    : "bg-slate-50 text-slate-600 hover:bg-slate-100"
+                  isActive ? styles.active : styles.inactive
                 }`}
               >
-                {f.label}
+                {f.label} <span className="opacity-70">{counts[f.key]}</span>
               </button>
-            ))}
-          </div>
-          <div className="relative w-full sm:w-52">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search executive name or number…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-xs outline-none focus:border-primary/40 focus:bg-white focus:ring-1 focus:ring-brand"
-            />
-          </div>
+            );
+          })}
         </div>
 
         {/* Table */}
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px] text-sm">
+          <table className="w-full min-w-[960px] text-sm">
             <thead>
-              <tr className="border-b border-slate-100 text-left">
-                <th className="px-6 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Executive</th>
-                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Mobile</th>
-                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Branch</th>
-                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">LRs (Month)</th>
-                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Last Active</th>
-                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Status</th>
-                <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-400">Actions</th>
+              <tr className="border-b border-black/[0.06] text-left">
+                <th className="px-6 py-3 text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF]">ID</th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF]">Executive Name</th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF]">Mobile No.</th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF]">Branch</th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF]">LRS (Month)</th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF]">Last Activated</th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF]">Status</th>
+                <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF]">Action</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 ? (
+              {paged.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-sm text-slate-400">
-                    {executives.length === 0 ? "No executives yet. Invite the first one above." : "No executives match your filters."}
+                  <td colSpan={8} className="px-6 py-12 text-center text-sm text-[#9CA3AF]">
+                    {executives.length === 0
+                      ? "No executives yet. Send the first invite above."
+                      : "No executives match your filters."}
                   </td>
                 </tr>
               ) : (
-                filtered.map((d) => (
-                  <tr key={d.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50">
-                    <td className="px-6 py-3.5">
-                      <div className="flex items-center gap-3">
-                        <span className={`flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold text-white ${
-                          d.status === "active" ? "bg-primary/100" :
-                          d.status === "invited" ? "bg-amber-500" : "bg-slate-400"
-                        }`}>
+                paged.map((d, i) => (
+                  <tr key={d.id} className="border-b border-black/[0.04] last:border-0 hover:bg-black/[0.015]">
+                    <td className="px-6 py-3.5 text-xs font-medium text-[#9CA3AF]">
+                      #{lrCode}{(page - 1) * PER_PAGE + i + 1}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <div className="flex items-center gap-2.5">
+                        <span
+                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white ${
+                            d.status === "active"
+                              ? "bg-[#5E3EA1]"
+                              : d.status === "invited"
+                                ? "bg-[#967E1C]"
+                                : "bg-[#9CA3AF]"
+                          }`}
+                        >
                           {initials(d.name)}
                         </span>
-                        <div>
-                          <p className="font-semibold text-slate-900">{d.name}</p>
-                          <p className="text-[11px] text-slate-400">
-                            {d.status === "invited"
-                              ? `Invited ${relativeDate(d.createdAt)}`
-                              : d.status === "inactive"
-                                ? `Removed ${shortDate(d.createdAt)}`
-                                : `Executive since ${shortDate(d.createdAt)}`}
-                          </p>
-                        </div>
+                        <Link
+                          href={`/company/executives/${d.id}`}
+                          className="font-semibold text-[#5E3EA1] hover:underline"
+                        >
+                          {d.name}
+                        </Link>
                       </div>
                     </td>
-                    <td className="px-4 py-3.5 text-slate-600">+91 {d.mobile}</td>
-                    <td className="px-4 py-3.5">
-                      <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
-                        {d.branch?.name ?? "—"}
-                      </span>
+                    <td className="px-4 py-3.5 text-black">+91 {d.mobile}</td>
+                    <td className="px-4 py-3.5 text-black">{d.branch?.name ?? "—"}</td>
+                    <td className="px-4 py-3.5 text-black">
+                      {d.status === "invited" ? "—" : d.lrsThisMonth}
                     </td>
                     <td className="px-4 py-3.5">
-                      {d.status === "invited" ? (
-                        <span className="text-slate-400">—<br/><span className="text-[10px]">Not yet active</span></span>
+                      {d.lastActive ? (
+                        <>
+                          <p className="text-black">{shortDate(d.lastActive)}</p>
+                          <p className="text-[11px] text-[#9CA3AF]">{shortTime(d.lastActive)}</p>
+                        </>
                       ) : (
-                        <div>
-                          <p className="font-semibold text-slate-800">{d.lrsThisMonth}</p>
-                          <p className="text-[10px] text-slate-400">
-                            {d.status === "inactive" ? "LRs before removal" : "LRs submitted"}
-                          </p>
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-4 py-3.5 text-sm text-slate-500">
-                      {d.lastActive ? formatLastActive(d.lastActive) : (
-                        d.status === "invited" ? "Not yet joined" : "—"
+                        <span className="text-[#9CA3AF]">
+                          {d.status === "invited" ? "Not yet joined" : "—"}
+                        </span>
                       )}
                     </td>
                     <td className="px-4 py-3.5">
                       <StatusPill status={d.status} />
                     </td>
                     <td className="px-4 py-3.5 text-right">
-                      {d.status === "active" ? (
-                        <div className="flex items-center justify-end gap-2">
-                          <button className="rounded-md border border-slate-200 px-3 py-1.5 text-[11px] font-semibold text-slate-600 hover:bg-slate-50">
-                            LR History
-                          </button>
-                          <button
-                            onClick={() => removeExecutive(d.id, d.name)}
-                            disabled={removing === d.id}
-                            className="rounded-md border border-red-200 px-3 py-1.5 text-[11px] font-semibold text-red-600 hover:bg-red-50 disabled:opacity-60"
-                          >
-                            {removing === d.id ? "…" : "Remove"}
-                          </button>
-                        </div>
-                      ) : d.status === "invited" ? (
-                        <div className="flex items-center justify-end gap-2">
-                          <button className="rounded-md border border-amber-200 px-3 py-1.5 text-[11px] font-semibold text-amber-700 hover:bg-amber-50">
-                            <RotateCw className="mr-1 inline h-3 w-3" />
-                            Resend OTP
-                          </button>
-                          <button
-                            onClick={() => removeExecutive(d.id, d.name)}
-                            className="rounded-md border border-red-200 px-3 py-1.5 text-[11px] font-semibold text-red-600 hover:bg-red-50"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      ) : (
-                        <button className="rounded-md border border-slate-200 px-3 py-1.5 text-[11px] font-semibold text-slate-500 hover:bg-slate-50">
-                          LR History
-                        </button>
-                      )}
+                      <ActionMenu
+                        items={[
+                          {
+                            key: "view",
+                            label: "View",
+                            icon: <Eye className="h-4 w-4" />,
+                            href: `/company/executives/${d.id}`,
+                          },
+                          {
+                            key: "edit",
+                            label: "Edit",
+                            icon: <Pencil className="h-4 w-4" />,
+                            href: `/company/executives/${d.id}?edit=1`,
+                          },
+                          ...(d.status === "invited"
+                            ? [
+                                {
+                                  key: "resend",
+                                  label: resending === d.mobile ? "Sending…" : "Resend OTP",
+                                  icon: <RotateCw className="h-4 w-4" />,
+                                  onClick: () => resendOtp(d.mobile),
+                                },
+                              ]
+                            : []),
+                          {
+                            key: "remove",
+                            label: removing === d.id ? "Removing…" : "Remove",
+                            icon: <Trash2 className="h-4 w-4" />,
+                            onClick: () => removeExecutive(d.id, d.name),
+                            danger: true,
+                          },
+                        ]}
+                      />
                     </td>
                   </tr>
                 ))
@@ -335,55 +311,75 @@ export default function ExecutivesPage() {
         </div>
 
         {/* Pagination */}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 px-4 py-3 md:px-6">
-          <p className="text-xs text-slate-400">Showing 1–{Math.min(6, filtered.length)} of {filtered.length} executives</p>
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-black/[0.06] px-4 py-3 md:px-6">
+          <p className="text-xs text-[#9CA3AF]">
+            Showing {filtered.length === 0 ? 0 : (page - 1) * PER_PAGE + 1}–
+            {Math.min(page * PER_PAGE, filtered.length)} of {filtered.length} LR
+          </p>
           <div className="flex flex-wrap items-center gap-1">
-            <span className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-400">←</span>
-            <span className="rounded-md bg-primary px-2.5 py-1 text-xs font-semibold text-white">1</span>
-            <span className="rounded-md border border-slate-200 px-2.5 py-1 text-xs text-slate-600">2</span>
-            <span className="rounded-md border border-slate-200 px-2.5 py-1 text-xs text-slate-600">3</span>
-            <span className="px-1 text-xs text-slate-400">...</span>
-            <span className="rounded-md border border-slate-200 px-2.5 py-1 text-xs text-slate-600">{Math.ceil(filtered.length / 6) || 1}</span>
-            <span className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-400">→</span>
+            <button
+              onClick={() => setPage(Math.max(1, page - 1))}
+              disabled={page <= 1}
+              className="rounded-md border border-black/10 px-2 py-1 text-xs text-[#4D4D4D] disabled:opacity-40 hover:bg-black/[0.03]"
+            >
+              ←
+            </button>
+            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+              let p: number;
+              if (totalPages <= 5) p = i + 1;
+              else if (page <= 3) p = i + 1;
+              else if (page >= totalPages - 2) p = totalPages - 4 + i;
+              else p = page - 2 + i;
+              return (
+                <button
+                  key={p}
+                  onClick={() => setPage(p)}
+                  className={`rounded-md px-2.5 py-1 text-xs font-medium ${
+                    p === page ? "bg-[#5E3EA1] text-white" : "border border-black/10 text-[#4D4D4D] hover:bg-black/[0.03]"
+                  }`}
+                >
+                  {p}
+                </button>
+              );
+            })}
+            <button
+              onClick={() => setPage(Math.min(totalPages, page + 1))}
+              disabled={page >= totalPages}
+              className="rounded-md border border-black/10 px-2 py-1 text-xs text-[#4D4D4D] disabled:opacity-40 hover:bg-black/[0.03]"
+            >
+              →
+            </button>
           </div>
         </div>
       </div>
+
+      <SendInviteModal
+        open={inviteOpen}
+        onClose={() => setInviteOpen(false)}
+        branches={branches}
+        onSent={refresh}
+      />
     </div>
   );
 }
 
 function StatusPill({ status }: { status: string }) {
-  const map: Record<string, { bg: string; text: string; dot: string }> = {
-    active: { bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500" },
-    invited: { bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-500" },
-    inactive: { bg: "bg-slate-100", text: "text-slate-500", dot: "bg-slate-400" },
+  const map: Record<string, string> = {
+    active: "bg-[#0C6B24]/10 text-[#0C6B24]",
+    invited: "bg-[#F7CE25]/20 text-[#967E1C]",
+    inactive: "bg-[#961C1C]/20 text-[#961C1C]",
   };
-  const s = map[status] ?? map.inactive;
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${s.bg} ${s.text}`}>
-      <span className={`h-1.5 w-1.5 rounded-full ${s.dot}`} />
-      {status === "invited" ? "Invited" : status === "active" ? "Active" : "Inactive"}
+    <span className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold capitalize ${map[status] ?? map.inactive}`}>
+      {status === "invited" ? "Invited (Pending)" : status}
     </span>
   );
 }
 
-function formatLastActive(dateStr: string): string {
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffHours = Math.floor(diffMs / 3600000);
-  if (diffHours < 24) return `Today, ${date.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true })}`;
-  if (diffHours < 48) return `Yesterday, ${date.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true })}`;
-  return date.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) + ", " + date.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true });
-}
-
-function relativeDate(dateStr: string): string {
-  const days = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
-  if (days === 0) return "today";
-  if (days === 1) return "yesterday";
-  return `${days} days ago`;
-}
-
 function shortDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+  return new Date(dateStr).toLocaleDateString("en-IN", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+
+function shortTime(dateStr: string): string {
+  return new Date(dateStr).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true });
 }

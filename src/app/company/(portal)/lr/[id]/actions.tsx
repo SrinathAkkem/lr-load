@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { Check, X } from "lucide-react";
 
 export function ApproveRejectActions({ id }: { id: string }) {
   const router = useRouter();
@@ -54,8 +54,8 @@ export function ApproveRejectActions({ id }: { id: string }) {
   }
 
   return (
-    <div className="rounded-2xl border bg-white p-6 shadow-sm">
-      <h2 className="text-sm font-semibold text-slate-700">Decision</h2>
+    <div className="rounded-2xl border border-black/[0.06] bg-white p-5 shadow-sm">
+      <h3 className="text-sm font-bold text-black">Decision</h3>
       {showReject ? (
         <div className="mt-3 space-y-3">
           <textarea
@@ -63,46 +63,50 @@ export function ApproveRejectActions({ id }: { id: string }) {
             onChange={(e) => setReason(e.target.value)}
             rows={3}
             placeholder="Reason for rejection (visible to executive)"
-            className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand"
+            className="w-full rounded-xl border border-black/10 p-3 text-sm text-black outline-none focus:border-[#5E3EA1]/40 focus:ring-1 focus:ring-[#5E3EA1]/30"
           />
-          <div className="flex gap-2">
-            <Button
-              variant="destructive"
-              className="flex-1"
+          <div className="flex gap-2.5">
+            <button
+              type="button"
               disabled={busy === "reject"}
               onClick={handleReject}
+              className="flex-1 rounded-lg bg-[#961C1C] py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
             >
               {busy === "reject" ? "Rejecting…" : "Confirm Reject"}
-            </Button>
-            <Button
-              variant="outline"
-              className="flex-1"
+            </button>
+            <button
+              type="button"
               disabled={busy === "reject"}
               onClick={() => {
                 setShowReject(false);
                 setReason("");
               }}
+              className="flex-1 rounded-lg border border-black/15 py-2.5 text-sm font-semibold text-black transition hover:bg-black/[0.03] disabled:opacity-60"
             >
               Cancel
-            </Button>
+            </button>
           </div>
         </div>
       ) : (
-        <div className="mt-3 grid gap-2">
-          <Button
-            className="bg-emerald-600 hover:bg-emerald-700"
+        <div className="mt-3 grid gap-2.5">
+          <button
+            type="button"
             disabled={busy !== null}
             onClick={handleApprove}
+            className="flex items-center justify-center gap-1.5 rounded-lg bg-[#0C6B24] py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
           >
+            <Check className="h-4 w-4" />
             {busy === "approve" ? "Approving…" : "Approve LR"}
-          </Button>
-          <Button
-            variant="destructive"
+          </button>
+          <button
+            type="button"
             disabled={busy !== null}
             onClick={() => setShowReject(true)}
+            className="flex items-center justify-center gap-1.5 rounded-lg bg-[#961C1C] py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
           >
+            <X className="h-4 w-4" />
             Reject LR
-          </Button>
+          </button>
         </div>
       )}
     </div>

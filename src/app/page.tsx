@@ -1,24 +1,32 @@
-import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth/session";
-
-export const dynamic = "force-dynamic";
+import { Hero } from "@/components/homepage/hero";
+import { LogoStrip } from "@/components/homepage/logo-strip";
+import { CompareSection } from "@/components/homepage/compare-section";
+import { StepsSection } from "@/components/homepage/steps-section";
+import { FeaturesSection } from "@/components/homepage/features-section";
+import { TestimonialsSection } from "@/components/homepage/testimonials-section";
+import { FaqSection } from "@/components/homepage/faq-section";
+import { FinalCta } from "@/components/homepage/final-cta";
+import { SiteFooter } from "@/components/homepage/site-footer";
 
 /**
- * The bare root path is intentionally not a marketing page. It just routes
- * the visitor to the right portal based on their session, and falls back to
- * the company login (which is the most common entry point) when signed out.
- *
- * Demo / sample credentials are deliberately NOT shown here — this is a
- * production-grade application and listing them on a public page is a
- * security smell. Internal operators use the dedicated portal URLs.
+ * The public marketing homepage — always shown at `/`, signed in or not.
+ * Every CTA (nav "Login", hero "Start Free Trial", etc.) routes through
+ * `LoginButton`, which sends an already-signed-in company admin straight to
+ * their dashboard and everyone else (including a stray super-admin session,
+ * which is deliberately signed out first) to the company login/register page.
  */
-export default async function HomePage() {
-  const session = await getSession();
-  if (session?.role === "super_admin") {
-    redirect("/super-admin/dashboard");
-  }
-  if (session?.role === "company_admin") {
-    redirect("/company/dashboard");
-  }
-  redirect("/company/login");
+export default function HomePage() {
+  return (
+    <div className="bg-white">
+      <Hero />
+      <LogoStrip />
+      <CompareSection />
+      <StepsSection />
+      <FeaturesSection />
+      <TestimonialsSection />
+      <FaqSection />
+      <FinalCta />
+      <SiteFooter />
+    </div>
+  );
 }

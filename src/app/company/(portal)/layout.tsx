@@ -5,6 +5,7 @@ import { getSession } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 import { getCompanyById } from "@/lib/services/lr-service";
 import { prisma } from "@/lib/db/prisma";
+import { PendingApprovalBanner } from "@/components/rono/pending-approval-banner";
 
 export default async function CompanyPortalLayout({
   children,
@@ -30,7 +31,7 @@ export default async function CompanyPortalLayout({
 
   return (
     <SidebarMobileProvider>
-      <div className="flex h-screen overflow-hidden bg-slate-50">
+      <div className="flex h-screen overflow-hidden bg-[#F5F5F7]">
         <PortalSidebar
           variant="company_admin"
           userName={session.name}
@@ -47,6 +48,9 @@ export default async function CompanyPortalLayout({
             userRole={company?.name ?? "Company Admin"}
             companyLogoUrl={company?.logoUrl}
           />
+          {company && company.status !== "active" && (
+            <PendingApprovalBanner status={company.status} rejectionReason={company.rejectionReason} />
+          )}
           <main className="flex-1 overflow-y-auto">{children}</main>
         </div>
       </div>

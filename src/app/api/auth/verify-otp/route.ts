@@ -80,6 +80,7 @@ export async function POST(req: NextRequest) {
             id: user.company.id,
             name: user.company.name,
             lrCode: user.company.lrCode,
+            status: user.company.status,
           }
         : undefined,
       branch: user.branch

@@ -32,6 +32,14 @@ const statusConfig: Record<
   },
 };
 
+export const LR_STATUS_PILL: Record<LRStatus, string> = {
+  pending: "bg-[#F7CE25]/20 text-[#967E1C]",
+  approved: "bg-[#0C6B24]/10 text-[#0C6B24]",
+  rejected: "bg-[#961C1C]/20 text-[#961C1C]",
+  in_transit: "bg-[#3C60B6]/10 text-[#3C60B6]",
+  delivered: "bg-[#3C60B6]/10 text-[#3C60B6]",
+};
+
 export function StatusBadge({
   status,
   className,

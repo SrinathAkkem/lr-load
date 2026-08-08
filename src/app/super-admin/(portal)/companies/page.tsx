@@ -34,7 +34,7 @@ export default async function CompaniesListPage({
 
   const where = {
     ...(status !== "all"
-      ? { status: status as "active" | "suspended" }
+      ? { status: status as "pending" | "active" | "suspended" }
       : {}),
     ...(search
       ? {
@@ -76,16 +76,27 @@ export default async function CompaniesListPage({
     totals.find((t) => t.status === "active")?._count._all ?? 0;
   const suspendedCount =
     totals.find((t) => t.status === "suspended")?._count._all ?? 0;
+  const pendingCount =
+    totals.find((t) => t.status === "pending")?._count._all ?? 0;
   const totalPages = Math.ceil(totalCount / perPage);
 
   return (
     <div className="p-4 md:p-8 bg-[#f4f6fb]">
       {/* Header with totals and Add Company */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-4 text-sm">
+        <div className="flex flex-wrap items-center gap-4 text-sm">
           <span className="font-bold text-[#2d2d4e]">
-            {activeCount + suspendedCount} total
+            {activeCount + suspendedCount + pendingCount} total
           </span>
+          {pendingCount > 0 && (
+            <Link
+              href="/super-admin/companies?status=pending"
+              className="flex items-center gap-1.5 font-bold text-[#c8890a] hover:underline"
+            >
+              <span className="h-2 w-2 rounded-full bg-[#f7ce25]" />
+              {pendingCount} Pending Approval
+            </Link>
+          )}
           <span className="flex items-center gap-1.5 font-bold text-[#2ecc71]">
             <span className="h-2 w-2 rounded-full bg-[#2ecc71]" />
             {activeCount} Active
@@ -111,6 +122,7 @@ export default async function CompaniesListPage({
                 className="rounded-lg border border-[#e8edf5] bg-white px-3 py-1.5 text-xs font-semibold text-[#2d2d4e] outline-none focus:border-brand focus:ring-2 focus:ring-brand"
               >
                 <option value="all">All Status</option>
+                <option value="pending">Pending Approval</option>
                 <option value="active">Active</option>
                 <option value="suspended">Suspended</option>
               </select>
@@ -190,32 +202,51 @@ export default async function CompaniesListPage({
                     </td>
                     <td className="px-4 py-3.5">
                       <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
-                        company.status === "active" ? "bg-[#e8f8f0] text-[#2ecc71]" : "bg-[#fdedec] text-[#e74c3c]"
+                        company.status === "active"
+                          ? "bg-[#e8f8f0] text-[#2ecc71]"
+                          : company.status === "pending"
+                            ? "bg-[#fef9e7] text-[#c8890a]"
+                            : "bg-[#fdedec] text-[#e74c3c]"
                       }`}>
                         <span className={`h-1.5 w-1.5 rounded-full ${
-                          company.status === "active" ? "bg-[#2ecc71]" : "bg-[#e74c3c]"
+                          company.status === "active"
+                            ? "bg-[#2ecc71]"
+                            : company.status === "pending"
+                              ? "bg-[#f7ce25]"
+                              : "bg-[#e74c3c]"
                         }`} />
-                        {company.status === "active" ? "Active" : "Suspended"}
+                        {company.status === "active" ? "Active" : company.status === "pending" ? "Pending" : "Suspended"}
                       </span>
                     </td>
                     <td className="px-4 py-3.5 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Link
-                          href={`/super-admin/companies/${company.id}`}
-                          className="rounded-full border border-[#e8edf5] px-3 py-1 text-[11px] font-bold text-brand transition hover:bg-brand-gradient-soft"
-                        >
-                          Edit Limits
-                        </Link>
-                        <Link
-                          href={`/super-admin/companies/${company.id}`}
-                          className={`rounded-full border px-3 py-1 text-[11px] font-bold transition ${
-                            company.status === "active"
-                              ? "border-[#fdedec] text-[#e74c3c] hover:bg-[#fdedec]"
-                              : "border-[#e8f8f0] text-[#2ecc71] hover:bg-[#e8f8f0]"
-                          }`}
-                        >
-                          {company.status === "active" ? "Suspend" : "Activate"}
-                        </Link>
+                        {company.status === "pending" ? (
+                          <Link
+                            href={`/super-admin/companies/${company.id}`}
+                            className="rounded-full border border-[#f7ce25] bg-[#fef9e7] px-3 py-1 text-[11px] font-bold text-[#c8890a] transition hover:bg-[#fef1c4]"
+                          >
+                            Review
+                          </Link>
+                        ) : (
+                          <>
+                            <Link
+                              href={`/super-admin/companies/${company.id}`}
+                              className="rounded-full border border-[#e8edf5] px-3 py-1 text-[11px] font-bold text-brand transition hover:bg-brand-gradient-soft"
+                            >
+                              Edit Limits
+                            </Link>
+                            <Link
+                              href={`/super-admin/companies/${company.id}`}
+                              className={`rounded-full border px-3 py-1 text-[11px] font-bold transition ${
+                                company.status === "active"
+                                  ? "border-[#fdedec] text-[#e74c3c] hover:bg-[#fdedec]"
+                                  : "border-[#e8f8f0] text-[#2ecc71] hover:bg-[#e8f8f0]"
+                              }`}
+                            >
+                              {company.status === "active" ? "Suspend" : "Activate"}
+                            </Link>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>

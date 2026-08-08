@@ -4,18 +4,21 @@ import Image from "next/image";
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 import { toLR } from "@/lib/db/serialize";
-import { StatusBadge, formatDate, formatINR } from "@/components/rono/status-badge";
+import { formatDate, formatINR, LR_STATUS_PILL } from "@/components/rono/status-badge";
 import { ApproveRejectActions } from "./actions";
 import { mediaUrl } from "@/lib/media-url";
-import { ChevronLeft, Download, ExternalLink } from "lucide-react";
-
+import {
+  ChevronLeft,
+  Download,
+  Building2,
+  MapPin,
+  Phone,
+  Package,
+  Truck,
+  Calendar,
+  Check,
+} from "lucide-react";
 export const dynamic = "force-dynamic";
-
-const PAYMENT_LABELS: Record<string, string> = {
-  to_pay: "To Pay",
-  paid: "Paid",
-  tbb: "TBB",
-};
 
 export default async function CompanyLRDetailPage({
   params,
@@ -40,167 +43,154 @@ export default async function CompanyLRDetailPage({
     <div className="p-4 md:p-8">
       <Link
         href="/company/lr"
-        className="inline-flex items-center gap-1 text-sm font-medium text-slate-500 transition hover:text-slate-900"
+        className="inline-flex items-center gap-1 text-xs font-semibold text-[#4D4D4D] hover:text-black"
       >
-        <ChevronLeft className="h-4 w-4" />
-        Back to LRs
+        <ChevronLeft className="h-3.5 w-3.5" />
+        Back to LR Management
       </Link>
+      <h1 className="mt-1 text-xl font-bold text-black">LR Detail</h1>
 
-      <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-primary">
-            Lorry Receipt
-          </p>
-          <h1 className="text-2xl font-bold sm:text-3xl">{lr.trackingId}</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Submitted {formatDate(lr.createdAt)} · Executive: {lrRow.executive.name}
-          </p>
+      {/* Header card */}
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-black/[0.06] bg-white p-5 shadow-sm">
+        <div className="flex items-center gap-3">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#F2EFFA] text-[#5E3EA1]">
+            <Package className="h-5 w-5" />
+          </span>
+          <div>
+            <p className="text-[11px] font-medium text-[#9CA3AF]">LR Number</p>
+            <p className="text-lg font-bold text-[#0C6B24]">{lr.lrNumber ?? lr.trackingId}</p>
+            <p className="text-[11px] text-[#9CA3AF]">Submitted on : {formatDate(lr.createdAt)}</p>
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <StatusBadge status={lr.status} />
+        <div className="flex flex-wrap items-center gap-2.5">
+          <span className={`inline-flex items-center rounded-full px-3.5 py-1.5 text-xs font-semibold capitalize ${LR_STATUS_PILL[lr.status]}`}>
+            {lr.status}
+          </span>
           {lr.status !== "pending" && (
             <a
               href={`/api/lr/${lr.id}/pdf`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-sm font-semibold text-primary transition hover:bg-primary/15"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[#5E3EA1] px-4 py-2 text-xs font-semibold text-white transition hover:opacity-90"
             >
               <Download className="h-3.5 w-3.5" />
-              PDF
+              Download PDF
             </a>
           )}
-          <a
-            href={`/qr/${lrRow.qrCode}`}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-sm font-semibold text-slate-600 transition hover:border-primary/20 hover:text-primary"
-          >
-            <ExternalLink className="h-3.5 w-3.5" />
-            QR Tracking
-          </a>
         </div>
       </div>
 
       {lr.status === "rejected" && lr.rejectionReason && (
-        <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="mt-4 rounded-xl border border-[#961C1C]/20 bg-[#961C1C]/5 p-4 text-sm text-[#961C1C]">
           <p className="font-semibold">Rejected</p>
           <p className="mt-1">{lr.rejectionReason}</p>
         </div>
       )}
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-6">
-          <Card title="Consignor & Consignee">
-            <div className="grid gap-6 md:grid-cols-2">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-primary">
-                  Consignor
-                </p>
-                <p className="mt-2 font-semibold">{lr.consignorName}</p>
-                <p className="mt-1 text-sm text-slate-500">{lr.consignorAddress}</p>
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-primary">
-                  Consignee
-                </p>
-                <p className="mt-2 font-semibold">{lr.consigneeName}</p>
-                <p className="mt-1 text-sm text-slate-500">
-                  {lr.consigneeAddress}
-                </p>
-                <p className="mt-1 text-sm font-medium">
-                  +91 {lr.consigneePhone}
-                </p>
-              </div>
+      <div className="mt-6 grid gap-4 lg:grid-cols-3">
+        <div className="space-y-4 lg:col-span-2">
+          <Card icon={<Truck className="h-4 w-4" />} title="Consignor Detail">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Field icon={<Building2 className="h-3.5 w-3.5" />} label="Consignor Name" value={lr.consignorName} />
+              <Field icon={<MapPin className="h-3.5 w-3.5" />} label="Consignor City" value={lr.originCity} valueClass="text-[#5E3EA1]" />
+              <Field icon={<Phone className="h-3.5 w-3.5" />} label="Phone No." value="—" />
             </div>
+            <Field icon={<MapPin className="h-3.5 w-3.5" />} label="Address" value={lr.consignorAddress} className="mt-4" />
           </Card>
 
-          <Card title="Goods & Movement">
-            <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Origin" value={lr.originCity} />
-              <Field label="Destination" value={lr.destinationCity} />
-              <Field label="Vehicle Number" value={lr.vehicleNumber} />
-              <Field label="Dispatch Date" value={formatDate(lr.dispatchDate)} />
-              <Field label="Goods" value={lr.goodsDescription} />
-              <Field label="Packages" value={`${lr.noOfPackages}`} />
-              <Field label="Weight" value={`${lr.weightKg} kg`} />
-              <Field label="Declared Value" value={formatINR(lr.declaredValue)} />
+          <Card icon={<Truck className="h-4 w-4" />} title="Consignee Detail">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Field icon={<Building2 className="h-3.5 w-3.5" />} label="Consignee Name" value={lr.consigneeName} />
+              <Field icon={<MapPin className="h-3.5 w-3.5" />} label="Consignee City" value={lr.destinationCity} valueClass="text-[#5E3EA1]" />
+              <Field icon={<Phone className="h-3.5 w-3.5" />} label="Phone No." value={`+91 ${lr.consigneePhone}`} />
             </div>
+            <Field icon={<MapPin className="h-3.5 w-3.5" />} label="Address" value={lr.consigneeAddress} className="mt-4" />
+          </Card>
+
+          <Card icon={<Package className="h-4 w-4" />} title="Shipment Detail">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <Field icon={<Package className="h-3.5 w-3.5" />} label="Weight" value={`${lr.weightKg} KG`} />
+              <Field icon={<span className="text-sm font-bold">₹</span>} label="Declared Value" value={formatINR(lr.declaredValue)} />
+              <Field icon={<Truck className="h-3.5 w-3.5" />} label="Vehicle Number" value={lr.vehicleNumber} />
+              <Field icon={<Calendar className="h-3.5 w-3.5" />} label="Dispatch Date" value={formatDate(lr.dispatchDate)} />
+            </div>
+            <Field icon={<Package className="h-3.5 w-3.5" />} label="Description" value={lr.goodsDescription} className="mt-4" />
+
             {lr.specialInstructions && (
-              <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+              <div className="mt-4 rounded-xl border border-[#F7CE25]/40 bg-[#F7CE25]/10 p-3 text-sm text-[#967E1C]">
                 <p className="font-semibold">Special Instructions</p>
                 <p className="mt-1">{lr.specialInstructions}</p>
               </div>
             )}
-          </Card>
 
-          <Card title="Freight">
-            <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Freight Amount" value={formatINR(lr.freightAmount)} />
-              <Field
-                label="Payment Mode"
-                value={PAYMENT_LABELS[lr.paymentMode] ?? lr.paymentMode}
-              />
-            </div>
-          </Card>
-
-          {lr.photos && lr.photos.length > 0 && (
-            <Card title={`Goods Photos (${lr.photos.length})`}>
-              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                {lr.photos.map((url, i) => {
-                  const src = mediaUrl(url);
-                  if (!src) return null;
-                  return (
-                  <a
-                    key={i}
-                    href={src}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="relative aspect-square overflow-hidden rounded-xl border bg-slate-50"
-                  >
-                    <Image
-                      src={src}
-                      alt={`Goods photo ${i + 1}`}
-                      fill
-                      sizes="200px"
-                      className="object-cover transition group-hover:scale-105"
-                      unoptimized
-                    />
-                  </a>
-                  );
-                })}
+            {lr.photos && lr.photos.length > 0 && (
+              <div className="mt-4">
+                <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-[#9CA3AF]">
+                  <Package className="h-3.5 w-3.5" /> Goods Photos ({lr.photos.length})
+                </p>
+                <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-5">
+                  {lr.photos.map((url, i) => {
+                    const src = mediaUrl(url);
+                    if (!src) return null;
+                    return (
+                      <a
+                        key={i}
+                        href={src}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="relative aspect-square overflow-hidden rounded-lg border border-black/[0.06] bg-[#F5F5F7]"
+                      >
+                        <Image
+                          src={src}
+                          alt={`Goods photo ${i + 1}`}
+                          fill
+                          sizes="120px"
+                          className="object-cover"
+                          unoptimized
+                        />
+                      </a>
+                    );
+                  })}
+                </div>
               </div>
-            </Card>
-          )}
+            )}
+          </Card>
+        </div>
 
-          {lr.signatureUrl && mediaUrl(lr.signatureUrl) && (
-            <Card title="Authorised Signature">
-              <div className="rounded-xl border bg-white p-4">
+        <div className="space-y-4">
+          <Card icon={<Calendar className="h-4 w-4" />} title="Timeline">
+            <Timeline lr={lr} />
+          </Card>
+
+          <div className="rounded-2xl border border-black/[0.06] bg-white p-5 shadow-sm">
+            <div className="flex items-center gap-2">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0C6B24]/10 text-sm font-bold text-[#0C6B24]">
+                ₹
+              </span>
+              <h3 className="text-sm font-bold text-black">Freight Amount</h3>
+            </div>
+            <p className="mt-3 text-2xl font-bold text-[#0C6B24]">{formatINR(lr.freightAmount)}</p>
+
+            <p className="mt-4 text-[11px] font-semibold text-[#9CA3AF]">Payment Mode</p>
+            <p className="text-sm font-semibold text-[#5E3EA1]">{lr.paymentMode}</p>
+
+            <p className="mt-4 text-[11px] font-semibold text-[#9CA3AF]">Submitted By</p>
+            <p className="text-sm font-semibold text-[#5E3EA1]">
+              {lrRow.executive.name} - {lrRow.branch.name}
+            </p>
+
+            {lr.signatureUrl && mediaUrl(lr.signatureUrl) && (
+              <div className="mt-4 rounded-xl border border-black/[0.06] bg-[#FAFAFB] p-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={mediaUrl(lr.signatureUrl)}
                   alt="Authorised signature"
-                  className="mx-auto h-32 object-contain"
+                  className="mx-auto h-16 object-contain"
                 />
+                <p className="mt-1 text-center text-[11px] text-[#9CA3AF]">Signed By : {lrRow.executive.name}</p>
               </div>
-            </Card>
-          )}
-        </div>
-
-        <div className="space-y-6">
-          <Card title="Executive">
-            <p className="font-semibold">{lrRow.executive.name}</p>
-            <p className="text-sm text-slate-500">+91 {lrRow.executive.mobile}</p>
-            <p className="mt-2 text-xs uppercase tracking-wide text-slate-400">
-              Branch
-            </p>
-            <p className="text-sm font-medium">
-              {lrRow.branch.name} · {lrRow.branch.city}
-            </p>
-          </Card>
-
-          <Card title="Timeline">
-            <Timeline lr={lr} />
-          </Card>
+            )}
+          </div>
 
           {lr.status === "pending" && <ApproveRejectActions id={lr.id} />}
         </div>
@@ -209,57 +199,84 @@ export default async function CompanyLRDetailPage({
   );
 }
 
-function Card({ title, children }: { title: string; children: React.ReactNode }) {
+function Card({
+  icon,
+  title,
+  children,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="rounded-2xl border bg-white p-6 shadow-sm">
-      <h2 className="text-sm font-semibold text-slate-700">{title}</h2>
-      <div className="mt-3">{children}</div>
+    <div className="rounded-2xl border border-black/[0.06] bg-white p-5 shadow-sm">
+      <div className="flex items-center gap-2">
+        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#F2EFFA] text-[#5E3EA1]">
+          {icon}
+        </span>
+        <h3 className="text-sm font-bold text-black">{title}</h3>
+      </div>
+      <div className="mt-4">{children}</div>
     </div>
   );
 }
 
-function Field({ label, value }: { label: string; value: string }) {
+function Field({
+  icon,
+  label,
+  value,
+  valueClass,
+  className,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  valueClass?: string;
+  className?: string;
+}) {
   return (
-    <div>
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+    <div className={className}>
+      <p className="mb-1 flex items-center gap-1.5 text-[11px] font-medium text-[#9CA3AF]">
+        {icon}
         {label}
       </p>
-      <p className="mt-1 text-sm font-semibold text-slate-800">{value}</p>
+      <p className={`text-sm font-semibold text-black ${valueClass ?? ""}`}>{value}</p>
     </div>
   );
 }
 
 function Timeline({ lr }: { lr: ReturnType<typeof toLR> }) {
   const events = [
-    { label: "Submitted", at: lr.createdAt, done: true },
+    { label: "LR Submitted", at: lr.createdAt, done: true },
     {
-      label: "Approved",
+      label: lr.status === "rejected" ? "LR Rejected" : "LR Approval Pending",
       at: lr.approvedAt,
-      done: !!lr.approvedAt,
-      tone: "emerald" as const,
+      done: !!lr.approvedAt || lr.status === "rejected",
     },
     {
       label: "Delivered",
       at: lr.deliveredAt,
       done: !!lr.deliveredAt,
-      tone: "violet" as const,
     },
   ];
 
   return (
-    <ol className="space-y-3">
+    <ol>
       {events.map((e, i) => (
-        <li key={i} className="flex items-start gap-3">
+        <li key={i} className="relative flex items-start gap-3 pb-6 last:pb-0">
+          {i < events.length - 1 && (
+            <span className="absolute left-[9px] top-5 h-full w-px border-l border-dashed border-black/15" />
+          )}
           <span
-            className={`mt-1 h-2.5 w-2.5 rounded-full ${
-              e.done ? "bg-primary/100" : "bg-slate-300"
+            className={`z-10 flex h-[19px] w-[19px] shrink-0 items-center justify-center rounded-full ${
+              e.done ? "bg-[#0C6B24]" : "bg-[#F5F5F7]"
             }`}
-          />
+          >
+            {e.done && <Check className="h-3 w-3 text-white" />}
+          </span>
           <div>
-            <p className="text-sm font-semibold">{e.label}</p>
-            <p className="text-xs text-slate-500">
-              {e.at ? formatDate(e.at) : "Pending"}
-            </p>
+            <p className={`text-sm font-semibold ${e.done ? "text-black" : "text-[#9CA3AF]"}`}>{e.label}</p>
+            <p className="text-[11px] text-[#9CA3AF]">{e.at ? formatDate(e.at) : "Pending"}</p>
           </div>
         </li>
       ))}

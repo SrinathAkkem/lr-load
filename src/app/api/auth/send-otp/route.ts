@@ -20,7 +20,7 @@ import { normalizeIndianMobile } from "@/lib/phone";
 const SMS_TIMEOUT_MS = 12000;
 
 const sendOtpBodySchema = otpSchema.extend({
-  purpose: z.enum(["login", "profile_update"]).optional(),
+  purpose: z.enum(["login", "profile_update", "register"]).optional(),
 });
 
 async function sendOtpWithTimeout(mobile: string, code: string) {
@@ -58,6 +58,19 @@ export async function POST(req: NextRequest) {
     });
     if (taken) {
       return jsonError("Mobile number is already in use", 409);
+    }
+  } else if (purpose === "register") {
+    // Self-service company registration: the user doesn't exist yet, so we
+    // only need to make sure nobody else already owns this mobile number.
+    const taken = await prisma.user.findUnique({
+      where: { mobile },
+      select: { id: true },
+    });
+    if (taken) {
+      return jsonError(
+        "This mobile number is already registered. Please log in instead.",
+        409,
+      );
     }
   } else {
     const user = await prisma.user.findFirst({

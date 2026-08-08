@@ -1,569 +1,76 @@
-"use client";
+import { getSession } from "@/lib/auth/session";
+import { redirect } from "next/navigation";
+import { computeDashboardStatsAllTime } from "@/lib/services/lr-service";
+import { AlertTriangle } from "lucide-react";
+import {
+  IconDocument,
+  IconReceiptPending,
+  IconOrderApprove,
+  IconDeliveryTruck,
+} from "@/components/rono/dashboard-icons";
+import { StatCard } from "@/components/rono/stat-card";
+import { DashboardLrTable } from "../dashboard/dashboard-lr-table";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
-import { StatusBadge, formatINR } from "@/components/rono/status-badge";
-import type { LRRequest, LRStatus } from "@/lib/types";
-import { Search, CheckCircle, XCircle, Package, MapPin } from "lucide-react";
-import { toast } from "sonner";
+export const dynamic = "force-dynamic";
 
-type EnrichedLR = LRRequest & {
-  executive?: { name: string };
-  branch?: { name: string };
-};
+export default async function CompanyLRPage() {
+  const session = await getSession();
+  if (!session?.companyId) redirect("/company/login");
 
-const FILTERS: ReadonlyArray<{ key: "all" | LRStatus; label: string }> = [
-  { key: "all", label: "All" },
-  { key: "pending", label: "Pending" },
-  { key: "approved", label: "Approved" },
-  { key: "rejected", label: "Rejected" },
-  { key: "delivered", label: "Delivered" },
-];
-
-export default function CompanyLRPage() {
-  const [allLrs, setAllLrs] = useState<EnrichedLR[]>([]);
-  const [filter, setFilter] = useState<(typeof FILTERS)[number]["key"]>("all");
-  const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [selectedLr, setSelectedLr] = useState<EnrichedLR | null>(null);
-  const [actionBusy, setActionBusy] = useState<string | null>(null);
-  const [rejectReason, setRejectReason] = useState("");
-  const [page, setPage] = useState(1);
-  const [branches, setBranches] = useState<{ id: string; name: string }[]>([]);
-  const [branchFilter, setBranchFilter] = useState("all");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
-  const perPage = 10;
-  const detailRef = useRef<HTMLDivElement>(null);
-
-  function selectLr(lr: EnrichedLR) {
-    setSelectedLr(lr);
-    setRejectReason("");
-    setTimeout(() => {
-      detailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 50);
-  }
-
-  useEffect(() => {
-    fetch("/api/branches")
-      .then((r) => r.json())
-      .then((d) => { if (d.success) setBranches(d.data ?? []); })
-      .catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    const id = setTimeout(async () => {
-      setLoading(true);
-      const params = new URLSearchParams();
-      if (search.trim()) params.set("search", search.trim());
-      if (branchFilter !== "all") params.set("branchId", branchFilter);
-      if (dateFrom) params.set("from", dateFrom);
-      if (dateTo) params.set("to", dateTo);
-      const res = await fetch(`/api/lr?${params}`);
-      const data = await res.json();
-      if (!cancelled && data.success) {
-        setAllLrs(data.data);
-        if (data.data.length > 0 && !selectedLr) {
-          setSelectedLr(data.data[0]);
-        }
-      }
-      if (!cancelled) setLoading(false);
-    }, 150);
-    return () => {
-      cancelled = true;
-      clearTimeout(id);
-    };
-   }, [search, branchFilter, dateFrom, dateTo, selectedLr]);
-
-  const counts = useMemo(() => {
-    const map: Record<string, number> = { all: allLrs.length };
-    for (const lr of allLrs) {
-      map[lr.status] = (map[lr.status] ?? 0) + 1;
-    }
-    return map;
-  }, [allLrs]);
-
-  const lrs = useMemo(() => {
-    if (filter === "all") return allLrs;
-    return allLrs.filter((lr) => lr.status === filter);
-  }, [allLrs, filter]);
-
-  const totalPages = Math.ceil(lrs.length / perPage);
-  const pagedLrs = useMemo(() => {
-    const start = (page - 1) * perPage;
-    return lrs.slice(start, start + perPage);
-  }, [lrs, page]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [filter, search, branchFilter, dateFrom, dateTo]);
-
-  async function handleApprove(lrId: string) {
-    setActionBusy(lrId);
-    try {
-      const res = await fetch(`/api/lr/${lrId}/approve`, { method: "PUT" });
-      const data = await res.json().catch(() => ({}));
-      if (data.success) {
-        toast.success("LR approved");
-        setAllLrs((prev) => prev.map((lr) => lr.id === lrId ? { ...lr, status: "approved" as LRStatus } : lr));
-        if (selectedLr?.id === lrId) setSelectedLr({ ...selectedLr, status: "approved" as LRStatus });
-      } else {
-        toast.error(data.error ?? "Failed to approve");
-      }
-    } finally {
-      setActionBusy(null);
-    }
-  }
-
-  async function handleReject(lrId: string) {
-    if (!rejectReason.trim()) {
-      toast.error("Please provide a rejection reason");
-      return;
-    }
-    setActionBusy(lrId);
-    try {
-      const res = await fetch(`/api/lr/${lrId}/reject`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reason: rejectReason.trim() }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (data.success) {
-        toast.success("LR rejected");
-        setAllLrs((prev) => prev.map((lr) => lr.id === lrId ? { ...lr, status: "rejected" as LRStatus } : lr));
-        if (selectedLr?.id === lrId) setSelectedLr({ ...selectedLr, status: "rejected" as LRStatus });
-        setRejectReason("");
-      } else {
-        toast.error(data.error ?? "Failed to reject");
-      }
-    } finally {
-      setActionBusy(null);
-    }
-  }
-
-  async function handleDownloadPdf(lrId: string, trackingId: string) {
-    try {
-      const res = await fetch(`/api/lr/${lrId}/pdf`);
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({ error: "Download failed" }));
-        toast.error(data.error ?? "Failed to download PDF");
-        return;
-      }
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${trackingId}.pdf`.replace(/\//g, "-");
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      toast.success("PDF downloaded");
-    } catch {
-      toast.error("Network error while downloading PDF");
-    }
-  }
-
-  const executiveInitials = (name: string) =>
-    name.split(/\s+/).map(n => n[0]).join("").slice(0, 2).toUpperCase();
+  const stats = await computeDashboardStatsAllTime(session.companyId);
 
   return (
     <div className="p-4 md:p-8">
-      {/* Top 5 stat boxes */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
-        <StatBox label="All LRs" value={counts.all ?? 0} color="slate" active={filter === "all"} onClick={() => setFilter("all")} />
-        <StatBox label="Pending" value={counts.pending ?? 0} color="orange" active={filter === "pending"} onClick={() => setFilter("pending")} />
-        <StatBox label="Approved" value={counts.approved ?? 0} color="emerald" active={filter === "approved"} onClick={() => setFilter("approved")} />
-        <StatBox label="Rejected" value={counts.rejected ?? 0} color="red" active={filter === "rejected"} onClick={() => setFilter("rejected")} />
-        <StatBox label="Delivered" value={counts.delivered ?? 0} color="blue" active={filter === "delivered"} onClick={() => setFilter("delivered")} />
+      {/* Stat cards */}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <StatCard
+          icon={<IconDocument className="h-4 w-[13px] text-[#5E3EA1]" />}
+          iconBg="bg-[#5E3EA1]/10"
+          topRight="Last 30 Days"
+          title="Total LRs"
+          value={stats.totalLrs}
+          valueColor="text-[#5E3EA1]"
+          trend={{ direction: "up", value: "2.1%" }}
+        />
+        <StatCard
+          icon={<IconReceiptPending className="h-5 w-[19px] text-[#DE3500]" />}
+          iconBg="bg-[#DE3500]/10"
+          topRight="Last 30 Days"
+          title="Total Pending Approval"
+          value={stats.pending}
+          valueColor="text-[#DE3500]"
+        />
+        <StatCard
+          icon={<IconOrderApprove className="h-5 w-5 text-[#0C6B24]" />}
+          iconBg="bg-[#0C6B24]/10"
+          topRight="Last 30 Days"
+          title="Approved"
+          value={stats.approved}
+          valueColor="text-[#0C6B24]"
+          trend={{ direction: "up", value: `${stats.approvalRate.toFixed(1)}%` }}
+        />
+        <StatCard
+          icon={<IconDeliveryTruck className="h-[18px] w-5 text-[#3C60B6]" />}
+          iconBg="bg-[#3C60B6]/10"
+          topRight={`${stats.inTransit} in transit`}
+          title="Delivered"
+          value={stats.delivered}
+          valueColor="text-[#3C60B6]"
+        />
+        <StatCard
+          icon={<AlertTriangle className="h-4 w-4 text-[#961C1C]" />}
+          iconBg="bg-[#961C1C]/10"
+          topRight="Last 30 Days"
+          title="Rejected"
+          value={stats.rejected}
+          valueColor="text-[#961C1C]"
+        />
       </div>
 
-      {/* All LR Requests section */}
-      <div className="mt-6 rounded-2xl border border-slate-100 bg-white shadow-sm">
-        {/* Header */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-4 py-4 md:px-6">
-          <h2 className="text-base font-semibold text-slate-900">All LR Requests</h2>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">
-              {counts.all} total
-            </span>
-            <input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-              className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-medium text-slate-600 outline-none focus:border-primary/40"
-              title="From date"
-            />
-            <input
-              type="date"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-              className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-medium text-slate-600 outline-none focus:border-primary/40"
-              title="To date"
-            />
-            <select
-              value={branchFilter}
-              onChange={(e) => setBranchFilter(e.target.value)}
-              className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-medium text-slate-600 outline-none focus:border-primary/40"
-            >
-              <option value="all">Branch: All</option>
-              {branches.map((b) => (
-                <option key={b.id} value={b.id}>{b.name}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Filters + Search */}
-        <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 md:px-6">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-xs font-medium text-slate-500 mr-1">Status:</span>
-            {FILTERS.map((f) => (
-              <button
-                key={f.key}
-                onClick={() => setFilter(f.key)}
-                className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
-                  filter === f.key
-                    ? "bg-primary text-white shadow-sm"
-                    : "bg-slate-50 text-slate-600 hover:bg-slate-100"
-                }`}
-              >
-                {f.label}
-                {f.key === "pending" && (counts.pending ?? 0) > 0 && (
-                  <span className={`ml-1.5 rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
-                    filter === "pending" ? "bg-white/30 text-white" : "bg-orange-100 text-orange-700"
-                  }`}>
-                    {counts.pending}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-          <div className="relative w-full sm:w-56">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search by LR No., consignee..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-xs outline-none focus:border-primary/40 focus:bg-white focus:ring-1 focus:ring-brand"
-            />
-          </div>
-        </div>
-
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[1000px] text-sm">
-            <thead>
-              <tr className="border-b border-slate-100 text-left">
-                <th className="px-6 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">LR Number</th>
-                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Route</th>
-                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Consignor → Consignee</th>
-                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Executive</th>
-                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Date</th>
-                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Freight</th>
-                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Status</th>
-                <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-400">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading && lrs.length === 0 ? (
-                <tr><td colSpan={8} className="px-6 py-12 text-center text-sm text-slate-400">Loading…</td></tr>
-              ) :                 lrs.length === 0 ? (
-                <tr><td colSpan={8} className="px-6 py-12 text-center text-sm text-slate-400">No LRs match your filters.</td></tr>
-              ) : (
-                pagedLrs.map((lr) => (
-                  <tr
-                    key={lr.id}
-                    onClick={() => selectLr(lr)}
-                    className={`cursor-pointer border-b border-slate-50 last:border-0 transition ${
-                      selectedLr?.id === lr.id ? "bg-primary/10" : "hover:bg-slate-50/50"
-                    }`}
-                  >
-                    <td className="px-6 py-3.5">
-                      <p className="font-semibold text-primary">{lr.trackingId}</p>
-                      <p className="text-[11px] text-slate-400">{lr.vehicleNumber}</p>
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <p className="text-sm font-medium text-slate-800">{lr.originCity}</p>
-                      <p className="text-[11px] text-primary">→ {lr.destinationCity}</p>
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <p className="text-sm text-slate-800">{lr.consignorName}</p>
-                      <p className="text-[11px] text-slate-400">→ {lr.consigneeName}</p>
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <div className="flex items-center gap-2">
-                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-[10px] font-bold text-primary">
-                          {executiveInitials(lr.executive?.name ?? "?")}
-                        </span>
-                        <div>
-                          <p className="text-sm font-medium text-slate-800">{lr.executive?.name ?? "—"}</p>
-                          <p className="text-[11px] text-slate-400">{lr.branch?.name ?? ""}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <p className="text-sm text-slate-700">
-                        {new Date(lr.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
-                      </p>
-                      <p className="text-[11px] text-slate-400">
-                        {new Date(lr.createdAt).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true })}
-                      </p>
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <p className="font-semibold text-slate-800">{formatINR(lr.freightAmount)}</p>
-                      <p className="text-[11px] text-slate-400">{lr.paymentMode}</p>
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <StatusBadge status={lr.status} />
-                    </td>
-                    <td className="px-4 py-3.5 text-right" onClick={(e) => e.stopPropagation()}>
-                      {lr.status === "pending" ? (
-                        <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            onClick={() => handleApprove(lr.id)}
-                            disabled={actionBusy === lr.id}
-                            className="rounded-md bg-emerald-600 px-3 py-1.5 text-[11px] font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-60"
-                          >
-                            Approve
-                          </button>
-                          <button
-                            onClick={() => selectLr(lr)}
-                            disabled={actionBusy === lr.id}
-                            className="rounded-md bg-red-500 px-3 py-1.5 text-[11px] font-semibold text-white shadow-sm transition hover:bg-red-600 disabled:opacity-60"
-                          >
-                            Reject
-                          </button>
-                        </div>
-                      ) : lr.status === "approved" || lr.status === "delivered" ? (
-                        <div className="flex items-center justify-end gap-1.5">
-                          <Link href={`/company/lr/${lr.id}`} className="rounded-md border border-slate-200 px-3 py-1.5 text-[11px] font-semibold text-slate-600 hover:bg-slate-50">View</Link>
-                          <button onClick={() => handleDownloadPdf(lr.id, lr.trackingId)} className="rounded-md border border-primary/20 bg-primary/10 px-3 py-1.5 text-[11px] font-semibold text-primary hover:bg-primary/15">PDF</button>
-                        </div>
-                      ) : (
-                        <Link href={`/company/lr/${lr.id}`} className="rounded-md border border-slate-200 px-3 py-1.5 text-[11px] font-semibold text-slate-600 hover:bg-slate-50">View</Link>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 px-4 py-3 md:px-6">
-          <p className="text-xs text-slate-400">
-            Showing {lrs.length === 0 ? 0 : (page - 1) * perPage + 1}–{Math.min(page * perPage, lrs.length)} of {lrs.length} LRs
-          </p>
-          <div className="flex flex-wrap items-center gap-1">
-            <button
-              onClick={() => setPage(Math.max(1, page - 1))}
-              disabled={page <= 1}
-              className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-600 disabled:opacity-40 hover:bg-slate-50"
-            >
-              ←
-            </button>
-            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-              let p: number;
-              if (totalPages <= 5) {
-                p = i + 1;
-              } else if (page <= 3) {
-                p = i + 1;
-              } else if (page >= totalPages - 2) {
-                p = totalPages - 4 + i;
-              } else {
-                p = page - 2 + i;
-              }
-              return (
-                <button
-                  key={p}
-                  onClick={() => setPage(p)}
-                  className={`rounded-md px-2.5 py-1 text-xs font-medium ${
-                    p === page
-                      ? "bg-primary text-white"
-                      : "border border-slate-200 text-slate-600 hover:bg-slate-50"
-                  }`}
-                >
-                  {p}
-                </button>
-              );
-            })}
-            {totalPages > 5 && page < totalPages - 2 && (
-              <>
-                <span className="px-1 text-xs text-slate-400">...</span>
-                <button
-                  onClick={() => setPage(totalPages)}
-                  className="rounded-md border border-slate-200 px-2.5 py-1 text-xs text-slate-600 hover:bg-slate-50"
-                >
-                  {totalPages}
-                </button>
-              </>
-            )}
-            <button
-              onClick={() => setPage(Math.min(totalPages, page + 1))}
-              disabled={page >= totalPages}
-              className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-600 disabled:opacity-40 hover:bg-slate-50"
-            >
-              →
-            </button>
-          </div>
-        </div>
+      {/* All LR Requests table */}
+      <div className="mt-6">
+        <DashboardLrTable perPage={10} />
       </div>
-
-      {/* LR Detail Panel */}
-      {selectedLr && (
-        <div ref={detailRef} className="mt-6">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
-            LR Detail — {selectedLr.trackingId} ({selectedLr.status === "pending" ? "Pending Approval" : selectedLr.status.toUpperCase()})
-          </p>
-
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
-            {/* Consignor (Sender) */}
-            <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-              <div className="flex items-center gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
-                  <Package className="h-4 w-4 text-primary" />
-                </div>
-                <h3 className="text-sm font-bold text-slate-900">Consignor (Sender)</h3>
-              </div>
-              <div className="mt-4 space-y-2">
-                <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Name</p><p className="text-sm font-medium text-slate-800">{selectedLr.consignorName}</p></div>
-                <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Address</p><p className="text-sm text-slate-600">{selectedLr.consignorAddress}</p></div>
-                <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Origin City</p><p className="text-sm font-medium text-primary">{selectedLr.originCity}</p></div>
-              </div>
-            </div>
-
-            {/* Consignee (Receiver) */}
-            <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-              <div className="flex items-center gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50">
-                  <MapPin className="h-4 w-4 text-emerald-600" />
-                </div>
-                <h3 className="text-sm font-bold text-slate-900">Consignee (Receiver)</h3>
-              </div>
-              <div className="mt-4 space-y-2">
-                <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Name</p><p className="text-sm font-medium text-slate-800">{selectedLr.consigneeName}</p></div>
-                <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Address</p><p className="text-sm text-slate-600">{selectedLr.consigneeAddress}</p></div>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Phone</p><p className="text-sm text-slate-600">+91 {selectedLr.consigneePhone}</p></div>
-                  <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Destination</p><p className="text-sm font-medium text-primary">{selectedLr.destinationCity}</p></div>
-                </div>
-              </div>
-            </div>
-
-            {/* Shipment Details */}
-            <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-              <div className="flex items-center gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50">
-                  <Package className="h-4 w-4 text-amber-600" />
-                </div>
-                <h3 className="text-sm font-bold text-slate-900">Shipment Details</h3>
-              </div>
-              <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
-                <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Goods Description</p><p className="text-sm text-slate-700">{selectedLr.goodsDescription}</p></div>
-                <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">No. of Packages</p><p className="text-sm font-medium text-slate-800">{selectedLr.noOfPackages} packages</p></div>
-                <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Weight</p><p className="text-sm font-medium text-slate-800">{selectedLr.weightKg} KG</p></div>
-                <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Declared Value</p><p className="text-sm font-medium text-slate-800">{formatINR(selectedLr.declaredValue)}</p></div>
-                <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Vehicle Number</p><p className="text-sm font-bold text-primary">{selectedLr.vehicleNumber}</p></div>
-                <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Dispatch Date</p><p className="text-sm text-slate-700">{new Date(selectedLr.dispatchDate).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })}</p></div>
-              </div>
-            </div>
-
-            {/* Freight & Action */}
-            <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-              <div className="flex items-center gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50">
-                  <span className="text-sm font-bold text-emerald-600">₹</span>
-                </div>
-                <h3 className="text-sm font-bold text-slate-900">Freight & Action</h3>
-              </div>
-              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Freight Amount</p><p className="text-2xl font-bold text-emerald-600">{formatINR(selectedLr.freightAmount)}</p></div>
-                <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Payment Mode</p><p className="text-sm font-medium text-primary">{selectedLr.paymentMode}</p></div>
-              </div>
-              {selectedLr.specialInstructions && (
-                <div className="mt-3">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Special Instructions</p>
-                  <p className="mt-1 text-xs text-slate-600">{selectedLr.specialInstructions}</p>
-                </div>
-              )}
-              <div className="mt-3">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Submitted By</p>
-                <p className="mt-1 text-sm text-slate-700">{selectedLr.executive?.name} · {selectedLr.branch?.name}</p>
-              </div>
-
-              {selectedLr.status === "pending" && (
-                <div className="mt-5 space-y-3">
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <button
-                      onClick={() => handleApprove(selectedLr.id)}
-                      disabled={actionBusy === selectedLr.id}
-                      className="flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
-                    >
-                      <CheckCircle className="h-4 w-4" />
-                      Approve LR
-                    </button>
-                    <button
-                      onClick={() => handleReject(selectedLr.id)}
-                      disabled={actionBusy === selectedLr.id}
-                      className="flex items-center justify-center gap-1.5 rounded-xl bg-red-500 py-3 text-sm font-semibold text-white transition hover:bg-red-600 disabled:opacity-60"
-                    >
-                      <XCircle className="h-4 w-4" />
-                      Reject LR
-                    </button>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-slate-400">Rejection reason (required if rejecting):</p>
-                    <input
-                      type="text"
-                      value={rejectReason}
-                      onChange={(e) => setRejectReason(e.target.value)}
-                      placeholder="e.g. Vehicle number does not match records..."
-                      className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-xs outline-none focus:border-primary/40 focus:ring-1 focus:ring-brand"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
-  );
-}
-
-function StatBox({
-  label,
-  value,
-  color,
-  active,
-  onClick,
-}: {
-  label: string;
-  value: number;
-  color: "slate" | "orange" | "emerald" | "red" | "blue";
-  active: boolean;
-  onClick: () => void;
-}) {
-  const styles = {
-    slate: { border: "border-slate-200", text: "text-slate-900", sub: "text-slate-500" },
-    orange: { border: "border-orange-200", text: "text-orange-600", sub: "text-orange-500" },
-    emerald: { border: "border-emerald-200", text: "text-emerald-600", sub: "text-emerald-500" },
-    red: { border: "border-red-200", text: "text-red-600", sub: "text-red-500" },
-    blue: { border: "border-blue-200", text: "text-blue-600", sub: "text-blue-500" },
-  };
-  const s = styles[color];
-
-  return (
-    <button
-      onClick={onClick}
-      className={`rounded-2xl border bg-white p-4 text-center shadow-sm transition hover:shadow-md ${s.border} ${active ? "ring-2 ring-primary/30" : ""}`}
-    >
-      <p className={`text-3xl font-bold ${s.text}`}>{value}</p>
-      <p className={`mt-1 text-xs font-medium ${s.sub}`}>{label}</p>
-    </button>
   );
 }

@@ -87,15 +87,46 @@ export async function PUT(
     maxBranches?: number;
     maxExecutives?: number;
     maxLrPerMonth?: number;
-    status?: "active" | "suspended";
+    status?: "pending" | "active" | "suspended";
+    name?: string;
+    lrCode?: string;
+    gstNumber?: string;
+    ibaNumber?: string | null;
+    address?: string;
+    contactPhone?: string;
+    email?: string | null;
   } = {};
   if (body.maxBranches !== undefined) data.maxBranches = Number(body.maxBranches);
   if (body.maxExecutives !== undefined) data.maxExecutives = Number(body.maxExecutives);
   if (body.maxLrPerMonth !== undefined) {
     data.maxLrPerMonth = Number(body.maxLrPerMonth);
   }
-  if (body.status === "active" || body.status === "suspended") {
+  if (body.status === "active" || body.status === "suspended" || body.status === "pending") {
     data.status = body.status;
+  }
+  if (typeof body.name === "string" && body.name.trim()) data.name = body.name.trim();
+  if (typeof body.gstNumber === "string" && body.gstNumber.trim()) {
+    data.gstNumber = body.gstNumber.trim();
+  }
+  if (typeof body.ibaNumber === "string") data.ibaNumber = body.ibaNumber.trim() || null;
+  if (typeof body.address === "string" && body.address.trim()) {
+    data.address = body.address.trim();
+  }
+  if (typeof body.contactPhone === "string" && body.contactPhone.trim()) {
+    data.contactPhone = body.contactPhone.replace(/\D/g, "").trim();
+  }
+  if (typeof body.email === "string") data.email = body.email.trim().toLowerCase() || null;
+  if (typeof body.lrCode === "string" && body.lrCode.trim()) {
+    const lrCode = body.lrCode.toUpperCase().trim();
+    if (!/^[A-Z]{2,8}$/.test(lrCode)) {
+      return jsonError("LR code must be 2-8 uppercase letters", 400);
+    }
+    const existingCode = await prisma.company.findFirst({
+      where: { lrCode, id: { not: id } },
+      select: { id: true },
+    });
+    if (existingCode) return jsonError("LR code already in use", 409);
+    data.lrCode = lrCode;
   }
 
   const updated = await prisma.company.update({ where: { id }, data });

@@ -11,17 +11,17 @@ Deploy the Next.js API + web app on Ubuntu with **local disk uploads**, MySQL, n
 
 ```bash
 ssh root@YOUR_VPS_IP
-export REPO_URL="https://github.com/SrinathAkkem/lr-load.git"
+export REPO_URL="https://github.com/SrinathAkkem/lr-load-v2.git"
 export DOMAIN="lr.yourdomain.com"
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/SrinathAkkem/lr-load/main/scripts/vps-setup.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/SrinathAkkem/lr-load-v2/main/scripts/vps-setup.sh)"
 ```
 
 Or clone and run locally:
 
 ```bash
-git clone https://github.com/SrinathAkkem/lr-load.git /root/lr-load
+git clone https://github.com/SrinathAkkem/lr-load-v2.git /root/lr-load-v2
 chmod +x scripts/vps-setup.sh
-DOMAIN=lr.ronohub.com ./scripts/vps-setup.sh
+DOMAIN=ronolr.com ./scripts/vps-setup.sh
 ```
 
 ## Environment (`.env`)
@@ -48,13 +48,13 @@ Symlink (created by setup script):
 
 ```bash
 mkdir -p /var/lib/rono/uploads/{photos,signatures,logos,stamps}
-ln -sfn /var/lib/rono/uploads /opt/rono/lr-load/public/uploads
+ln -sfn /var/lib/rono/uploads /root/lr-load-v2/public/uploads
 ```
 
 ## Redeploy
 
 ```bash
-cd /opt/rono/lr-load
+cd /root/lr-load-v2
 git pull
 npm install --legacy-peer-deps
 npx prisma migrate deploy

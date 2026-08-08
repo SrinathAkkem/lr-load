@@ -1,22 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import { mediaUrl } from "@/lib/media-url";
-import { Upload, LogOut, Building2, KeyRound } from "lucide-react";
+import { Pencil, ImageUp } from "lucide-react";
 
 interface FormState {
   name: string;
   address: string;
   gstNumber: string;
-  cin: string;
-  email: string;
-  website: string;
   logoUrl: string;
   stampUrl: string;
   lrCode: string;
@@ -32,28 +24,22 @@ const INITIAL: FormState = {
   name: "",
   address: "",
   gstNumber: "",
-  cin: "",
-  email: "",
-  website: "",
   logoUrl: "",
   stampUrl: "",
   lrCode: "",
 };
 
 export default function CompanyProfilePage() {
-  const router = useRouter();
   const [form, setForm] = useState<FormState>(INITIAL);
+  const [savedForm, setSavedForm] = useState<FormState>(INITIAL);
   const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingStamp, setUploadingStamp] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
   const stampInputRef = useRef<HTMLInputElement>(null);
-  const [pw, setPw] = useState<PasswordForm>({
-    current: "",
-    next: "",
-    confirm: "",
-  });
+  const [pw, setPw] = useState<PasswordForm>({ current: "", next: "", confirm: "" });
   const [pwBusy, setPwBusy] = useState(false);
 
   useEffect(() => {
@@ -62,23 +48,22 @@ export default function CompanyProfilePage() {
       .then((d) => {
         if (d.success && d.data) {
           const c = d.data;
-          setForm({
+          const loaded: FormState = {
             name: c.name ?? "",
             address: c.address ?? "",
             gstNumber: c.gstNumber ?? "",
-            cin: c.cin ?? "",
-            email: c.email ?? "",
-            website: c.website ?? "",
             logoUrl: c.logoUrl ?? "",
             stampUrl: c.stampUrl ?? "",
             lrCode: c.lrCode ?? "",
-          });
+          };
+          setForm(loaded);
+          setSavedForm(loaded);
         }
       })
       .finally(() => setLoading(false));
   }, []);
 
-  async function save() {
+  async function confirmEdits() {
     setSaving(true);
     try {
       const res = await fetch("/api/company/profile", {
@@ -88,25 +73,29 @@ export default function CompanyProfilePage() {
           name: form.name,
           address: form.address,
           gstNumber: form.gstNumber,
-          cin: form.cin,
-          email: form.email,
-          website: form.website,
           logoUrl: form.logoUrl,
           stampUrl: form.stampUrl,
         }),
       });
       const data = await res.json();
-      if (data.success) toast.success("Profile saved");
-      else toast.error(data.error ?? "Failed to save");
+      if (data.success) {
+        toast.success("Profile updated");
+        setSavedForm(form);
+        setEditing(false);
+      } else {
+        toast.error(data.error ?? "Failed to save");
+      }
     } finally {
       setSaving(false);
     }
   }
 
-  async function uploadFile(
-    file: File,
-    kind: "logo" | "stamp",
-  ) {
+  function cancelEdits() {
+    setForm(savedForm);
+    setEditing(false);
+  }
+
+  async function uploadFile(file: File, kind: "logo" | "stamp") {
     if (file.size > 5 * 1024 * 1024) {
       toast.error("File must be under 5 MB");
       return;
@@ -116,17 +105,14 @@ export default function CompanyProfilePage() {
     try {
       const fd = new FormData();
       fd.append("file", file);
-      const res = await fetch(`/api/upload/${kind}`, {
-        method: "POST",
-        body: fd,
-      });
+      const res = await fetch(`/api/upload/${kind}`, { method: "POST", body: fd });
       const data = await res.json();
       if (data.success && data.data?.url) {
         const field = kind === "logo" ? "logoUrl" : "stampUrl";
         const updated = { ...form, [field]: data.data.url };
         setForm(updated);
+        setSavedForm(updated);
 
-        // Persist to DB immediately so it survives refresh
         await fetch("/api/company/profile", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -147,11 +133,6 @@ export default function CompanyProfilePage() {
       if (kind === "logo") setUploadingLogo(false);
       else setUploadingStamp(false);
     }
-  }
-
-  async function logout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/company/login");
   }
 
   async function changePassword() {
@@ -188,121 +169,68 @@ export default function CompanyProfilePage() {
   return (
     <div className="p-4 md:p-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-slate-500">
-          These details appear on every LR PDF and the public QR landing.
-        </p>
-        <Button variant="outline" onClick={logout} className="text-red-600">
-          <LogOut className="mr-1.5 h-4 w-4" />
-          Logout
-        </Button>
+        <h1 className="text-lg font-bold text-black">Profile</h1>
+        {editing ? (
+          <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={confirmEdits}
+              disabled={saving}
+              className="rounded-lg bg-[#0C6B24] px-4 py-2.5 text-xs font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+            >
+              {saving ? "Saving…" : "Confirm Edits"}
+            </button>
+            <button
+              type="button"
+              onClick={cancelEdits}
+              disabled={saving}
+              className="rounded-lg border border-black/10 px-4 py-2.5 text-xs font-semibold text-black transition hover:bg-black/[0.03] disabled:opacity-50"
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            className="rounded-lg bg-[#5E3EA1] px-5 py-2.5 text-xs font-semibold text-white transition hover:opacity-90"
+          >
+            Edit
+          </button>
+        )}
       </div>
 
       {loading ? (
-        <div className="mt-8 rounded-2xl border bg-white p-10 text-center text-sm text-slate-400 shadow-sm">
+        <div className="mt-6 rounded-2xl border border-black/[0.06] bg-white p-10 text-center text-sm text-slate-400 shadow-sm">
           Loading…
         </div>
       ) : (
-        <div className="mt-8 grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-4 rounded-2xl border bg-white p-6 shadow-sm">
-            <div>
-              <Label>Company Name</Label>
-              <Input
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="mt-1.5"
-              />
-            </div>
-            <div>
-              <Label>LR Code</Label>
-              <Input value={form.lrCode} disabled className="mt-1.5 bg-slate-50" />
-              <p className="mt-1 text-[11px] text-slate-400">
-                Code is locked once issued — used in every LR number.
-              </p>
-            </div>
-            <div>
-              <Label>Address</Label>
-              <Textarea
-                value={form.address}
-                onChange={(e) => setForm({ ...form, address: e.target.value })}
-                className="mt-1.5"
-                rows={3}
-              />
-            </div>
-            <div>
-              <Label>GST Number</Label>
-              <Input
-                value={form.gstNumber}
-                onChange={(e) =>
-                  setForm({ ...form, gstNumber: e.target.value.toUpperCase() })
-                }
-                className="mt-1.5"
-              />
-            </div>
-            <div>
-              <Label>CIN (Optional)</Label>
-              <Input
-                value={form.cin}
-                onChange={(e) =>
-                  setForm({ ...form, cin: e.target.value.toUpperCase() })
-                }
-                placeholder="U41001AP2023PTC111480"
-                className="mt-1.5"
-              />
-              <p className="mt-1 text-[11px] text-slate-400">
-                Corporate Identification Number — shown in the LR PDF header if set.
-              </p>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <Label>Email (Optional)</Label>
-                <Input
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  placeholder="ops@company.com"
-                  className="mt-1.5"
-                />
-              </div>
-              <div>
-                <Label>Website (Optional)</Label>
-                <Input
-                  value={form.website}
-                  onChange={(e) => setForm({ ...form, website: e.target.value })}
-                  placeholder="www.company.com"
-                  className="mt-1.5"
-                />
-              </div>
-            </div>
-            <Button
-              onClick={save}
-              disabled={saving}
-             
-            >
-              {saving ? "Saving…" : "Save Profile"}
-            </Button>
-          </div>
-
-          <div className="space-y-4">
-            <div className="rounded-2xl border bg-white p-6 shadow-sm">
-              <div className="flex items-center gap-2">
-                <Building2 className="h-4 w-4 text-primary" />
-                <h3 className="text-sm font-semibold">Company Logo</h3>
-              </div>
-              <p className="mt-1 text-xs text-slate-500">
-                Used on LR PDFs (top-left). PNG / JPEG, transparent preferred.
-              </p>
-              <div className="mt-4 flex h-32 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50">
+        <>
+          <div className="mt-5 rounded-2xl border border-black/[0.06] bg-white p-6 shadow-sm">
+            <div className="flex items-center gap-3 border-b border-black/[0.06] pb-5">
+              <button
+                type="button"
+                onClick={() => editing && logoInputRef.current?.click()}
+                disabled={!editing || uploadingLogo}
+                className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-black/[0.06] bg-[#F5F5F7]"
+              >
                 {form.logoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={mediaUrl(form.logoUrl) ?? form.logoUrl}
                     alt="Company logo"
-                    className="max-h-28 object-contain"
+                    className="h-full w-full object-cover"
                   />
                 ) : (
-                  <span className="text-xs text-slate-400">No logo uploaded</span>
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src="/rono-mark.svg" alt="" className="h-6 w-6" />
                 )}
-              </div>
+                {editing && (
+                  <span className="absolute bottom-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-[#5E3EA1] text-white">
+                    <Pencil className="h-2.5 w-2.5" />
+                  </span>
+                )}
+              </button>
               <input
                 ref={logoInputRef}
                 type="file"
@@ -314,77 +242,83 @@ export default function CompanyProfilePage() {
                   e.target.value = "";
                 }}
               />
-              <Button
-                variant="outline"
-                className="mt-3 w-full"
-                onClick={() => logoInputRef.current?.click()}
-                disabled={uploadingLogo}
-              >
-                <Upload className="mr-1.5 h-4 w-4" />
-                {uploadingLogo
-                  ? "Uploading…"
-                  : form.logoUrl
-                    ? "Replace Logo"
-                    : "Upload Logo"}
-              </Button>
+              {editing ? (
+                <input
+                  value={form.lrCode}
+                  disabled
+                  className="h-9 w-32 rounded-lg border border-black/10 bg-white px-3 text-sm font-bold uppercase text-black outline-none"
+                />
+              ) : (
+                <span className="rounded-lg border border-black/10 px-3 py-1.5 text-sm font-bold uppercase text-black">
+                  {form.lrCode || "—"}
+                </span>
+              )}
             </div>
 
-            <div className="rounded-2xl border bg-white p-6 shadow-sm">
-              <div className="flex items-center gap-2">
-                <KeyRound className="h-4 w-4 text-primary" />
-                <h3 className="text-sm font-semibold">Account Password</h3>
-              </div>
-              <p className="mt-1 text-xs text-slate-500">
-                Set or change the password used for sign-in. OTP login still
-                works alongside the password.
-              </p>
+            <div className="mt-5 space-y-4">
+              <ProfileField
+                label="Company Name"
+                value={form.name}
+                editing={editing}
+                onChange={(v) => setForm({ ...form, name: v })}
+              />
+              <ProfileField
+                label="GST Number"
+                value={form.gstNumber}
+                editing={editing}
+                onChange={(v) => setForm({ ...form, gstNumber: v.toUpperCase() })}
+              />
+              <ProfileField
+                label="Address"
+                value={form.address}
+                editing={editing}
+                multiline
+                onChange={(v) => setForm({ ...form, address: v })}
+              />
+            </div>
+          </div>
 
+          <div className="mt-6 grid gap-6 lg:grid-cols-2">
+            {/* Account Password */}
+            <div className="rounded-2xl border border-black/[0.06] bg-white p-6 shadow-sm">
+              <h3 className="text-sm font-bold text-black">Account Password</h3>
               <div className="mt-4 space-y-3">
-                <div>
-                  <Label className="text-xs">Current Password</Label>
-                  <Input
-                    type="password"
-                    value={pw.current}
-                    onChange={(e) => setPw({ ...pw, current: e.target.value })}
-                    className="mt-1"
-                    placeholder="Leave blank if none set yet"
-                  />
-                </div>
-                <div>
-                  <Label className="text-xs">New Password</Label>
-                  <Input
-                    type="password"
-                    value={pw.next}
-                    onChange={(e) => setPw({ ...pw, next: e.target.value })}
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label className="text-xs">Confirm New Password</Label>
-                  <Input
-                    type="password"
-                    value={pw.confirm}
-                    onChange={(e) => setPw({ ...pw, confirm: e.target.value })}
-                    className="mt-1"
-                  />
-                </div>
+                <input
+                  type="password"
+                  value={pw.current}
+                  onChange={(e) => setPw({ ...pw, current: e.target.value })}
+                  placeholder="Current Password"
+                  className="h-11 w-full rounded-lg bg-[#F5F5F7] px-3.5 text-sm text-black outline-none focus:ring-1 focus:ring-[#5E3EA1]"
+                />
+                <input
+                  type="password"
+                  value={pw.next}
+                  onChange={(e) => setPw({ ...pw, next: e.target.value })}
+                  placeholder="New Password"
+                  className="h-11 w-full rounded-lg bg-[#F5F5F7] px-3.5 text-sm text-black outline-none focus:ring-1 focus:ring-[#5E3EA1]"
+                />
+                <input
+                  type="password"
+                  value={pw.confirm}
+                  onChange={(e) => setPw({ ...pw, confirm: e.target.value })}
+                  placeholder="Confirm Password"
+                  className="h-11 w-full rounded-lg bg-[#F5F5F7] px-3.5 text-sm text-black outline-none focus:ring-1 focus:ring-[#5E3EA1]"
+                />
               </div>
-
-              <Button
+              <button
+                type="button"
                 onClick={changePassword}
                 disabled={pwBusy}
-               
+                className="mt-4 h-11 w-full rounded-lg bg-black text-sm font-bold text-white transition hover:opacity-90 disabled:opacity-50"
               >
-                {pwBusy ? "Updating…" : "Update Password"}
-              </Button>
+                {pwBusy ? "Updating…" : "Change Password"}
+              </button>
             </div>
 
-            <div className="rounded-2xl border bg-white p-6 shadow-sm">
-              <h3 className="text-sm font-semibold">Authorised Stamp</h3>
-              <p className="mt-1 text-xs text-slate-500">
-                Printed near signature on every approved LR PDF.
-              </p>
-              <div className="mt-4 flex h-32 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50">
+            {/* Authorised Stamp */}
+            <div className="rounded-2xl border border-black/[0.06] bg-white p-6 shadow-sm">
+              <h3 className="text-sm font-bold text-black">Authorized Stamp</h3>
+              <div className="mt-4 flex h-40 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#5E3EA1]/40 bg-[#F9F8FC]">
                 {form.stampUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -393,7 +327,13 @@ export default function CompanyProfilePage() {
                     className="max-h-28 object-contain"
                   />
                 ) : (
-                  <span className="text-xs text-slate-400">No stamp uploaded</span>
+                  <>
+                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#5E3EA1]/10 text-[#5E3EA1]">
+                      <ImageUp className="h-5 w-5" />
+                    </span>
+                    <p className="text-sm font-semibold text-black">Tap to Upload PNG/JPG</p>
+                    <p className="text-[11px] text-[#9CA3AF]">Recommended 200×200 px</p>
+                  </>
                 )}
               </div>
               <input
@@ -407,22 +347,57 @@ export default function CompanyProfilePage() {
                   e.target.value = "";
                 }}
               />
-              <Button
-                variant="outline"
-                className="mt-3 w-full"
+              <button
+                type="button"
                 onClick={() => stampInputRef.current?.click()}
                 disabled={uploadingStamp}
+                className="mt-4 h-11 w-full rounded-lg border border-black/10 text-sm font-bold text-black transition hover:bg-black/[0.03] disabled:opacity-50"
               >
-                <Upload className="mr-1.5 h-4 w-4" />
-                {uploadingStamp
-                  ? "Uploading…"
-                  : form.stampUrl
-                    ? "Replace Stamp"
-                    : "Upload Stamp"}
-              </Button>
+                {uploadingStamp ? "Uploading…" : form.stampUrl ? "Replace Stamp" : "Upload Stamp"}
+              </button>
             </div>
           </div>
-        </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function ProfileField({
+  label,
+  value,
+  editing,
+  onChange,
+  multiline,
+}: {
+  label: string;
+  value: string;
+  editing: boolean;
+  onChange: (v: string) => void;
+  multiline?: boolean;
+}) {
+  return (
+    <div>
+      <label className="text-sm font-semibold text-black">{label}</label>
+      {editing ? (
+        multiline ? (
+          <textarea
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            rows={3}
+            className="mt-1.5 w-full rounded-lg bg-[#F5F5F7] px-3.5 py-2.5 text-sm text-black outline-none focus:ring-1 focus:ring-[#5E3EA1]"
+          />
+        ) : (
+          <input
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className="mt-1.5 h-11 w-full rounded-lg bg-[#F5F5F7] px-3.5 text-sm text-black outline-none focus:ring-1 focus:ring-[#5E3EA1]"
+          />
+        )
+      ) : (
+        <p className="mt-1.5 rounded-lg bg-[#F5F5F7] px-3.5 py-2.5 text-sm text-black">
+          {value || "—"}
+        </p>
       )}
     </div>
   );

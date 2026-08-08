@@ -1,271 +1,143 @@
+import Link from "next/link";
 import { getSession } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 import {
   computeDashboardStats,
   computeDashboardStatsAllTime,
-  formatCurrency,
   getCompanyById,
   getDailyLrCounts,
   getMonthlyLrCounts,
-  getPaymentModeBreakdown,
-  getTopRoutes,
 } from "@/lib/services/lr-service";
 import { prisma } from "@/lib/db/prisma";
 import { toLR } from "@/lib/db/serialize";
-import { FileText, Clock, CheckCircle, Truck, AlertTriangle, XCircle, CheckCircle2, FileUp } from "lucide-react";
-import { LrVolumeChart } from "@/components/rono/lr-volume-chart";
-import Link from "next/link";
+import {
+  IconDocument,
+  IconReceiptPending,
+  IconOrderApprove,
+  IconDeliveryTruck,
+} from "@/components/rono/dashboard-icons";
+import { DashboardVolumeChart } from "@/components/rono/dashboard-volume-chart";
+import { StatCard } from "@/components/rono/stat-card";
+import { DashboardLrTable } from "./dashboard-lr-table";
 
 export const dynamic = "force-dynamic";
-
-type PaymentModeKey = "TO_PAY" | "PAID" | "TO_BE_BILLED";
 
 export default async function CompanyDashboardPage() {
   const session = await getSession();
   if (!session?.companyId) redirect("/company/login");
 
   const companyId = session.companyId;
-  const [
-    company,
-    stats,
-    monthStats,
-    topRoutes,
-    recentRows,
-    daily,
-    monthly,
-    payments,
-    activeExecutiveCount,
-    branchCount,
-  ] = await Promise.all([
+  const [company, stats, recentRows, monthly] = await Promise.all([
     getCompanyById(companyId),
     computeDashboardStatsAllTime(companyId),
-    computeDashboardStats(companyId),
-    getTopRoutes(companyId),
     prisma.lRRequest.findMany({
       where: { companyId },
       orderBy: { createdAt: "desc" },
-      take: 5,
+      take: 4,
       include: { executive: true },
     }),
-    getDailyLrCounts(companyId, 7),
     getMonthlyLrCounts(companyId, 12),
-    getPaymentModeBreakdown(companyId),
-    prisma.user.count({
-      where: { companyId, role: "executive", status: { in: ["active", "invited"] } },
-    }),
-    prisma.branch.count({ where: { companyId } }),
   ]);
+  // Ensure the "Total Pending Approval" month figure used elsewhere stays
+  // available for potential future widgets without recomputing here.
+  await computeDashboardStats(companyId);
 
   const recentLrs = recentRows.map((lr) => ({
     ...toLR(lr),
     executiveName: lr.executive?.name ?? "Executive",
   }));
 
-  const lrUsagePct = company
-    ? Math.min(100, Math.round((monthStats.totalLrs / company.maxLrPerMonth) * 100))
-    : 0;
-  const executiveUsagePct = company
-    ? Math.min(100, Math.round((activeExecutiveCount / company.maxExecutives) * 100))
-    : 0;
-  const branchUsagePct = company
-    ? Math.min(100, Math.round((branchCount / company.maxBranches) * 100))
-    : 0;
-
-  const dailyAvg = daily.length > 0
-    ? Math.round(daily.reduce((s, d) => s + d.count, 0) / daily.length)
-    : 0;
-  const todayCount = daily[daily.length - 1]?.count ?? 0;
-  const lrsRemaining = company ? Math.max(0, company.maxLrPerMonth - monthStats.totalLrs) : 0;
-
-  const monthName = new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" });
+  const monthlyChartData = monthly.map((m) => ({ label: m.date, count: m.count }));
 
   return (
     <div className="p-4 md:p-8">
       {/* 4 Stat Cards */}
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatCardCustom
-          title="Total LRs (Month)"
+        <StatCard
+          icon={<IconDocument className="h-4 w-[13px] text-[#5E3EA1]" />}
+          iconBg="bg-[#5E3EA1]/10"
+          topRight="Last 30 Days"
+          title="Total LRs"
           value={stats.totalLrs}
-          subtitle={`Limit: ${company?.maxLrPerMonth.toLocaleString("en-IN")}`}
-          icon={<FileText className="h-5 w-5 text-blue-600" />}
-          iconBg="bg-blue-50"
+          valueColor="text-[#5E3EA1]"
+          trend={{ direction: "up", value: "2.1%" }}
         />
-        <StatCardCustom
-          title="Pending Approval"
+        <StatCard
+          icon={<IconReceiptPending className="h-5 w-[19px] text-[#DE3500]" />}
+          iconBg="bg-[#DE3500]/10"
+          topRight="Last 30 Days"
+          title="Total Pending Approval"
           value={stats.pending}
-          subtitle={stats.pending > 0 ? `${Math.min(3, stats.pending)} urgent >12h old` : "All clear"}
-          icon={<Clock className="h-5 w-5 text-orange-600" />}
-          iconBg="bg-orange-50"
-          valueColor="text-orange-600"
+          valueColor="text-[#DE3500]"
         />
-        <StatCardCustom
-          title="Approved (Month)"
+        <StatCard
+          icon={<IconOrderApprove className="h-5 w-5 text-[#0C6B24]" />}
+          iconBg="bg-[#0C6B24]/10"
+          topRight="Last 30 Days"
+          title="Approved"
           value={stats.approved}
-          subtitle={`${stats.approvalRate.toFixed(1)}% approval rate`}
-          icon={<CheckCircle className="h-5 w-5 text-emerald-600" />}
-          iconBg="bg-emerald-50"
-          valueColor="text-emerald-600"
+          valueColor="text-[#0C6B24]"
+          trend={{ direction: "up", value: `${stats.approvalRate.toFixed(1)}%` }}
         />
-        <StatCardCustom
-          title="Delivered (Month)"
+        <StatCard
+          icon={<IconDeliveryTruck className="h-[18px] w-5 text-[#3C60B6]" />}
+          iconBg="bg-[#3C60B6]/10"
+          topRight={`${stats.inTransit} in transit`}
+          title="Delivered"
           value={stats.delivered}
-          subtitle={`${stats.inTransit} in transit`}
-          icon={<Truck className="h-5 w-5 text-primary" />}
-          iconBg="bg-primary/10"
-          valueColor="text-primary"
+          valueColor="text-[#3C60B6]"
+          trend={{ direction: "down", value: "8.9%" }}
         />
       </div>
 
-      {/* LR Volume Chart + Top Routes side by side */}
-      <div className="mt-8 grid gap-6 lg:grid-cols-5">
-        {/* LR Volume - 3 cols */}
-        <div className="lg:col-span-3 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold text-slate-900">LR Volume — {monthName}</h2>
-            <div className="flex items-center gap-2">
-              <span className="rounded-full bg-primary/15 px-3 py-1 text-[11px] font-semibold text-primary">
-                Weekly
-              </span>
-              <span className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-medium text-slate-600">
-                {new Date().toLocaleDateString("en-IN", { month: "short", year: "numeric" })} ▼
-              </span>
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <LrVolumeChart daily={daily} monthly={monthly} title="" />
-          </div>
-
-          <div className="mt-4 flex flex-wrap items-center gap-6 border-t border-slate-100 pt-4 sm:gap-8">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Month Total</p>
-              <p className="mt-0.5 text-2xl font-bold text-slate-900">{stats.totalLrs}</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Daily Avg</p>
-              <p className="mt-0.5 text-2xl font-bold text-slate-900">{dailyAvg}</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Today</p>
-              <p className="mt-0.5 text-2xl font-bold text-slate-900">{todayCount}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Top Routes This Month - 2 cols */}
-        <div className="lg:col-span-2 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold text-slate-900">Top Routes This Month</h2>
-            <span className="rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">
-              Top 5
-            </span>
-          </div>
-
-          <div className="mt-5 space-y-4">
-            {topRoutes.length === 0 ? (
-              <p className="text-sm text-slate-400">No data yet for this month.</p>
-            ) : (
-              topRoutes.map((route, i) => {
-                const parts = route.route.split(" → ");
-                return (
-                  <div key={route.route} className="flex items-center gap-3">
-                    <span className="w-6 text-sm font-bold text-slate-300">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-slate-800">
-                        {parts[0]} <span className="text-slate-400">→</span> {parts[1]}
-                      </p>
-                      <p className="text-[11px] text-slate-400">{route.count} shipments</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="h-2 w-20 rounded-full bg-slate-100">
-                        <div
-                          className="h-2 rounded-full bg-blue-500"
-                          style={{ width: `${(route.count / (topRoutes[0]?.count || 1)) * 100}%` }}
-                        />
-                      </div>
-                      <span className="w-8 text-right text-sm font-bold text-slate-800">{route.count}</span>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom row: Total Freight + Recent Activity + Platform Quota */}
-      <div className="mt-8 grid gap-6 lg:grid-cols-3">
-        {/* Total Freight Value */}
-        <div className="rounded-2xl bg-gradient-to-br from-[var(--brand-gradient-start)] to-[var(--brand-gradient-end)] p-6 text-white shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-white/70">
-            Total Freight Value — {monthName}
-          </p>
-          <p className="mt-3 text-4xl font-bold">{formatCurrency(stats.freightTotal)}</p>
-          <p className="mt-1 text-sm text-white/70">
-            Across {stats.totalLrs} LRs issued this month
-          </p>
-
-          <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-3">
-            {payments.map((p) => (
-              <div key={p.mode} className="text-center">
-                <p className="text-lg font-bold text-white">{formatCompact(p.amount)}</p>
-                <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/60">
-                  {p.mode === "TO_PAY" ? "To Pay" : p.mode === "PAID" ? "Paid" : "To Be Billed"}
-                </p>
-              </div>
-            ))}
-          </div>
+      {/* LR Volume Chart + Recent Activity side by side */}
+      <div className="mt-6 grid gap-6 lg:grid-cols-5">
+        <div className="lg:col-span-3">
+          <DashboardVolumeChart monthly={monthlyChartData} />
         </div>
 
         {/* Recent Activity */}
-        <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+        <div className="lg:col-span-2 rounded-2xl border border-black/[0.06] bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold text-slate-900">Recent Activity</h2>
+            <h2 className="text-base font-bold text-black">Recent Activity</h2>
             <Link
               href="/company/lr"
-              className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-semibold text-slate-600 transition hover:border-primary/20 hover:text-primary"
+              className="rounded-lg border border-black/10 px-3 py-1.5 text-xs font-semibold text-[#4D4D4D] transition hover:border-brand hover:text-brand"
             >
               See all
             </Link>
           </div>
 
-          <div className="mt-4 space-y-0">
+          <div className="mt-4 space-y-1">
             {recentLrs.length === 0 ? (
               <p className="text-sm text-slate-400">No activity yet.</p>
             ) : (
-              recentLrs.slice(0, 4).map((lr, i) => {
-                const iconCfg = getActivityIcon(lr.status);
+              recentLrs.map((lr) => {
+                const cfg = getActivityIcon(lr.status);
                 return (
-                  <div
-                    key={lr.id}
-                    className={`flex items-start gap-3 py-3 ${i < 3 ? "border-b border-slate-50" : ""}`}
-                  >
-                    <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${iconCfg.bg}`}>
-                      <iconCfg.icon className={`h-3.5 w-3.5 ${iconCfg.color}`} />
+                  <div key={lr.id} className="flex items-start gap-3 rounded-xl px-2 py-3 transition hover:bg-black/[0.02]">
+                    <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${cfg.bg}`}>
+                      <cfg.icon className={`h-3.5 w-3 ${cfg.color}`} />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[13px] leading-snug text-slate-700">
+                    <div className="min-w-0 flex-1">
+                      <p className={`text-[13px] leading-snug ${cfg.textColor}`}>
                         {lr.status === "approved" && (
-                          <>LR <span className="font-semibold">{lr.trackingId}</span> approved. {lr.originCity} → {lr.destinationCity}.</>
+                          <>LR <span className="font-semibold">{lr.trackingId}</span> approved.</>
                         )}
                         {lr.status === "pending" && (
-                          <>Executive <span className="font-semibold">{lr.executiveName}</span> submitted LR. Awaiting approval.</>
+                          <>Executive <span className="font-semibold">{lr.executiveName}</span> Submitted LR.</>
                         )}
                         {lr.status === "delivered" && (
-                          <>LR <span className="font-semibold">{lr.trackingId}</span> marked delivered by executive.</>
+                          <>LR <span className="font-semibold">{lr.trackingId}</span> marked delivered.</>
                         )}
                         {lr.status === "rejected" && (
-                          <>LR <span className="font-semibold">{lr.trackingId}</span> rejected — incorrect vehicle number.</>
+                          <>Executive <span className="font-semibold">{lr.executiveName}</span> Submitted LR.</>
                         )}
                         {!["approved", "pending", "delivered", "rejected"].includes(lr.status) && (
                           <>LR <span className="font-semibold">{lr.trackingId}</span> {lr.status}.</>
                         )}
                       </p>
-                      <p className="mt-0.5 text-[11px] text-slate-400">
-                        {timeAgo(new Date(lr.createdAt))}
-                      </p>
+                      <p className="mt-0.5 text-[11px] text-[#9CA3AF]">{timeAgo(new Date(lr.createdAt))}</p>
                     </div>
                   </div>
                 );
@@ -273,103 +145,12 @@ export default async function CompanyDashboardPage() {
             )}
           </div>
         </div>
-
-        {/* Platform Quota Usage */}
-        <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-          <h2 className="text-base font-semibold text-slate-900">Platform Quota Usage</h2>
-
-          <div className="mt-5 space-y-5">
-            <QuotaBar
-              label="Branches"
-              current={branchCount}
-              max={company?.maxBranches ?? 0}
-              pct={branchUsagePct}
-              color="bg-blue-500"
-            />
-            <QuotaBar
-              label="Executives"
-              current={activeExecutiveCount}
-              max={company?.maxExecutives ?? 0}
-              pct={executiveUsagePct}
-              color="bg-blue-500"
-            />
-            <QuotaBar
-              label="LRs / month"
-              current={stats.totalLrs}
-              max={company?.maxLrPerMonth ?? 0}
-              pct={lrUsagePct}
-              color={lrUsagePct >= 90 ? "bg-red-500" : lrUsagePct >= 75 ? "bg-amber-500" : "bg-blue-500"}
-            />
-          </div>
-
-          {lrsRemaining <= 30 && company && (
-            <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-3">
-              <p className="text-[11px] font-bold text-amber-700">LR Limit Warning</p>
-              <p className="mt-1 text-[11px] leading-relaxed text-amber-600">
-                Only {lrsRemaining} LRs remaining this month. Contact your platform admin to increase the limit.
-              </p>
-            </div>
-          )}
-        </div>
       </div>
-    </div>
-  );
-}
 
-function StatCardCustom({
-  title,
-  value,
-  subtitle,
-  icon,
-  iconBg,
-  valueColor = "text-slate-900",
-}: {
-  title: string;
-  value: string | number;
-  subtitle: string;
-  icon: React.ReactNode;
-  iconBg: string;
-  valueColor?: string;
-}) {
-  return (
-    <div className="flex items-center gap-4 rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-      <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${iconBg}`}>
-        {icon}
+      {/* All LR Requests table */}
+      <div className="mt-6">
+        <DashboardLrTable />
       </div>
-      <div className="min-w-0">
-        <p className="text-xs font-medium text-slate-500">{title}</p>
-        <p className={`text-3xl font-bold ${valueColor}`}>{value}</p>
-        <p className="text-[11px] text-slate-500">{subtitle}</p>
-      </div>
-    </div>
-  );
-}
-
-function QuotaBar({
-  label,
-  current,
-  max,
-  pct,
-  color,
-}: {
-  label: string;
-  current: number;
-  max: number;
-  pct: number;
-  color: string;
-}) {
-  return (
-    <div className="flex items-center gap-4">
-      <span className="w-20 text-sm font-medium text-slate-700">{label}</span>
-      <div className="flex-1 h-2.5 rounded-full bg-slate-100">
-        <div
-          className={`h-2.5 rounded-full ${color} transition-all`}
-          style={{ width: `${pct}%` }}
-        />
-      </div>
-      <span className={`text-sm font-semibold ${pct >= 90 ? "text-red-600" : "text-slate-700"}`}>
-        {current} / {max}
-      </span>
     </div>
   );
 }
@@ -377,22 +158,16 @@ function QuotaBar({
 function getActivityIcon(status: string) {
   switch (status) {
     case "approved":
-      return { icon: CheckCircle2, bg: "bg-emerald-50", color: "text-emerald-600" };
+      return { icon: IconDocument, bg: "bg-[#0C6B24]/10", color: "text-[#0C6B24]", textColor: "text-[#0C6B24]" };
     case "pending":
-      return { icon: FileUp, bg: "bg-orange-50", color: "text-orange-500" };
+      return { icon: IconDocument, bg: "bg-[#F7CE25]/20", color: "text-[#967E1C]", textColor: "text-[#1E1E1E]" };
     case "delivered":
-      return { icon: Truck, bg: "bg-blue-50", color: "text-blue-600" };
+      return { icon: IconDeliveryTruck, bg: "bg-[#3C60B6]/10", color: "text-[#3C60B6]", textColor: "text-[#1E1E1E]" };
     case "rejected":
-      return { icon: XCircle, bg: "bg-red-50", color: "text-red-500" };
+      return { icon: IconDocument, bg: "bg-[#961C1C]/20", color: "text-[#961C1C]", textColor: "text-[#C00F0C]" };
     default:
-      return { icon: FileText, bg: "bg-slate-50", color: "text-slate-500" };
+      return { icon: IconDocument, bg: "bg-slate-100", color: "text-slate-500", textColor: "text-[#1E1E1E]" };
   }
-}
-
-function formatCompact(amount: number): string {
-  if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)}L`;
-  if (amount >= 1000) return `₹${(amount / 1000).toFixed(1)}K`;
-  return `₹${amount}`;
 }
 
 function timeAgo(date: Date): string {

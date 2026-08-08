@@ -11,7 +11,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 VPS_HOST="${VPS_HOST:-root@195.35.22.86}"
-REMOTE_DIR="${REMOTE_DIR:-/root/lr-load}"
+REMOTE_DIR="${REMOTE_DIR:-/root/lr-load-v2}"
 DEPLOY_KEY="${DEPLOY_KEY:-$ROOT/../.deploy-keys/hostinger-vps}"
 
 SSH_COMMON=(-o StrictHostKeyChecking=accept-new -o ConnectTimeout=15)
@@ -76,4 +76,4 @@ run_rsync
 echo "==> Running remote deploy..."
 run_ssh "/bin/bash $REMOTE_DIR/scripts/vps-deploy-existing.sh"
 
-echo "==> Done. Site: https://lr.ronohub.com"
+echo "==> Done. Site: https://ronolr.com"

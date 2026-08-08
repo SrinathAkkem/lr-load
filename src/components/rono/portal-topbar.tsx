@@ -1,6 +1,7 @@
 "use client";
 
-import { Bell, Menu, Search } from "lucide-react";
+import { Bell, ChevronDown, Menu, User, LogOut, X } from "lucide-react";
+import { IconSearch, IconDocument } from "@/components/rono/dashboard-icons";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -65,7 +66,7 @@ const TITLE_MAP: Array<{ match: RegExp; title: string; placeholder: string }> = 
   {
     match: /^\/company\/dashboard/,
     title: "Dashboard",
-    placeholder: "Search LRs, executives...",
+    placeholder: "Search LRs, Executive",
   },
   {
     match: /^\/company\/lr\/[^/]+/,
@@ -99,13 +100,21 @@ const TITLE_MAP: Array<{ match: RegExp; title: string; placeholder: string }> = 
   },
 ];
 
+function getNotifTone(title: string, message: string) {
+  const text = `${title} ${message}`.toLowerCase();
+  if (text.includes("reject")) return { bg: "bg-[#961C1C]/20", color: "text-[#961C1C]" };
+  if (text.includes("approv")) return { bg: "bg-[#0C6B24]/10", color: "text-[#0C6B24]" };
+  if (text.includes("deliver")) return { bg: "bg-[#3C60B6]/10", color: "text-[#3C60B6]" };
+  return { bg: "bg-[#F7CE25]/20", color: "text-[#967E1C]" };
+}
+
 function deriveContext(pathname: string) {
   for (const entry of TITLE_MAP) {
     if (entry.match.test(pathname)) {
       return { title: entry.title, placeholder: entry.placeholder };
     }
   }
-  return { title: "RonoHub", placeholder: "Search anything..." };
+  return { title: "", placeholder: "Search anything..." };
 }
 
 export function PortalTopbar({ variant, userName, userRole, companyLogoUrl }: TopbarProps) {
@@ -118,7 +127,9 @@ export function PortalTopbar({ variant, userName, userRole, companyLogoUrl }: To
   const [notifsOpen, setNotifsOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loadingNotifs, setLoadingNotifs] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const popRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
 
   const { title, placeholder } = useMemo(
     () => deriveContext(pathname),
@@ -139,6 +150,17 @@ export function PortalTopbar({ variant, userName, userRole, companyLogoUrl }: To
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [notifsOpen]);
+
+  useEffect(() => {
+    if (!profileOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [profileOpen]);
 
   useEffect(() => {
     if (!notifsOpen) return;
@@ -184,58 +206,73 @@ export function PortalTopbar({ variant, userName, userRole, companyLogoUrl }: To
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
+  async function handleLogout() {
+    setProfileOpen(false);
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push(variant === "super_admin" ? "/super-admin/login" : "/company/login");
+    router.refresh();
+  }
+
   return (
-    <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-[#e8edf5] bg-white px-4 py-3.5 md:gap-4 md:px-8">
+    <header className="sticky top-0 z-30 flex items-center gap-3 bg-[#F5F5F7] px-4 py-4 md:gap-6 md:px-8">
       <button
         type="button"
         onClick={toggleSidebar}
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--brand-border)] bg-white text-[var(--brand-text-muted)] transition hover:border-brand hover:text-brand md:hidden"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-black/10 bg-white text-[#4D4D4D] transition hover:border-brand hover:text-brand md:hidden"
         aria-label="Toggle menu"
       >
         <Menu className="h-5 w-5" />
       </button>
 
-      <h1 className="truncate text-base font-extrabold text-[#2d2d4e] md:text-lg">
+      <h1 className="truncate text-xl font-bold text-black md:text-2xl">
         {title}
       </h1>
 
       <form
         onSubmit={submitSearch}
-        className="relative mx-auto hidden max-w-sm flex-1 md:block"
+        className="relative mx-auto hidden max-w-[385px] flex-1 md:block"
       >
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9ca3af]" />
+        <IconSearch className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-black/40" />
         <input
           type="search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={placeholder}
-          className="w-full rounded-lg border border-[var(--brand-border)] bg-[var(--brand-surface)] pl-9 pr-4 py-2 text-sm font-semibold text-[var(--brand-text)] outline-none transition placeholder:text-[var(--brand-text-muted)] focus:border-brand focus:bg-white focus:ring-2 focus:ring-brand"
+          className="h-10 w-full rounded-lg border border-black/10 bg-white pl-10 pr-10 text-sm text-black outline-none transition placeholder:text-black/40 focus:border-brand focus:ring-1 focus:ring-brand"
         />
+        <kbd className="pointer-events-none absolute right-2.5 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md bg-[#F5F5F7] text-[11px] font-semibold text-[#505050]">
+          S
+        </kbd>
       </form>
 
-      <div className="ml-auto flex items-center gap-3">
+      <div className="ml-auto flex items-center gap-4">
         <div className="relative" ref={popRef}>
           <button
             type="button"
             onClick={() => setNotifsOpen((v) => !v)}
-            className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--brand-border)] bg-white text-[var(--brand-text-muted)] transition hover:border-brand hover:text-brand hover:bg-brand-gradient-soft"
+            className="relative flex h-9 w-9 items-center justify-center rounded-lg text-black transition hover:bg-black/[0.04]"
             aria-label="Notifications"
           >
-            <Bell className="h-4 w-4" />
+            <Bell className="h-5 w-5" />
             {unreadCount > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex min-h-[16px] min-w-[16px] items-center justify-center rounded-full bg-gradient-to-br from-[#e74c3c] to-[#d43f2f] px-0.5 text-[9px] font-bold text-white shadow-sm">
+              <span className="absolute right-1 top-1 flex min-h-[16px] min-w-[16px] items-center justify-center rounded-full bg-gradient-to-br from-[#e74c3c] to-[#d43f2f] px-0.5 text-[9px] font-bold text-white shadow-sm">
                 {unreadCount > 9 ? "9+" : unreadCount}
               </span>
             )}
           </button>
 
           {notifsOpen && (
-            <div className="absolute right-0 top-12 z-40 w-80 overflow-hidden rounded-2xl border-0 bg-white shadow-lg">
-              <div className="flex items-center justify-between border-b border-[#e8edf5] px-4 py-3">
-                <p className="text-sm font-bold text-[#2d2d4e]">Notifications</p>
-                <span className="text-[11px] font-bold text-[#9ca3af]">
-                  {unreadCount} unread
-                </span>
+            <div className="absolute right-0 top-12 z-40 w-80 overflow-hidden rounded-2xl border border-black/[0.06] bg-white shadow-lg">
+              <div className="flex items-center justify-between border-b border-black/[0.06] px-4 py-3">
+                <p className="text-sm font-bold text-black">Notification</p>
+                <button
+                  type="button"
+                  onClick={() => setNotifsOpen(false)}
+                  className="flex h-6 w-6 items-center justify-center rounded-full text-[#9CA3AF] transition hover:bg-black/[0.04]"
+                  aria-label="Close"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
               </div>
               <div className="max-h-80 overflow-y-auto">
                 {loadingNotifs ? (
@@ -245,58 +282,93 @@ export function PortalTopbar({ variant, userName, userRole, companyLogoUrl }: To
                     You&apos;re all caught up.
                   </p>
                 ) : (
-                  notifications.slice(0, 8).map((n) => (
-                    <div
-                      key={n.id}
-                      className={cn(
-                        "border-b border-[#e8edf5] px-4 py-3 last:border-0",
-                        !n.read && "bg-brand-gradient-soft",
-                      )}
-                    >
-                      <p className="text-sm font-bold text-[#2d2d4e]">
-                        {n.title}
-                      </p>
-                      <p className="mt-0.5 text-xs font-semibold text-[#6b7280]">{n.message}</p>
-                      <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-[#9ca3af]">
-                        {new Date(n.createdAt).toLocaleString("en-IN")}
-                      </p>
-                    </div>
-                  ))
+                  notifications.slice(0, 8).map((n) => {
+                    const tone = getNotifTone(n.title, n.message);
+                    return (
+                      <div
+                        key={n.id}
+                        className={cn(
+                          "flex items-start gap-3 border-b border-black/[0.06] px-4 py-3 last:border-0",
+                          !n.read && "bg-[#5E3EA1]/[0.03]",
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
+                            tone.bg,
+                          )}
+                        >
+                          <IconDocument className={cn("h-3.5 w-3 shrink-0", tone.color)} />
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[13px] font-semibold leading-snug text-black">
+                            {n.title}
+                          </p>
+                          <p className="mt-0.5 text-[11px] text-[#9CA3AF]">
+                            {new Date(n.createdAt).toLocaleString("en-IN")}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })
                 )}
               </div>
             </div>
           )}
         </div>
 
-        <Link
-          href={
-            variant === "super_admin"
-              ? "/super-admin/settings"
-              : "/company/profile"
-          }
-          className="flex items-center gap-2.5 rounded-lg border border-[var(--brand-border)] bg-white px-3 py-1.5 text-left transition hover:border-brand"
-        >
-          {companyLogoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={mediaUrl(companyLogoUrl)}
-              alt={userName}
-              className="h-8 w-8 shrink-0 rounded-full border border-[var(--brand-border)] object-cover"
-            />
-          ) : (
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand text-[10px] font-bold text-white">
-              {initials || "U"}
+        <div className="relative" ref={profileRef}>
+          <button
+            type="button"
+            onClick={() => setProfileOpen((v) => !v)}
+            className="flex items-center gap-2.5 text-left transition"
+          >
+            {companyLogoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={mediaUrl(companyLogoUrl)}
+                alt={userName}
+                className="h-9 w-9 shrink-0 rounded-full border border-black/10 object-cover"
+              />
+            ) : (
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand text-[11px] font-bold text-white">
+                {initials || "U"}
+              </span>
+            )}
+            <span className="hidden md:block max-w-[140px]">
+              <span className="block truncate text-sm font-semibold leading-4 text-black">
+                {userName}
+              </span>
+              <span className="block truncate text-[11px] leading-4 text-[#4D4D4D]">
+                {userRole}
+              </span>
             </span>
+            <ChevronDown className="hidden h-4 w-4 text-black/50 md:block" />
+          </button>
+
+          {profileOpen && (
+            <div className="absolute right-0 top-12 z-40 w-44 overflow-hidden rounded-xl border border-black/[0.06] bg-white py-1.5 shadow-lg">
+              <Link
+                href={
+                  variant === "super_admin" ? "/super-admin/settings" : "/company/profile"
+                }
+                onClick={() => setProfileOpen(false)}
+                className="flex items-center gap-2.5 px-3.5 py-2 text-sm font-medium text-black transition hover:bg-black/[0.04]"
+              >
+                <User className="h-4 w-4" />
+                View Profile
+              </Link>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex w-full items-center gap-2.5 px-3.5 py-2 text-left text-sm font-medium text-[#C00F0C] transition hover:bg-black/[0.04]"
+              >
+                <LogOut className="h-4 w-4" />
+                Logout
+              </button>
+            </div>
           )}
-          <span className="hidden md:block">
-            <span className="block text-[13px] font-bold leading-4 text-[#2d2d4e]">
-              {userName}
-            </span>
-            <span className="block text-[10px] font-bold uppercase tracking-wider text-[#9ca3af]">
-              {userRole}
-            </span>
-          </span>
-        </Link>
+        </div>
       </div>
     </header>
   );

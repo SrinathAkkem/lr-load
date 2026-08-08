@@ -18,9 +18,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "RonoHub — Digital LR Platform",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://ronolr.com"),
+  icons: {
+    icon: "/rono-mark.svg",
+  },
+  title: "Rono — Manage Your Lorry Receipts, Digitally.",
   description:
-    "Digital Lorry Receipt management platform for transport companies. Create, approve, and share LRs with QR-coded PDFs.",
+    "Create, track, and store Lorry Receipts digitally — no paperwork, no delays. Approve LRs, manage executives and track every shipment from a single dashboard.",
 };
 
 export default function RootLayout({

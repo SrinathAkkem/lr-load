@@ -205,6 +205,11 @@ export async function createLR(
   const company = await prisma.company.findUnique({ where: { id: companyId } });
   if (!company) throw new Error("Company not found");
   if (company.status === "suspended") throw new Error("Company is suspended");
+  if (company.status === "pending") {
+    throw new Error(
+      "Your company is pending approval. LR creation will be enabled once a Rono admin approves your account.",
+    );
+  }
 
   const monthStart = startOfMonth();
   const monthEnd = startOfNextMonth();

@@ -2,9 +2,9 @@
 # Safe deploy for lr-load on existing FASTPANEL VPS — does not touch other PM2 apps.
 set -euo pipefail
 
-APP_DIR="${APP_DIR:-/root/lr-load}"
+APP_DIR="${APP_DIR:-/root/lr-load-v2}"
 PORT="${LR_PORT:-3010}"
-DOMAIN="${LR_DOMAIN:-lr.ronohub.com}"
+DOMAIN="${LR_DOMAIN:-ronolr.com}"
 NODE_VERSION="${NODE_VERSION:-20}"
 
 export NVM_DIR="/root/.nvm"
@@ -32,6 +32,8 @@ echo "==> Install dependencies..."
 echo "==> Database migrate..."
 npx prisma migrate resolve --applied 20260627120000_driver_to_executive 2>/dev/null || true
 npx prisma migrate resolve --applied 20260627140000_fix_empty_user_roles 2>/dev/null || true
+npx prisma migrate resolve --applied 20260807000000_company_pending_and_email_otp 2>/dev/null || true
+npx prisma migrate resolve --applied 20260807120000_contact_enquiry 2>/dev/null || true
 npx prisma migrate deploy || npx prisma db push
 
 echo "==> Build..."

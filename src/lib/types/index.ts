@@ -1,6 +1,6 @@
 export type UserRole = "super_admin" | "company_admin" | "executive";
 export type UserStatus = "active" | "inactive" | "invited";
-export type CompanyStatus = "active" | "suspended";
+export type CompanyStatus = "pending" | "active" | "suspended";
 export type LRStatus =
   | "pending"
   | "approved"
@@ -21,6 +21,8 @@ export interface Company {
   stampUrl?: string;
   lrCode: string;
   contactPhone: string;
+  ibaNumber?: string;
+  rejectionReason?: string;
   maxBranches: number;
   maxExecutives: number;
   maxLrPerMonth: number;

@@ -8,7 +8,7 @@ import { clearOtpForMobile, validateOtpCode } from "@/lib/otp/validate";
 async function resolveCompanyBranch(user: {
   companyId: string | null;
   branchId: string | null;
-  company: { id: string; name: string; lrCode: string } | null;
+  company: { id: string; name: string; lrCode: string; status: string } | null;
   branch: { id: string; name: string; city: string } | null;
 }) {
   const [company, branch] = await Promise.all([
@@ -17,7 +17,7 @@ async function resolveCompanyBranch(user: {
       : user.companyId
         ? prisma.company.findUnique({
             where: { id: user.companyId },
-            select: { id: true, name: true, lrCode: true },
+            select: { id: true, name: true, lrCode: true, status: true },
           })
         : Promise.resolve(null),
     user.branch
@@ -35,16 +35,16 @@ async function resolveCompanyBranch(user: {
 
 function serializeProfileUser(
   user: Awaited<ReturnType<typeof prisma.user.findUnique>> & {
-    company: { id: string; name: string; lrCode: string } | null;
+    company: { id: string; name: string; lrCode: string; status: string } | null;
     branch: { id: string; name: string; city: string } | null;
   },
-  company: { id: string; name: string; lrCode: string } | null,
+  company: { id: string; name: string; lrCode: string; status: string } | null,
   branch: { id: string; name: string; city: string } | null,
 ) {
   return {
     ...toUser(user),
     company: company
-      ? { id: company.id, name: company.name, lrCode: company.lrCode }
+      ? { id: company.id, name: company.name, lrCode: company.lrCode, status: company.status }
       : undefined,
     branch: branch
       ? { id: branch.id, name: branch.name, city: branch.city }

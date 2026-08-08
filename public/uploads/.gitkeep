@@ -1,3 +1,0 @@
-# Keep the uploads directory tree in git so a fresh clone has a writable
-# location for runtime files. Actual uploaded files are excluded by
-# `.gitignore` at the root of the repo.

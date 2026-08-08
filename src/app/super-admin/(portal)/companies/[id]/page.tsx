@@ -23,6 +23,15 @@ interface CompanyDetail extends Company {
   } | null;
 }
 
+const EMPTY_EDIT = {
+  name: "",
+  lrCode: "",
+  gstNumber: "",
+  ibaNumber: "",
+  contactPhone: "",
+  address: "",
+};
+
 export default function CompanyDetailPage() {
   const params = useParams();
   const id = params.id as string;
@@ -35,6 +44,12 @@ export default function CompanyDetailPage() {
   const [loading, setLoading] = useState(true);
   const [savingLimits, setSavingLimits] = useState(false);
   const [togglingStatus, setTogglingStatus] = useState(false);
+  const [editFields, setEditFields] = useState(EMPTY_EDIT);
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [rejecting, setRejecting] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+  const [showRejectBox, setShowRejectBox] = useState(false);
+  const [approving, setApproving] = useState(false);
 
   const fetchCompany = async () => {
     const res = await fetch(`/api/companies/${id}`);
@@ -45,6 +60,14 @@ export default function CompanyDetailPage() {
         maxBranches: data.data.maxBranches,
         maxExecutives: data.data.maxExecutives,
         maxLrPerMonth: data.data.maxLrPerMonth,
+      });
+      setEditFields({
+        name: data.data.name,
+        lrCode: data.data.lrCode,
+        gstNumber: data.data.gstNumber,
+        ibaNumber: data.data.ibaNumber ?? "",
+        contactPhone: data.data.contactPhone,
+        address: data.data.address,
       });
     }
   };
@@ -108,6 +131,72 @@ export default function CompanyDetailPage() {
     }
   }
 
+  async function saveEditFields() {
+    setSavingEdit(true);
+    try {
+      const res = await fetch(`/api/companies/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editFields),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success("Company details saved");
+        await fetchCompany();
+      } else {
+        toast.error(data.error ?? "Couldn't save changes");
+      }
+    } finally {
+      setSavingEdit(false);
+    }
+  }
+
+  async function approveCompany() {
+    setApproving(true);
+    try {
+      const res = await fetch(`/api/companies/${id}/status`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "active" }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success("Company approved — admin can now create LRs");
+        await fetchCompany();
+      } else {
+        toast.error(data.error ?? "Couldn't approve company");
+      }
+    } finally {
+      setApproving(false);
+    }
+  }
+
+  async function rejectCompany() {
+    if (!rejectReason.trim()) {
+      toast.error("Please provide a reason for rejection");
+      return;
+    }
+    setRejecting(true);
+    try {
+      const res = await fetch(`/api/companies/${id}/status`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "suspended", rejectionReason: rejectReason.trim() }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success("Registration rejected");
+        setShowRejectBox(false);
+        setRejectReason("");
+        await fetchCompany();
+      } else {
+        toast.error(data.error ?? "Couldn't reject company");
+      }
+    } finally {
+      setRejecting(false);
+    }
+  }
+
   if (loading) return <div className="p-8 text-sm text-slate-500">Loading…</div>;
   if (!company) return <div className="p-8">Company not found</div>;
 
@@ -157,7 +246,9 @@ export default function CompanyDetailPage() {
             className={`ml-auto inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
               company.status === "active"
                 ? "bg-[#e8f8f0] text-[#2ecc71]"
-                : "bg-[#fdedec] text-[#e74c3c]"
+                : company.status === "pending"
+                  ? "bg-[#fef9e7] text-[#c8890a]"
+                  : "bg-[#fdedec] text-[#e74c3c]"
             }`}
           >
             {company.status === "active" ? (
@@ -165,10 +256,109 @@ export default function CompanyDetailPage() {
             ) : (
               <ShieldX className="h-3 w-3" />
             )}
-            {company.status === "active" ? "Active" : "Suspended"}
+            {company.status === "active" ? "Active" : company.status === "pending" ? "Pending Approval" : "Suspended"}
           </span>
         </div>
       </div>
+
+      {company.status === "pending" && (
+        <div className="mt-6 rounded-2xl border-0 bg-white p-6 shadow-sm">
+          <h3 className="font-bold text-[#2d2d4e]">Review Registration</h3>
+          <p className="text-sm font-semibold text-[#6b7280]">
+            Verify the details below, edit anything that looks wrong, then approve or reject this
+            self-registered company. The admin can already sign in to their dashboard but LR
+            creation stays disabled until you approve.
+          </p>
+
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <div>
+              <Label>Company Name</Label>
+              <Input
+                value={editFields.name}
+                onChange={(e) => setEditFields({ ...editFields, name: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>LR Code</Label>
+              <Input
+                value={editFields.lrCode}
+                onChange={(e) =>
+                  setEditFields({ ...editFields, lrCode: e.target.value.toUpperCase() })
+                }
+              />
+            </div>
+            <div>
+              <Label>GST Number</Label>
+              <Input
+                value={editFields.gstNumber}
+                onChange={(e) => setEditFields({ ...editFields, gstNumber: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>IBA Number</Label>
+              <Input
+                value={editFields.ibaNumber}
+                onChange={(e) => setEditFields({ ...editFields, ibaNumber: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>Contact Phone</Label>
+              <Input
+                value={editFields.contactPhone}
+                onChange={(e) => setEditFields({ ...editFields, contactPhone: e.target.value })}
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <Label>Address</Label>
+              <Input
+                value={editFields.address}
+                onChange={(e) => setEditFields({ ...editFields, address: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Button onClick={saveEditFields} disabled={savingEdit} variant="outline">
+              {savingEdit ? "Saving…" : "Save Changes"}
+            </Button>
+            <Button
+              onClick={approveCompany}
+              disabled={approving}
+              className="bg-emerald-600 hover:bg-emerald-700"
+            >
+              {approving ? "Approving…" : "Approve Company"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="border-red-200 text-red-600 hover:bg-red-50"
+              onClick={() => setShowRejectBox((v) => !v)}
+            >
+              Reject
+            </Button>
+          </div>
+
+          {showRejectBox && (
+            <div className="mt-4 rounded-xl border border-red-100 bg-red-50 p-4">
+              <Label>Reason for rejection</Label>
+              <textarea
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                rows={3}
+                placeholder="Visible to the company admin"
+                className="mt-1.5 w-full rounded-lg border border-red-200 bg-white p-3 text-sm outline-none focus:ring-1 focus:ring-red-300"
+              />
+              <Button
+                onClick={rejectCompany}
+                disabled={rejecting}
+                className="mt-3 bg-red-600 hover:bg-red-700"
+              >
+                {rejecting ? "Rejecting…" : "Confirm Reject"}
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="mt-8 grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
@@ -265,49 +455,53 @@ export default function CompanyDetailPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border-0 bg-white p-6 shadow-sm">
-            <p className="font-bold text-[#2d2d4e]">Platform Access</p>
-            <p className="mt-1 text-sm font-semibold text-[#6b7280]">
-              {company.status === "active"
-                ? "All executives and the company admin can sign in."
-                : "All executives and the company admin are blocked from signing in."}
-            </p>
-            <div className="mt-4 flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wide text-[#6b7280]">
-                {company.status === "active" ? "Active" : "Suspended"}
-              </span>
-              <Switch
-                checked={company.status === "active"}
-                disabled={togglingStatus}
-                onCheckedChange={toggleStatus}
-              />
-            </div>
-          </div>
+          {company.status !== "pending" && (
+            <>
+              <div className="rounded-2xl border-0 bg-white p-6 shadow-sm">
+                <p className="font-bold text-[#2d2d4e]">Platform Access</p>
+                <p className="mt-1 text-sm font-semibold text-[#6b7280]">
+                  {company.status === "active"
+                    ? "All executives and the company admin can sign in."
+                    : "All executives and the company admin are blocked from signing in."}
+                </p>
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wide text-[#6b7280]">
+                    {company.status === "active" ? "Active" : "Suspended"}
+                  </span>
+                  <Switch
+                    checked={company.status === "active"}
+                    disabled={togglingStatus}
+                    onCheckedChange={toggleStatus}
+                  />
+                </div>
+              </div>
 
-          <div className="rounded-2xl border-0 bg-[#fdedec] p-6 shadow-sm">
-            <p className="font-bold text-[#e74c3c]">Suspend Company Access</p>
-            <p className="mt-2 text-xs font-semibold leading-relaxed text-[#2d2d4e]">
-              Suspending will immediately block all executives and the company
-              admin from logging in. All LR data is preserved. You can
-              reactivate the company at any time from this page.
-            </p>
-            <button
-              type="button"
-              onClick={toggleStatus}
-              disabled={togglingStatus}
-              className={`mt-4 w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition disabled:opacity-60 ${
-                company.status === "active"
-                  ? "bg-red-600 hover:bg-red-700"
-                  : "bg-emerald-600 hover:bg-emerald-700"
-              }`}
-            >
-              {togglingStatus
-                ? "Processing…"
-                : company.status === "active"
-                  ? "Suspend Company"
-                  : "Reactivate Company"}
-            </button>
-          </div>
+              <div className="rounded-2xl border-0 bg-[#fdedec] p-6 shadow-sm">
+                <p className="font-bold text-[#e74c3c]">Suspend Company Access</p>
+                <p className="mt-2 text-xs font-semibold leading-relaxed text-[#2d2d4e]">
+                  Suspending will immediately block all executives and the company
+                  admin from logging in. All LR data is preserved. You can
+                  reactivate the company at any time from this page.
+                </p>
+                <button
+                  type="button"
+                  onClick={toggleStatus}
+                  disabled={togglingStatus}
+                  className={`mt-4 w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition disabled:opacity-60 ${
+                    company.status === "active"
+                      ? "bg-red-600 hover:bg-red-700"
+                      : "bg-emerald-600 hover:bg-emerald-700"
+                  }`}
+                >
+                  {togglingStatus
+                    ? "Processing…"
+                    : company.status === "active"
+                      ? "Suspend Company"
+                      : "Reactivate Company"}
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

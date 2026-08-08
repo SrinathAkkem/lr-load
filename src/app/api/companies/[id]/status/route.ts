@@ -20,23 +20,67 @@ export async function PUT(
   const { id } = await params;
   const body = await req.json().catch(() => ({}));
   const status = body.status;
+  const rejectionReason =
+    typeof body.rejectionReason === "string" ? body.rejectionReason.trim() : undefined;
 
-  if (status !== "active" && status !== "suspended") {
-    return jsonError("status must be 'active' or 'suspended'", 400);
+  if (status !== "active" && status !== "suspended" && status !== "pending") {
+    return jsonError("status must be 'pending', 'active' or 'suspended'", 400);
   }
 
   try {
+    const existing = await prisma.company.findUnique({ where: { id } });
+    if (!existing) return jsonError("Company not found", 404);
+
+    const wasPending = existing.status === "pending";
     const updated = await prisma.company.update({
       where: { id },
-      data: { status },
+      data: {
+        status,
+        // Clear a stale rejection reason on (re)activation; store a fresh one
+        // when a pending registration is rejected.
+        rejectionReason:
+          status === "suspended" && rejectionReason
+            ? rejectionReason
+            : status === "active"
+              ? null
+              : existing.rejectionReason,
+      },
     });
+
+    if (wasPending) {
+      const admin = await prisma.user.findFirst({
+        where: { companyId: id, role: "company_admin" },
+        select: { id: true },
+      });
+      if (admin) {
+        await prisma.notification.create({
+          data: {
+            userId: admin.id,
+            title: status === "active" ? "Company approved" : "Registration rejected",
+            message:
+              status === "active"
+                ? `${updated.name} has been approved. You can now create LRs.`
+                : `${updated.name}'s registration was rejected.${rejectionReason ? ` Reason: ${rejectionReason}` : ""}`,
+          },
+        });
+      }
+    }
+
     await recordAuditEvent({
       actorId: session.userId,
       actorName: session.name,
       actorRole: session.role,
       companyId: id,
-      action: status === "active" ? "company.activate" : "company.suspend",
+      action:
+        wasPending && status === "active"
+          ? "company.approve"
+          : wasPending
+            ? "company.reject"
+            : status === "active"
+              ? "company.activate"
+              : "company.suspend",
       target: updated.name,
+      metadata: rejectionReason ? { rejectionReason } : undefined,
       ip: req.headers.get("x-forwarded-for") ?? null,
     });
     return jsonOk(toCompany(updated));

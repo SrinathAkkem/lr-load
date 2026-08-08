@@ -30,11 +30,14 @@ export async function GET(req: NextRequest) {
     orderBy: { createdAt: "asc" },
     include: {
       _count: {
-        select: { users: { where: { role: "executive" } } },
+        select: {
+          users: { where: { role: "executive" } },
+          lrRequests: true,
+        },
       },
       lrRequests: {
         where: { createdAt: { gte: monthStart, lt: monthEnd } },
-        select: { freightAmount: true },
+        select: { freightAmount: true, status: true },
       },
     },
   });
@@ -43,7 +46,9 @@ export async function GET(req: NextRequest) {
     branches.map((b) => ({
       ...toBranch(b),
       executiveCount: b._count.users,
+      totalLrs: b._count.lrRequests,
       lrsThisMonth: b.lrRequests.length,
+      rejectedThisMonth: b.lrRequests.filter((lr) => lr.status === "rejected").length,
       freight: b.lrRequests.reduce(
         (sum, lr) => sum + Number(lr.freightAmount.toString()),
         0,
