@@ -276,17 +276,17 @@ function CompanyRegisterForm() {
                   <input
                     value={form.name}
                     onChange={(e) => update("name", e.target.value)}
-                    placeholder="e.g. Sharma Road Carriers"
+                    placeholder="e.g. ABC Logistics Pvt. Ltd."
                     className={inputClass}
                   />
                 </Field>
-                <Field label="Company Code*" hint="2-8 letters, used as your LR prefix (e.g. SRC)">
+                <Field label="Company Code*">
                   <input
                     value={form.lrCode}
                     onChange={(e) =>
                       update("lrCode", e.target.value.replace(/[^a-zA-Z]/g, "").slice(0, 8).toUpperCase())
                     }
-                    placeholder="SRC"
+                    placeholder="1234"
                     className={inputClass}
                   />
                 </Field>
@@ -294,15 +294,15 @@ function CompanyRegisterForm() {
                   <input
                     value={form.gstNumber}
                     onChange={(e) => update("gstNumber", e.target.value.toUpperCase())}
-                    placeholder="22AAAAA0000A1Z5"
+                    placeholder="123-12345-123456"
                     className={inputClass}
                   />
                 </Field>
-                <Field label="IBA Number" hint="Optional">
+                <Field label="IBA Number">
                   <input
                     value={form.ibaNumber}
                     onChange={(e) => update("ibaNumber", e.target.value)}
-                    placeholder="Indian Banks' Association number"
+                    placeholder="123-12345-123456"
                     className={inputClass}
                   />
                 </Field>

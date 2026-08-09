@@ -1,10 +1,5 @@
-import { isSmtpConfigured } from "@/lib/email/smtp";
 import { prisma } from "@/lib/db/prisma";
-import { DEV_OTP_CODE } from "./config";
-
-function isEmailOtpBypassAllowed() {
-  return !isSmtpConfigured();
-}
+import { DEV_OTP_CODE, isDevOtpBypassAllowed } from "./config";
 
 export async function validateEmailOtpCode(
   email: string,
@@ -26,7 +21,7 @@ export async function validateEmailOtpCode(
     return { valid: true };
   }
 
-  if (isEmailOtpBypassAllowed() && normalizedOtp === DEV_OTP_CODE) {
+  if (isDevOtpBypassAllowed() && normalizedOtp === DEV_OTP_CODE) {
     return { valid: true };
   }
 
