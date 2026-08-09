@@ -58,10 +58,6 @@ echo "==> Install dependencies..."
 "$NPM_BIN" install --legacy-peer-deps
 
 echo "==> Database migrate..."
-npx prisma migrate resolve --applied 20260627120000_driver_to_executive 2>/dev/null || true
-npx prisma migrate resolve --applied 20260627140000_fix_empty_user_roles 2>/dev/null || true
-npx prisma migrate resolve --applied 20260807000000_company_pending_and_email_otp 2>/dev/null || true
-npx prisma migrate resolve --applied 20260807120000_contact_enquiry 2>/dev/null || true
 npx prisma migrate deploy || npx prisma db push
 
 echo "==> Build..."

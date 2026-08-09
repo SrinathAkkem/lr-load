@@ -6,7 +6,6 @@ import { toCompany, toUser } from "@/lib/db/serialize";
 import { createToken, setSession } from "@/lib/auth/session";
 import { normalizeIndianMobile } from "@/lib/phone";
 import { validateOtpCode, clearOtpForMobile } from "@/lib/otp/validate";
-import { validateEmailOtpCode, clearOtpForEmail } from "@/lib/otp/validate-email";
 import { recordAuditEvent } from "@/lib/services/audit-log";
 
 const schema = z.object({
@@ -22,7 +21,6 @@ const schema = z.object({
   email: z.string().email("Enter a valid email address"),
   address: z.string().min(1, "Address is required"),
   mobileOtp: z.string().length(6, "Mobile OTP must be 6 digits"),
-  emailOtp: z.string().length(6, "Email OTP must be 6 digits"),
 });
 
 /**
@@ -43,15 +41,9 @@ export async function POST(req: NextRequest) {
   const mobile = normalizeIndianMobile(data.contactPhone);
   const email = data.email.toLowerCase().trim();
 
-  const [mobileOtpResult, emailOtpResult] = await Promise.all([
-    validateOtpCode(mobile, data.mobileOtp),
-    validateEmailOtpCode(email, data.emailOtp),
-  ]);
+  const mobileOtpResult = await validateOtpCode(mobile, data.mobileOtp);
   if (!mobileOtpResult.valid) {
     return jsonError(mobileOtpResult.reason ?? "Invalid mobile OTP", 401);
-  }
-  if (!emailOtpResult.valid) {
-    return jsonError(emailOtpResult.reason ?? "Invalid email OTP", 401);
   }
 
   const [existingCode, existingMobile, existingEmail] = await Promise.all([
@@ -95,7 +87,7 @@ export async function POST(req: NextRequest) {
     return { company: created, admin };
   });
 
-  await Promise.all([clearOtpForMobile(mobile), clearOtpForEmail(email)]);
+  await clearOtpForMobile(mobile);
 
   // Surface the new registration to every super admin via the existing
   // notification bell — no separate notification UI needed.

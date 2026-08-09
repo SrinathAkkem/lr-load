@@ -63,11 +63,6 @@ function CompanyRegisterForm() {
   const [mobileVerified, setMobileVerified] = useState(false);
   const [sendingMobileOtp, setSendingMobileOtp] = useState(false);
 
-  const [emailOtpSent, setEmailOtpSent] = useState(false);
-  const [emailOtp, setEmailOtp] = useState("");
-  const [emailVerified, setEmailVerified] = useState(false);
-  const [sendingEmailOtp, setSendingEmailOtp] = useState(false);
-
   const [creating, setCreating] = useState(false);
   const [created, setCreated] = useState(false);
 
@@ -148,51 +143,6 @@ function CompanyRegisterForm() {
     }
   }
 
-  async function sendEmailOtp() {
-    setSendingEmailOtp(true);
-    try {
-      const res = await fetch("/api/auth/send-email-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: form.email }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setEmailOtpSent(true);
-        if (data.data?.devOtp) {
-          toast.success(`Dev mode — email OTP: ${data.data.devOtp}`, { duration: 10000 });
-        } else {
-          toast.success("OTP sent to your email");
-        }
-      } else {
-        toast.error(data.error ?? "Couldn't send email OTP");
-      }
-    } finally {
-      setSendingEmailOtp(false);
-    }
-  }
-
-  async function verifyEmailOtp() {
-    if (emailOtp.length !== 6) return;
-    setSendingEmailOtp(true);
-    try {
-      const res = await fetch("/api/auth/verify-email-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: form.email, otp: emailOtp }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setEmailVerified(true);
-        toast.success("Email verified");
-      } else {
-        toast.error(data.error ?? "Invalid OTP");
-      }
-    } finally {
-      setSendingEmailOtp(false);
-    }
-  }
-
   async function createAccount() {
     setCreating(true);
     try {
@@ -208,7 +158,6 @@ function CompanyRegisterForm() {
           email: form.email.trim().toLowerCase(),
           address: form.address.trim(),
           mobileOtp,
-          emailOtp,
         }),
       });
       const data = await res.json();
@@ -449,59 +398,10 @@ function CompanyRegisterForm() {
                   )}
                 </div>
 
-                <div className="rounded-xl border border-black/10 p-4">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-semibold text-black">
-                      Email: <span className="text-[#4D4D4D]">{form.email}</span>
-                    </p>
-                    {emailVerified && <Check className="h-4 w-4 text-[#0C6B24]" />}
-                  </div>
-                  {!emailVerified && (
-                    <div className="mt-3">
-                      {!emailOtpSent ? (
-                        <button
-                          type="button"
-                          onClick={sendEmailOtp}
-                          disabled={sendingEmailOtp}
-                          className="rounded-lg bg-[#5E3EA1] px-4 py-2 text-xs font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
-                        >
-                          {sendingEmailOtp ? "Sending…" : "Send OTP"}
-                        </button>
-                      ) : (
-                        <div className="flex flex-wrap items-center gap-2">
-                          <input
-                            value={emailOtp}
-                            onChange={(e) => setEmailOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                            placeholder="6-digit OTP"
-                            inputMode="numeric"
-                            className="w-32 rounded-lg border border-black/10 px-3 py-2 text-sm tracking-widest outline-none focus:border-[#5E3EA1]/40"
-                          />
-                          <button
-                            type="button"
-                            onClick={verifyEmailOtp}
-                            disabled={sendingEmailOtp || emailOtp.length !== 6}
-                            className="rounded-lg bg-[#5E3EA1] px-4 py-2 text-xs font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
-                          >
-                            Verify
-                          </button>
-                          <button
-                            type="button"
-                            onClick={sendEmailOtp}
-                            disabled={sendingEmailOtp}
-                            className="text-xs font-semibold text-[#5E3EA1] hover:underline"
-                          >
-                            Resend
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-
                 <button
                   type="button"
                   onClick={() => setStep(3)}
-                  disabled={!mobileVerified || !emailVerified}
+                  disabled={!mobileVerified}
                   className="mt-2 flex h-[50px] items-center justify-center rounded-xl bg-black px-4 text-base font-bold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Continue
