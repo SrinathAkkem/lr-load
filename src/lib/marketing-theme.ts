@@ -1,8 +1,12 @@
 /** Public marketing site tokens — aligned with rono landing page screenshot. */
 export const marketing = {
-  blue: "#4882C2",
-  blueLight: "#5D95C9",
-  blueDark: "#457BB8",
+  blue: "#3B59BA",
+  blueLight: "#5DA8DB",
+  blueDark: "#3B59BA",
+  gradient: "linear-gradient(90deg, #3B59BA 0%, #5DA8DB 100%)",
+  ctaGradient: "linear-gradient(90deg, #FF5C28 0%, #FDE021 100%)",
+  ctaOrange: "#FF5C28",
+  ctaYellow: "#FDE021",
   orange: "#F25828",
   orangeHot: "#D9532D",
   navActive: "#E8A04A",

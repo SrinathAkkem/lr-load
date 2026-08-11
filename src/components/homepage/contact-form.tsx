@@ -65,13 +65,13 @@ export function ContactForm() {
 
   return (
     <form onSubmit={onSubmit} className="rounded-2xl border border-black/10 bg-[#F5F5F7] p-6 sm:p-8">
-      <h2 className="text-xl font-bold text-black sm:text-2xl">
+      <h2 className="text-xl font-medium text-black sm:text-2xl">
         We&apos;d Love To Hear From You! Let&apos;s Get in Touch
       </h2>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <label className="block">
-          <span className="text-xs font-semibold text-[#6B7280]">Full Name</span>
+          <span className="text-xs font-medium text-[#6B7280]">Full Name</span>
           <input
             required
             value={fullName}
@@ -81,7 +81,7 @@ export function ContactForm() {
           />
         </label>
         <label className="block">
-          <span className="text-xs font-semibold text-[#6B7280]">Customer_ID</span>
+          <span className="text-xs font-medium text-[#6B7280]">Customer_ID</span>
           <input
             value={customerId}
             onChange={(e) => setCustomerId(e.target.value)}
@@ -90,7 +90,7 @@ export function ContactForm() {
           />
         </label>
         <label className="block">
-          <span className="text-xs font-semibold text-[#6B7280]">Email</span>
+          <span className="text-xs font-medium text-[#6B7280]">Email</span>
           <input
             required
             type="email"
@@ -101,7 +101,7 @@ export function ContactForm() {
           />
         </label>
         <label className="block">
-          <span className="text-xs font-semibold text-[#6B7280]">Mobile No</span>
+          <span className="text-xs font-medium text-[#6B7280]">Mobile No</span>
           <input
             required
             value={mobile}
@@ -113,12 +113,12 @@ export function ContactForm() {
       </div>
 
       <div className="mt-4 block">
-        <span className="text-xs font-semibold text-[#6B7280]">Subject</span>
+        <span className="text-xs font-medium text-[#6B7280]">Subject</span>
         <ContactSubjectDropdown value={subjectSelectValue} onChange={setSubject} />
       </div>
 
       <label className="relative mt-4 block">
-        <span className="text-xs font-semibold text-[#6B7280]">Message</span>
+        <span className="text-xs font-medium text-[#6B7280]">Message</span>
         <textarea
           required
           rows={5}
@@ -133,7 +133,7 @@ export function ContactForm() {
       <button
         type="submit"
         disabled={loading}
-        className="mt-6 inline-flex h-11 items-center rounded-full bg-gradient-to-r from-[#3C60B6] to-[#5E3EA1] px-8 text-sm font-bold text-white shadow-md transition hover:opacity-90 disabled:opacity-60"
+        className="btn-mkt-primary mt-6 h-11 px-8 disabled:opacity-60"
       >
         {loading ? "Sending..." : "Send Enquiry"}
       </button>
@@ -144,13 +144,13 @@ export function ContactForm() {
 export function ContactSupportCard() {
   return (
     <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm sm:p-8">
-      <h3 className="text-lg font-bold text-black">Technical Support</h3>
+      <h3 className="text-lg font-medium text-black">Technical Support</h3>
       <div className="mt-5 flex items-start gap-3">
         <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F2EFFA] text-[#5E3EA1]">
           <Headphones className="h-5 w-5" />
         </span>
         <div>
-          <p className="text-sm font-semibold text-black">Call: 6 A.M. to 10 P.M. IST</p>
+          <p className="text-sm font-medium text-black">Call: 6 A.M. to 10 P.M. IST</p>
           <a href="tel:+911234523454" className="text-sm text-[#4D4D4D] hover:text-black">
             +91 12345 23454
           </a>
@@ -161,7 +161,7 @@ export function ContactSupportCard() {
           <Mail className="h-5 w-5" />
         </span>
         <div>
-          <p className="text-sm font-semibold text-black">Email: 24*7</p>
+          <p className="text-sm font-medium text-black">Email: 24*7</p>
           <a href="mailto:contact@ronolabs.com" className="text-sm text-[#4D4D4D] hover:text-black">
             contact@ronolabs.com
           </a>
@@ -169,7 +169,7 @@ export function ContactSupportCard() {
       </div>
       <a
         href="/contact?subject=support"
-        className="mt-6 inline-flex rounded-full border border-black/15 px-5 py-2 text-sm font-semibold text-black transition hover:bg-[#F5F5F7]"
+        className="btn-mkt-outline mt-6 px-5 py-2"
       >
         Feature Request
       </a>

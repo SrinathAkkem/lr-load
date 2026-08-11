@@ -58,12 +58,12 @@ export function TestimonialsSection() {
                 {initials(t.name)}
               </span>
               <div>
-                <p className="text-sm font-bold text-black">{t.name}</p>
+                <p className="text-sm font-medium text-black">{t.name}</p>
                 <p className="text-xs text-[#666666]">{t.role}</p>
               </div>
             </div>
             <p className="mt-4 text-sm leading-relaxed text-[#666666]">{t.quote}</p>
-            <div className="mt-5 flex items-center justify-end gap-1 text-sm font-semibold text-black">
+            <div className="mt-5 flex items-center justify-end gap-1 text-sm font-medium text-black">
               {t.rating} <Star className="h-4 w-4 fill-[#FDE021] text-[#FDE021]" /> Ratings
             </div>
           </div>

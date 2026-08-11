@@ -28,7 +28,7 @@ export function NewsletterForm() {
       />
       <button
         type="submit"
-        className="h-10 w-full shrink-0 rounded-full bg-black px-4 text-sm font-semibold text-white sm:h-11 sm:w-auto sm:px-6"
+        className="h-10 w-full shrink-0 rounded-full bg-black px-4 text-sm font-medium text-white sm:h-11 sm:w-auto sm:px-6"
       >
         Subscribe
       </button>

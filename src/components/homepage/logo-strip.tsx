@@ -11,7 +11,7 @@ const LOGOS = [
 export function LogoStrip() {
   return (
     <section className="mkt-container py-[clamp(1.75rem,4vw,2.5rem)]">
-      <p className="mkt-subtitle text-center">Used by Industry Leaders</p>
+      <p className="mkt-subtitle text-center font-normal">Used by Industry Leaders</p>
       <div className="mt-6 flex flex-wrap items-center justify-center gap-x-[clamp(1.5rem,5vw,3.5rem)] gap-y-4 opacity-90 sm:mt-8 sm:gap-y-6">
         {LOGOS.map((logo) => (
           <Image

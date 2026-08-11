@@ -11,7 +11,7 @@ import {
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-white">
+    <section className="relative overflow-x-visible overflow-y-visible bg-white">
       <SiteNav />
 
       <div className="mkt-container grid min-w-0 grid-cols-1 items-center gap-[clamp(1.5rem,4vw,3rem)] pb-[clamp(2.5rem,5vw,6rem)] pt-1 sm:pt-3 lg:grid-cols-2 lg:pt-8">

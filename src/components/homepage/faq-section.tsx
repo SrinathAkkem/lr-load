@@ -59,7 +59,7 @@ export function FaqSection() {
                   className="flex w-full items-center justify-between gap-4 text-left"
                 >
                   <span
-                    className={`min-w-0 text-left text-[clamp(0.8125rem,0.78rem+0.25vw,0.9375rem)] font-semibold leading-snug ${
+                    className={`min-w-0 text-left text-[clamp(0.8125rem,0.78rem+0.25vw,0.9375rem)] font-medium leading-snug ${
                       isOpen ? "text-[#E57351]" : "text-black"
                     }`}
                   >

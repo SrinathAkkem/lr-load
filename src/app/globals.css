@@ -124,9 +124,15 @@
   --sidebar-ring: #7C3AED;
 
   /* Marketing homepage — matches rono landing screenshot */
-  --mkt-blue: #4882C2;
-  --mkt-blue-light: #5D95C9;
-  --mkt-blue-dark: #457BB8;
+  --mkt-blue: #3B59BA;
+  --mkt-blue-light: #5DA8DB;
+  --mkt-blue-dark: #3B59BA;
+  --mkt-gradient-start: #3B59BA;
+  --mkt-gradient-end: #5DA8DB;
+  --mkt-gradient: linear-gradient(90deg, #3B59BA 0%, #5DA8DB 100%);
+  --mkt-cta-gradient-start: #FF5C28;
+  --mkt-cta-gradient-end: #FDE021;
+  --mkt-cta-gradient: linear-gradient(90deg, #FF5C28 0%, #FDE021 100%);
   --mkt-orange: #F25828;
   --mkt-orange-hot: #E57351;
   --mkt-nav-active: #E8A04A;
@@ -187,6 +193,10 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html,
+  body {
+    @apply overflow-x-visible;
+  }
   body {
     @apply bg-background text-foreground;
   }
@@ -221,15 +231,67 @@
     color: var(--mkt-nav-active);
   }
   .btn-mkt-primary {
-    @apply inline-flex items-center justify-center rounded-full bg-gradient-to-r from-[#5D95C9] to-[#457BB8] text-sm font-semibold text-white shadow-md shadow-[#4882C2]/20 transition hover:opacity-90 sm:font-bold sm:shadow-lg sm:shadow-[#4882C2]/30;
+    @apply inline-flex items-center justify-center rounded-full text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60;
+    background-image: var(--mkt-gradient);
+    box-shadow: 0 4px 14px rgb(59 89 186 / 0.22);
   }
+
+  .btn-mkt-primary:hover {
+    box-shadow: 0 6px 18px rgb(59 89 186 / 0.28);
+  }
+
   .btn-mkt-outline {
-    @apply inline-flex items-center justify-center rounded-full border border-[#4882C2] text-xs font-medium text-[#4882C2] transition hover:bg-[#4882C2]/5 sm:text-sm sm:font-semibold;
+    @apply inline-flex items-center justify-center rounded-full text-xs font-medium transition sm:text-sm;
+    border: 1.5px solid transparent;
+    background:
+      linear-gradient(#fff, #fff) padding-box,
+      var(--mkt-gradient) border-box;
+    color: var(--mkt-blue);
+  }
+
+  .btn-mkt-outline:hover {
+    background:
+      linear-gradient(rgb(59 89 186 / 0.06), rgb(59 89 186 / 0.06)) padding-box,
+      var(--mkt-gradient) border-box;
+  }
+
+  .mkt-cta-banner {
+    background-image: var(--mkt-cta-gradient);
+  }
+
+  .btn-mkt-cta-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-white text-sm font-medium text-black transition hover:opacity-90;
+  }
+
+  .btn-mkt-cta-outline {
+    @apply inline-flex items-center justify-center rounded-full border border-white bg-transparent text-sm font-medium text-white transition hover:bg-white/10;
+  }
+
+  .mkt-cta-title {
+    font-size: clamp(1.5rem, 1.1rem + 1.8vw, 2.5rem);
+    line-height: 1.2;
+    font-weight: 500;
+    color: #fff;
+  }
+
+  .mkt-cta-subtitle {
+    font-size: clamp(0.875rem, 0.8rem + 0.4vw, 1.125rem);
+    line-height: 1.55;
+    font-weight: 400;
+    color: rgb(255 255 255 / 0.95);
+  }
+
+  .mkt-cta-person {
+    height: clamp(21.9rem, 29.2vw, 26.2rem);
+    width: auto;
+    max-width: none;
+    object-fit: contain;
+    object-position: bottom right;
   }
 
   /* Marketing layout — fluid across 320px phones through desktop */
   .mkt-page {
-    @apply overflow-x-hidden bg-white;
+    @apply overflow-x-hidden overflow-y-visible bg-white;
   }
 
   .mkt-container {
@@ -297,12 +359,6 @@
     line-height: 1.55;
     font-weight: 400;
     color: #4e4e4e;
-  }
-
-  .mkt-cta-title {
-    font-size: clamp(1.25rem, 1rem + 1.25vw, 1.875rem);
-    line-height: 1.25;
-    font-weight: 500;
   }
 
   .mkt-card-title {

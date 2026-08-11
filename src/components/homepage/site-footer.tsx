@@ -21,7 +21,7 @@ export function SiteFooter() {
           </div>
 
           <div>
-            <p className="text-sm font-bold text-[#333333]">Resources</p>
+            <p className="text-sm font-medium text-[#333333]">Resources</p>
             <ul className="mt-4 space-y-3">
               {RESOURCES.map((item) => (
                 <li key={item}>
@@ -34,7 +34,7 @@ export function SiteFooter() {
           </div>
 
           <div>
-            <p className="text-sm font-bold text-[#333333]">Quick Links</p>
+            <p className="text-sm font-medium text-[#333333]">Quick Links</p>
             <ul className="mt-4 space-y-3">
               {QUICK_LINKS.map((item) => (
                 <li key={item}>

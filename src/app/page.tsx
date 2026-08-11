@@ -17,8 +17,9 @@ import { SiteFooter } from "@/components/homepage/site-footer";
  */
 export default function HomePage() {
   return (
-    <div className="mkt-page">
+    <div className="bg-white">
       <Hero />
+      <div className="mkt-page">
       <LogoStrip />
       <CompareSection />
       <StepsSection />
@@ -27,6 +28,7 @@ export default function HomePage() {
       <FaqSection />
       <FinalCta />
       <SiteFooter />
+      </div>
     </div>
   );
 }

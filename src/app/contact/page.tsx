@@ -12,7 +12,7 @@ export const metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="mkt-page min-h-screen">
+    <div className="min-h-screen bg-white">
       <SiteNav />
 
       <main className="mkt-container py-[clamp(2rem,5vw,4rem)]">
