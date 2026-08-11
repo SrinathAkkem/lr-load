@@ -7,7 +7,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -121,6 +122,21 @@
   --sidebar-border: #4C1D95;
   --sidebar-ring: #7C3AED;
 
+  /* Marketing homepage — matches rono landing screenshot */
+  --mkt-blue: #4882C2;
+  --mkt-blue-light: #5D95C9;
+  --mkt-blue-dark: #457BB8;
+  --mkt-orange: #F25828;
+  --mkt-orange-hot: #E57351;
+  --mkt-nav-active: #E8A04A;
+  --mkt-text: #1A1A1A;
+  --mkt-muted: #555555;
+  --mkt-subtle: #6B7280;
+  --mkt-surface: #FAFAFA;
+  --mkt-surface-alt: #F5F5F7;
+  --mkt-green: #0A4D2E;
+  --mkt-purple: #50308E;
+
   /* Legacy aliases used in some components */
   --violet: #5E3EA1;
   --navy: 30 30 30;
@@ -196,5 +212,17 @@
   }
   .ring-brand {
     --tw-ring-color: var(--brand-ring);
+  }
+  .text-mkt-accent {
+    color: #f25828;
+  }
+  .text-mkt-nav-active {
+    color: var(--mkt-nav-active);
+  }
+  .btn-mkt-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-gradient-to-r from-[#5D95C9] to-[#457BB8] font-bold text-white shadow-lg shadow-[#4882C2]/30 transition hover:opacity-90;
+  }
+  .btn-mkt-outline {
+    @apply inline-flex items-center justify-center rounded-full border border-[#4882C2] font-semibold text-[#4882C2] transition hover:bg-[#4882C2]/5;
   }
 }

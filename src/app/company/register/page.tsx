@@ -280,7 +280,7 @@ function CompanyRegisterForm() {
                     className={inputClass}
                   />
                 </Field>
-                <Field label="Company Code*">
+                <Field label="Company Code">
                   <input
                     value={form.lrCode}
                     onChange={(e) =>

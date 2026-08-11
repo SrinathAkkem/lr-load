@@ -1,14 +1,18 @@
 import Image from "next/image";
+import { MktHeadingAccent, MktHeadingText, SectionHeading } from "./section-heading";
 
 export function StepsSection() {
   return (
     <section className="mx-auto w-full max-w-[1440px] bg-white px-6 py-16 lg:px-10 lg:py-24">
-      <h2 className="text-center text-3xl font-extrabold text-black sm:text-4xl">
-        Manage Your LR in <span className="text-[#F25828]">3 Steps</span>
-      </h2>
-      <p className="mt-3 text-center text-base text-[#4D4D4D]">
-        Create, manage, and track Lorry Receipts from one platform.
-      </p>
+      <SectionHeading
+        title={
+          <>
+            <MktHeadingText>Manage Your LR in </MktHeadingText>
+            <MktHeadingAccent>3 Steps</MktHeadingAccent>
+          </>
+        }
+        subtitle="Create, manage, and track Lorry Receipts from one platform."
+      />
 
       <div className="mx-auto mt-14 w-full max-w-[990px] bg-white">
         <Image

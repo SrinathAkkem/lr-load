@@ -1,24 +1,23 @@
 import Image from "next/image";
 import { SiteNav } from "./site-nav";
 import { LoginButton } from "./login-button";
+import { MktHeadingAccent, MktHeadingText } from "./section-heading";
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-white via-[#FBFAFE] to-white">
+    <section className="relative overflow-hidden bg-white">
       <SiteNav />
 
       <div className="mx-auto grid w-full max-w-[1440px] grid-cols-1 items-center gap-12 px-6 pb-16 pt-8 lg:grid-cols-2 lg:px-10 lg:pb-24 lg:pt-16">
         <div className="max-w-xl">
-          <h1 className="text-[40px] font-extrabold leading-[1.15] text-black sm:text-[52px]">
-            Manage Your Lorry{" "}
-            <span className="bg-gradient-to-r from-[#F7CE25] to-[#F25828] bg-clip-text text-transparent">
-              Receipts, Digitally.
-            </span>
+          <h1 className="shrink-0 text-[32px] font-semibold leading-tight sm:text-[44px] lg:text-[56px]">
+            <MktHeadingText>Manage Your Lorry </MktHeadingText>
+            <MktHeadingAccent>Receipts, Digitally.</MktHeadingAccent>
           </h1>
-          <p className="mt-5 text-base leading-relaxed text-[#4D4D4D] sm:text-lg">
+          <p className="mt-6 max-w-[796px] text-lg text-[#4E4E4E] sm:text-xl lg:text-[26px]">
             Create, track, and store Lorry Receipts digitally no paperwork, no delays.
           </p>
-          <LoginButton className="mt-8 inline-flex h-12 items-center rounded-full bg-gradient-to-r from-[#3C60B6] to-[#5E3EA1] px-7 text-sm font-bold text-white shadow-lg shadow-[#5E3EA1]/20 transition hover:opacity-90">
+          <LoginButton className="btn-mkt-primary mt-8 h-12 px-8 text-sm">
             Start Free Trial
           </LoginButton>
         </div>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { SectionHeading } from "./section-heading";
 
 const FAQS = [
   {
@@ -30,16 +31,14 @@ export function FaqSection() {
   const [open, setOpen] = useState(0);
 
   return (
-    <section id="faq" className="mx-auto w-full max-w-[1440px] px-6 py-16 lg:px-10 lg:py-24">
-      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
+    <section id="faq" className="mx-auto w-full max-w-[1440px] bg-white px-6 py-16 lg:px-10 lg:py-24">
+      <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] lg:gap-16">
         <div>
-          <h2 className="text-3xl font-extrabold text-black sm:text-4xl">
-            Frequently Asked Questions
-          </h2>
-          <p className="mt-4 max-w-sm text-base text-[#4D4D4D]">
-            Find answers to common questions about RONO, digital Lorry Receipts, and how our
-            platform simplifies transport documentation.
-          </p>
+          <SectionHeading
+            align="left"
+            title="Frequently Asked Questions"
+            subtitle="Find answers to common questions about RONO, digital Lorry Receipts, and how our platform simplifies transport documentation."
+          />
         </div>
 
         <div className="space-y-3">
@@ -48,23 +47,33 @@ export function FaqSection() {
             return (
               <div
                 key={faq.q}
-                className={`rounded-2xl border px-5 py-4 transition ${
-                  isOpen ? "border-[#F25828]/40 bg-[#FFF4EF]" : "border-transparent bg-[#F5F5F7]"
-                }`}
+                className={
+                  isOpen
+                    ? "rounded-2xl border border-[#E57351] bg-[#FFF8F5] px-5 py-4 transition"
+                    : "rounded-full bg-[#F5F7F7] px-6 py-4 transition"
+                }
               >
                 <button
                   type="button"
                   onClick={() => setOpen(isOpen ? -1 : i)}
                   className="flex w-full items-center justify-between gap-4 text-left"
                 >
-                  <span className={`text-sm font-semibold ${isOpen ? "text-[#F25828]" : "text-black"}`}>
+                  <span
+                    className={`text-sm font-bold sm:text-[15px] ${
+                      isOpen ? "text-[#E57351]" : "text-black"
+                    }`}
+                  >
                     {faq.q}
                   </span>
                   <ChevronDown
-                    className={`h-4 w-4 shrink-0 transition-transform ${isOpen ? "rotate-180 text-[#F25828]" : "text-black"}`}
+                    className={`h-4 w-4 shrink-0 transition-transform ${
+                      isOpen ? "rotate-180 text-[#E57351]" : "text-black"
+                    }`}
                   />
                 </button>
-                {isOpen && <p className="mt-3 text-sm leading-relaxed text-[#4D4D4D]">{faq.a}</p>}
+                {isOpen && (
+                  <p className="mt-3 text-sm leading-relaxed text-[#333333]">{faq.a}</p>
+                )}
               </div>
             );
           })}

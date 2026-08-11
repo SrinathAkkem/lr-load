@@ -25,8 +25,8 @@ export function SiteNav() {
             href={link.href}
             className={
               link.highlight
-                ? "bg-gradient-to-b from-[#F7CE25] to-[#F25828] bg-clip-text text-[15px] font-medium text-transparent"
-                : "text-[15px] font-medium text-black/80 transition hover:text-black"
+                ? "text-mkt-nav-active text-[15px] font-medium"
+                : "text-[15px] font-medium text-[#1A1A1A]/80 transition hover:text-[#1A1A1A]"
             }
           >
             {link.label}
@@ -35,14 +35,12 @@ export function SiteNav() {
       </nav>
 
       <div className="flex items-center gap-3">
-        <LoginButton className="rounded-full border border-[#5E3EA1] px-6 py-2.5 text-sm font-semibold text-[#5E3EA1] transition hover:bg-[#5E3EA1]/5">
-          Login
-        </LoginButton>
+        <LoginButton className="btn-mkt-outline px-6 py-2.5 text-sm">Login</LoginButton>
         <Link
           href="/contact?subject=demo"
-          className="hidden rounded-full bg-gradient-to-r from-[#3C60B6] to-[#5E3EA1] px-6 py-2.5 text-sm font-semibold text-white shadow-md transition hover:opacity-90 sm:inline-flex"
+          className="btn-mkt-primary hidden px-6 py-2.5 text-sm sm:inline-flex"
         >
-          Request for Demo
+          Request for demo
         </Link>
       </div>
     </header>

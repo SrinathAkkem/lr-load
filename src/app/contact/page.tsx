@@ -14,8 +14,10 @@ export default function ContactPage() {
       <SiteNav />
 
       <main className="mx-auto w-full max-w-[1440px] px-6 py-12 lg:px-10 lg:py-16">
-        <h1 className="text-4xl font-extrabold text-black sm:text-5xl">Contact Us</h1>
-        <p className="mt-4 max-w-2xl text-base leading-relaxed text-[#4D4D4D]">
+        <h1 className="shrink-0 text-[32px] font-semibold leading-tight sm:text-[44px] lg:text-[56px]">
+          <span className="text-black">Contact Us</span>
+        </h1>
+        <p className="mt-6 max-w-[796px] text-lg text-[#4E4E4E] sm:text-xl lg:text-[26px]">
           Connect with our team for product inquiries, service support, or partnership
           opportunities. We&apos;re committed to providing prompt and reliable assistance.
         </p>
