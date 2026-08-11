@@ -19,7 +19,7 @@ const RONO_WAY = [
 
 export function CompareSection() {
   return (
-    <section className="mx-auto w-full max-w-[1440px] px-6 py-12 lg:px-10 lg:py-20">
+    <section className="mkt-section">
       <SectionHeading
         title={
           <>
@@ -30,9 +30,9 @@ export function CompareSection() {
         subtitle="Compare how much time and confusion you save with Rono."
       />
 
-      <div className="relative mx-auto mt-12 max-w-[1040px] lg:mt-16 lg:min-h-[500px]">
-        <div className="rounded-3xl border border-[#E5E5E5] bg-[#F7F7F7] p-8 sm:p-10 lg:absolute lg:left-0 lg:top-12 lg:z-0 lg:w-[68%] lg:pb-12">
-          <h3 className="text-xl font-semibold text-black sm:text-2xl">Old Transport Workflow</h3>
+      <div className="mkt-section-gap relative mx-auto max-w-[1040px] lg:min-h-[500px]">
+        <div className="rounded-2xl border border-[#E5E5E5] bg-[#F7F7F7] p-4 sm:rounded-3xl sm:p-6 md:p-8 lg:absolute lg:left-0 lg:top-12 lg:z-0 lg:w-[68%] lg:p-10 lg:pb-12">
+          <h3 className="mkt-card-title">Old Transport Workflow</h3>
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-[#666666] sm:text-[15px]">
             Traditional transport operations rely on paperwork, WhatsApp messages, phone calls,
             and disconnected records that create delays, payment confusion, and a lack of
@@ -48,7 +48,7 @@ export function CompareSection() {
           </ul>
         </div>
 
-        <div className="relative z-10 mt-6 overflow-hidden rounded-3xl border border-[#C9B8E8] bg-white p-8 shadow-[0_24px_64px_rgba(80,48,142,0.14)] sm:p-10 lg:absolute lg:right-0 lg:top-0 lg:mt-0 lg:w-[52%]">
+        <div className="relative z-10 mt-4 overflow-hidden rounded-2xl border border-[#C9B8E8] bg-white p-4 shadow-[0_24px_64px_rgba(80,48,142,0.14)] sm:mt-5 sm:rounded-3xl sm:p-6 md:p-8 lg:absolute lg:right-0 lg:top-0 lg:mt-0 lg:w-[52%] lg:p-10">
           <div
             aria-hidden
             className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-[#50308E]/10 blur-3xl"
@@ -62,7 +62,7 @@ export function CompareSection() {
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white shadow-[0_4px_14px_rgba(0,0,0,0.08)]">
               <Image src="/rono-mark.svg" alt="" width={28} height={28} className="h-7 w-7" />
             </span>
-            <h3 className="text-xl font-semibold text-black sm:text-2xl">The Rono Way</h3>
+            <h3 className="mkt-card-title min-w-0">The Rono Way</h3>
           </div>
           <p className="relative mt-4 text-sm leading-relaxed text-[#666666] sm:text-[15px]">
             RONO digitizes the entire LR process, helping transport businesses create, store, and
@@ -76,7 +76,7 @@ export function CompareSection() {
               </li>
             ))}
           </ul>
-          <LoginButton className="btn-mkt-primary relative mt-8 h-11 px-8 text-sm">
+          <LoginButton className="btn-mkt-primary relative mt-6 h-11 w-full px-6 sm:mt-8 sm:w-auto sm:px-8">
             Get Started
           </LoginButton>
         </div>

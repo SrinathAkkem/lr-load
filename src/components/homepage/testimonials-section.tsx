@@ -37,7 +37,7 @@ function initials(name: string) {
 
 export function TestimonialsSection() {
   return (
-    <section className="mx-auto w-full max-w-[1440px] px-6 py-16 lg:px-10 lg:py-24">
+    <section className="mkt-section">
       <SectionHeading
         title={
           <>
@@ -48,7 +48,7 @@ export function TestimonialsSection() {
         subtitle="Trusted by transport businesses for faster, smarter, and paperless Lorry Receipt management."
       />
 
-      <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mkt-section-gap grid min-w-0 gap-4 sm:grid-cols-2 sm:gap-5 md:gap-6 lg:grid-cols-3">
         {TESTIMONIALS.map((t, i) => (
           <div key={t.name} className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
             <div className="flex items-center gap-3">

@@ -17,7 +17,7 @@ import { SiteFooter } from "@/components/homepage/site-footer";
  */
 export default function HomePage() {
   return (
-    <div className="bg-white">
+    <div className="mkt-page">
       <Hero />
       <LogoStrip />
       <CompareSection />

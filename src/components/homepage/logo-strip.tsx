@@ -10,9 +10,9 @@ const LOGOS = [
 
 export function LogoStrip() {
   return (
-    <section className="mx-auto w-full max-w-[1440px] px-6 py-10 lg:px-10">
-      <p className="text-center text-sm font-semibold text-[#666666]">Used by Industry Leaders</p>
-      <div className="mt-8 flex flex-wrap items-center justify-center gap-x-14 gap-y-6 opacity-90">
+    <section className="mkt-container py-[clamp(1.75rem,4vw,2.5rem)]">
+      <p className="mkt-subtitle text-center">Used by Industry Leaders</p>
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-x-[clamp(1.5rem,5vw,3.5rem)] gap-y-4 opacity-90 sm:mt-8 sm:gap-y-6">
         {LOGOS.map((logo) => (
           <Image
             key={logo.alt}
@@ -21,7 +21,7 @@ export function LogoStrip() {
             width={140}
             height={logo.h}
             style={{ height: logo.h, width: "auto" }}
-            className="object-contain"
+            className="h-auto max-h-[clamp(1rem,4vw,1.75rem)] w-auto max-w-[min(35vw,8.75rem)] object-contain"
           />
         ))}
       </div>

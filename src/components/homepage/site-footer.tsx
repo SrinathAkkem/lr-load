@@ -7,9 +7,9 @@ const QUICK_LINKS = ["Pricing", "Request Demo", "Customer Stories"];
 
 export function SiteFooter() {
   return (
-    <footer id="about" className="mt-16 bg-[#F5F5F5] pt-14">
-      <div className="mx-auto w-full max-w-[1440px] px-6 lg:px-10">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+    <footer id="about" className="mt-[clamp(2rem,4vw,4rem)] bg-[#F5F5F5] pt-[clamp(2rem,4vw,3.5rem)]">
+      <div className="mkt-container">
+        <div className="grid min-w-0 gap-8 sm:grid-cols-2 sm:gap-10 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>
             <Image src="/rono-logo.png" alt="Rono" width={130} height={34} className="h-8 w-auto" />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-[#333333]">

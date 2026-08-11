@@ -4,25 +4,25 @@ import { LoginButton } from "./login-button";
 
 export function FinalCta() {
   return (
-    <section className="mx-auto w-full max-w-[1440px] px-6 pt-14 lg:px-10 lg:pt-16">
-      <div className="relative">
-        <div className="overflow-hidden rounded-3xl bg-gradient-to-r from-[#FF5C28] to-[#FDE021] sm:pr-[min(42%,360px)] lg:pr-[min(38%,400px)]">
-          <div className="flex min-h-[280px] flex-col justify-center px-8 py-12 sm:min-h-[300px] sm:px-12 lg:min-h-[320px] lg:py-14">
-            <div className="relative z-10 max-w-xl">
-              <h2 className="text-3xl font-semibold leading-[1.2] text-white sm:text-[40px]">
+    <section className="mkt-container pt-[clamp(2rem,4vw,4rem)]">
+      <div className="relative min-w-0">
+        <div className="overflow-hidden rounded-2xl bg-gradient-to-r from-[#FF5C28] to-[#FDE021] sm:rounded-3xl md:pr-[min(42%,360px)] lg:pr-[min(38%,400px)]">
+          <div className="flex min-h-0 flex-col justify-center px-4 py-7 sm:px-8 sm:py-10 md:min-h-[280px] md:px-10 md:py-12 lg:min-h-[320px] lg:px-12">
+            <div className="relative z-10 min-w-0 max-w-xl">
+              <h2 className="mkt-cta-title text-white">
                 Digitize Your Lorry Receipt Process Today
               </h2>
-              <p className="mt-4 max-w-md text-base leading-relaxed text-white">
+              <p className="mkt-subtitle mt-3 text-white/95 sm:mt-4">
                 Create, manage, and track digital Lorry Receipts with one simple platform designed for
                 transport businesses.
               </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <LoginButton className="inline-flex h-11 items-center rounded-full bg-white px-7 text-sm font-bold text-black transition hover:opacity-90">
+              <div className="mt-5 flex flex-col gap-2.5 sm:mt-6 sm:flex-row sm:flex-wrap sm:gap-3">
+                <LoginButton className="inline-flex h-10 w-full min-w-0 items-center justify-center rounded-full bg-white px-6 text-sm font-semibold text-black transition hover:opacity-90 sm:h-11 sm:w-auto sm:px-7">
                   Get Started
                 </LoginButton>
                 <Link
                   href="/contact?subject=demo"
-                  className="inline-flex h-11 items-center rounded-full border border-white px-7 text-sm font-bold text-white transition hover:bg-white/10"
+                  className="inline-flex h-10 w-full min-w-0 items-center justify-center rounded-full border border-white px-6 text-sm font-semibold text-white transition hover:bg-white/10 sm:h-11 sm:w-auto sm:px-7"
                 >
                   Request a Demo
                 </Link>
@@ -32,7 +32,7 @@ export function FinalCta() {
         </div>
 
         <div
-          className="pointer-events-none absolute bottom-0 right-4 hidden h-[340px] w-[min(46%,340px)] sm:block lg:right-8 lg:h-[380px] lg:w-[min(40%,380px)]"
+          className="pointer-events-none absolute bottom-0 right-0 hidden h-[clamp(16rem,38vw,23.75rem)] w-[min(46%,340px)] md:block lg:right-4"
           aria-hidden
         >
           <Image

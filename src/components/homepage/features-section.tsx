@@ -3,7 +3,7 @@ import { MktHeadingAccent, MktHeadingText, SectionHeading } from "./section-head
 
 export function FeaturesSection() {
   return (
-    <section className="mx-auto w-full max-w-[1440px] bg-white px-6 py-16 lg:px-10 lg:py-24">
+    <section className="mkt-section bg-white">
       <SectionHeading
         title={
           <>
@@ -14,7 +14,7 @@ export function FeaturesSection() {
         subtitle="Digitize and manage your Lorry Receipts with ease."
       />
 
-      <div className="mx-auto mt-14 w-full max-w-[990px] bg-white">
+      <div className="mkt-section-gap mx-auto w-full min-w-0 max-w-[990px]">
         <Image
           src="/homepage/frame-429-features.png"
           alt="Instant LR creation, centralized LR records, real-time LR tracking, and scalable business management"

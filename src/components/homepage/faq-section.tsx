@@ -31,8 +31,8 @@ export function FaqSection() {
   const [open, setOpen] = useState(0);
 
   return (
-    <section id="faq" className="mx-auto w-full max-w-[1440px] bg-white px-6 py-16 lg:px-10 lg:py-24">
-      <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] lg:gap-16">
+    <section id="faq" className="mkt-section bg-white">
+      <div className="grid min-w-0 gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] lg:gap-16">
         <div>
           <SectionHeading
             align="left"
@@ -49,8 +49,8 @@ export function FaqSection() {
                 key={faq.q}
                 className={
                   isOpen
-                    ? "rounded-2xl border border-[#E57351] bg-[#FFF8F5] px-5 py-4 transition"
-                    : "rounded-full bg-[#F5F7F7] px-6 py-4 transition"
+                    ? "rounded-2xl border border-[#E57351] bg-[#FFF8F5] px-4 py-3.5 transition sm:px-5 sm:py-4"
+                    : "rounded-2xl bg-[#F5F7F7] px-4 py-3.5 transition sm:rounded-full sm:px-6 sm:py-4"
                 }
               >
                 <button
@@ -59,7 +59,7 @@ export function FaqSection() {
                   className="flex w-full items-center justify-between gap-4 text-left"
                 >
                   <span
-                    className={`text-sm font-bold sm:text-[15px] ${
+                    className={`min-w-0 text-left text-[clamp(0.8125rem,0.78rem+0.25vw,0.9375rem)] font-semibold leading-snug ${
                       isOpen ? "text-[#E57351]" : "text-black"
                     }`}
                   >

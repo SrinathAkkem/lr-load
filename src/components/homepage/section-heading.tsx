@@ -1,9 +1,8 @@
 import { cn } from "@/lib/utils";
 
-const TITLE_CLASS =
-  "shrink-0 text-[32px] font-semibold sm:text-[44px] lg:text-[56px]";
-const SUBTITLE_CLASS =
-  "shrink-0 w-full max-w-[796px] text-lg text-[#4E4E4E] sm:text-xl lg:text-[26px]";
+export const MKT_TITLE_CLASS = "mkt-title";
+export const MKT_SUBTITLE_CLASS = "mkt-subtitle";
+export const MKT_HERO_TITLE_CLASS = "mkt-hero-title";
 
 type SectionHeadingProps = {
   title: React.ReactNode;
@@ -25,18 +24,19 @@ export function SectionHeading({
   return (
     <div
       className={cn(
-        "relative mx-auto flex w-full max-w-[1320px] flex-col justify-start gap-6",
-        isCenter ? "items-center" : "items-start",
+        "relative flex w-full min-w-0 max-w-[1320px] flex-col justify-start gap-[clamp(0.75rem,2vw,1.5rem)]",
+        isCenter ? "mx-auto items-center" : "items-start",
         className,
       )}
     >
-      <h2 className={cn(TITLE_CLASS, isCenter ? "text-center" : "text-left")}>
+      <h2 className={cn(MKT_TITLE_CLASS, "w-full min-w-0", isCenter ? "text-center" : "text-left")}>
         {typeof title === "string" ? <span className="text-black">{title}</span> : title}
       </h2>
       {subtitle ? (
         <p
           className={cn(
-            SUBTITLE_CLASS,
+            MKT_SUBTITLE_CLASS,
+            "w-full min-w-0 max-w-[49.75rem]",
             isCenter ? "text-center" : "text-left",
             subtitleClassName,
           )}

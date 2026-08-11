@@ -13,20 +13,27 @@ const NAV_LINKS = [
 
 export function SiteNav() {
   return (
-    <header className="relative z-20 mx-auto flex w-full max-w-[1440px] items-center justify-between px-6 py-6 lg:px-10">
-      <Link href="/">
-        <Image src="/rono-logo.png" alt="Rono" width={120} height={36} className="h-9 w-auto" priority />
+    <header className="mkt-container relative z-20 flex min-w-0 items-center justify-between gap-2 py-[clamp(0.875rem,2vw,1.25rem)] sm:gap-3">
+      <Link href="/" className="min-w-0 shrink">
+        <Image
+          src="/rono-logo.png"
+          alt="Rono"
+          width={120}
+          height={36}
+          className="h-[clamp(1.75rem,4vw,2.25rem)] w-auto"
+          priority
+        />
       </Link>
 
-      <nav className="hidden items-center gap-10 lg:flex">
+      <nav className="hidden min-w-0 items-center gap-8 lg:flex xl:gap-10">
         {NAV_LINKS.map((link) => (
           <Link
             key={link.label}
             href={link.href}
             className={
               link.highlight
-                ? "text-mkt-nav-active text-[15px] font-medium"
-                : "text-[15px] font-medium text-[#1A1A1A]/80 transition hover:text-[#1A1A1A]"
+                ? "text-mkt-nav-active whitespace-nowrap text-[15px] font-medium"
+                : "whitespace-nowrap text-[15px] font-medium text-[#1A1A1A]/80 transition hover:text-[#1A1A1A]"
             }
           >
             {link.label}
@@ -34,13 +41,16 @@ export function SiteNav() {
         ))}
       </nav>
 
-      <div className="flex items-center gap-3">
-        <LoginButton className="btn-mkt-outline px-6 py-2.5 text-sm">Login</LoginButton>
+      <div className="flex min-w-0 shrink-0 items-center gap-1.5 sm:gap-2 md:gap-3">
+        <LoginButton className="btn-mkt-outline h-9 whitespace-nowrap px-3 sm:px-4 sm:h-10 md:px-6">
+          Login
+        </LoginButton>
         <Link
           href="/contact?subject=demo"
-          className="btn-mkt-primary hidden px-6 py-2.5 text-sm sm:inline-flex"
+          className="btn-mkt-primary hidden h-9 whitespace-nowrap px-3 text-xs md:inline-flex md:px-4 lg:h-10 lg:px-6 lg:text-sm"
         >
-          Request for demo
+          <span className="hidden lg:inline">Request for demo</span>
+          <span className="lg:hidden">Demo</span>
         </Link>
       </div>
     </header>

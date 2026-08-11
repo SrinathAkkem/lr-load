@@ -8,7 +8,7 @@ export function NewsletterForm() {
 
   return (
     <form
-      className="mt-5 flex max-w-sm items-center overflow-hidden rounded-full bg-white pl-4 shadow-sm"
+      className="mt-5 flex w-full min-w-0 max-w-sm flex-col gap-2 rounded-2xl bg-white p-2 shadow-sm sm:flex-row sm:items-center sm:rounded-full sm:pl-4 sm:pr-0"
       onSubmit={(e) => {
         e.preventDefault();
         if (!/^\S+@\S+\.\S+$/.test(email)) {
@@ -24,9 +24,12 @@ export function NewsletterForm() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="Subscribe to our newsletter"
-        className="h-11 min-w-0 flex-1 border-0 bg-transparent text-sm text-[#333333] outline-none placeholder:text-[#9CA3AF]"
+        className="h-10 min-w-0 flex-1 rounded-xl border-0 bg-transparent px-3 text-sm text-[#333333] outline-none placeholder:text-[#9CA3AF] sm:h-11 sm:rounded-none sm:px-0"
       />
-      <button type="submit" className="h-11 shrink-0 rounded-full bg-black px-6 text-sm font-semibold text-white">
+      <button
+        type="submit"
+        className="h-10 w-full shrink-0 rounded-full bg-black px-4 text-sm font-semibold text-white sm:h-11 sm:w-auto sm:px-6"
+      >
         Subscribe
       </button>
     </form>
