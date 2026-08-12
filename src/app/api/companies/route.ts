@@ -63,9 +63,9 @@ export async function POST(req: NextRequest) {
   if (!address) return jsonError("Address is required");
   const gstNumber = String(body.gstNumber ?? "").trim();
   if (!gstNumber) return jsonError("GST number is required");
-  const lrCode = String(body.lrCode ?? "").toUpperCase().trim();
-  if (!/^[A-Z]{2,8}$/.test(lrCode)) {
-    return jsonError("LR code must be 2-8 uppercase letters", 400);
+  const lrCode = String(body.lrCode ?? "").trim();
+  if (!lrCode) {
+    return jsonError("Company code is required", 400);
   }
   const adminMobile = String(body.adminMobile ?? body.contactPhone ?? "").replace(
     /\D/g,

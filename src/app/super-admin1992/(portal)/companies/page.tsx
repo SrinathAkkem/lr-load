@@ -40,7 +40,7 @@ export default async function CompaniesListPage({
       ? {
           OR: [
             { name: { contains: search } },
-            { lrCode: { contains: search.toUpperCase() } },
+            { lrCode: { contains: search } },
             { contactPhone: { contains: search } },
           ],
         }

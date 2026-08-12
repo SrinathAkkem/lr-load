@@ -283,7 +283,7 @@ export default function CompanyDetailPage() {
               <Input
                 value={editFields.lrCode}
                 onChange={(e) =>
-                  setEditFields({ ...editFields, lrCode: e.target.value.toUpperCase() })
+                  setEditFields({ ...editFields, lrCode: e.target.value })
                 }
               />
             </div>

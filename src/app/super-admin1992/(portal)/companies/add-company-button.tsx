@@ -48,10 +48,10 @@ export function AddCompanyButton() {
     e.preventDefault();
     if (busy) return;
 
-    const lrCode = form.lrCode.toUpperCase().trim();
+    const lrCode = form.lrCode.trim();
     const adminMobile = form.adminMobile.replace(/\D/g, "");
-    if (!/^[A-Z]{2,8}$/.test(lrCode)) {
-      toast.error("LR code must be 2-8 uppercase letters (e.g. RG, JKLG)");
+    if (!lrCode) {
+      toast.error("Company code is required");
       return;
     }
     if (!/^\d{10}$/.test(adminMobile)) {
@@ -136,7 +136,7 @@ export function AddCompanyButton() {
                 <Input
                   required
                   value={form.lrCode}
-                  onChange={(e) => update("lrCode", e.target.value.toUpperCase())}
+                  onChange={(e) => update("lrCode", e.target.value)}
                   placeholder="RG"
                   maxLength={8}
                 />

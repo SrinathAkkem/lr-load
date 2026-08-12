@@ -117,10 +117,7 @@ export async function PUT(
   }
   if (typeof body.email === "string") data.email = body.email.trim().toLowerCase() || null;
   if (typeof body.lrCode === "string" && body.lrCode.trim()) {
-    const lrCode = body.lrCode.toUpperCase().trim();
-    if (!/^[A-Z]{2,8}$/.test(lrCode)) {
-      return jsonError("LR code must be 2-8 uppercase letters", 400);
-    }
+    const lrCode = body.lrCode.trim();
     const existingCode = await prisma.company.findFirst({
       where: { lrCode, id: { not: id } },
       select: { id: true },

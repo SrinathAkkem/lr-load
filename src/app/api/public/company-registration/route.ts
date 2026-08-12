@@ -13,8 +13,7 @@ const schema = z.object({
   lrCode: z
     .string()
     .trim()
-    .toUpperCase()
-    .regex(/^[A-Z]{2,8}$/, "Company code must be 2-8 letters"),
+    .min(1, "Company code is required"),
   gstNumber: z.string().min(1, "GST number is required"),
   ibaNumber: z.string().optional(),
   contactPhone: z.string().regex(/^\d{10}$/, "Contact number must be 10 digits"),

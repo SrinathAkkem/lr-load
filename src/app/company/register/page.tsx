@@ -79,8 +79,8 @@ function CompanyRegisterForm() {
 
   function validateStep1(): string | null {
     if (!form.name.trim()) return "Company name is required";
-    if (!/^[A-Za-z]{2,8}$/.test(form.lrCode.trim())) {
-      return "Company code must be 2-8 letters (e.g. ABC)";
+    if (!form.lrCode.trim()) {
+      return "Company code is required";
     }
     if (!form.gstNumber.trim()) return "GST number is required";
     if (!form.address.trim()) return "Address is required";
@@ -151,7 +151,7 @@ function CompanyRegisterForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: form.name.trim(),
-          lrCode: form.lrCode.trim().toUpperCase(),
+          lrCode: form.lrCode.trim(),
           gstNumber: form.gstNumber.trim(),
           ibaNumber: form.ibaNumber.trim() || undefined,
           contactPhone: form.contactPhone,
@@ -284,7 +284,7 @@ function CompanyRegisterForm() {
                   <input
                     value={form.lrCode}
                     onChange={(e) =>
-                      update("lrCode", e.target.value.toUpperCase())
+                      update("lrCode", e.target.value)
                     }
                     placeholder="1234"
                     className={inputClass}
@@ -413,7 +413,7 @@ function CompanyRegisterForm() {
               <div className="flex flex-col gap-5">
                 <div className="rounded-xl border border-black/10 p-4 text-sm">
                   <ReviewRow label="Company Name" value={form.name} />
-                  <ReviewRow label="Company Code" value={form.lrCode.toUpperCase()} />
+                  <ReviewRow label="Company Code" value={form.lrCode} />
                   <ReviewRow label="GST Number" value={form.gstNumber} />
                   {form.ibaNumber && <ReviewRow label="IBA Number" value={form.ibaNumber} />}
                   <ReviewRow label="Address" value={form.address} />
