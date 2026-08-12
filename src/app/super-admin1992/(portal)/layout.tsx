@@ -11,7 +11,7 @@ export default async function SuperAdminPortalLayout({
 }) {
   const session = await getSession();
   if (!session || session.role !== "super_admin") {
-    redirect("/super-admin/login");
+    redirect("/super-admin1992/login");
   }
 
   return (

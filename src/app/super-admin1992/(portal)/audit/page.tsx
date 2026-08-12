@@ -73,7 +73,7 @@ export default async function SuperAdminAuditPage({
       </div>
 
       <form
-        action="/super-admin/audit"
+        action="/super-admin1992/audit"
         method="GET"
         className="mt-6 flex flex-wrap items-center gap-3 rounded-2xl border-0 bg-white p-3 shadow-sm"
       >

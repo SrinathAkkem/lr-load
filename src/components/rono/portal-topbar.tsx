@@ -26,39 +26,39 @@ interface TopbarProps {
 }
 
 const SEARCH_TARGETS: Record<TopbarProps["variant"], string> = {
-  super_admin: "/super-admin/companies",
+  super_admin: "/super-admin1992/companies",
   company_admin: "/company/lr",
 };
 
 const TITLE_MAP: Array<{ match: RegExp; title: string; placeholder: string }> = [
   // Super Admin
   {
-    match: /^\/super-admin\/dashboard/,
+    match: /^\/super-admin1992\/dashboard/,
     title: "Dashboard",
     placeholder: "Search companies, executives...",
   },
   {
-    match: /^\/super-admin\/companies\/[^/]+/,
+    match: /^\/super-admin1992\/companies\/[^/]+/,
     title: "Company Detail",
     placeholder: "Search companies...",
   },
   {
-    match: /^\/super-admin\/companies/,
+    match: /^\/super-admin1992\/companies/,
     title: "Companies",
     placeholder: "Search companies...",
   },
   {
-    match: /^\/super-admin\/executives/,
+    match: /^\/super-admin1992\/executives/,
     title: "All Executives",
     placeholder: "Search executives by name or mobile...",
   },
   {
-    match: /^\/super-admin\/settings/,
+    match: /^\/super-admin1992\/settings/,
     title: "Settings",
     placeholder: "Search settings...",
   },
   {
-    match: /^\/super-admin\/audit/,
+    match: /^\/super-admin1992\/audit/,
     title: "Audit Log",
     placeholder: "Search audit events...",
   },
@@ -209,7 +209,7 @@ export function PortalTopbar({ variant, userName, userRole, companyLogoUrl }: To
   async function handleLogout() {
     setProfileOpen(false);
     await fetch("/api/auth/logout", { method: "POST" });
-    router.push(variant === "super_admin" ? "/super-admin/login" : "/company/login");
+    router.push(variant === "super_admin" ? "/super-admin1992/login" : "/company/login");
     router.refresh();
   }
 
@@ -350,7 +350,7 @@ export function PortalTopbar({ variant, userName, userRole, companyLogoUrl }: To
             <div className="absolute right-0 top-12 z-40 w-44 overflow-hidden rounded-xl border border-black/[0.06] bg-white py-1.5 shadow-lg">
               <Link
                 href={
-                  variant === "super_admin" ? "/super-admin/settings" : "/company/profile"
+                  variant === "super_admin" ? "/super-admin1992/settings" : "/company/profile"
                 }
                 onClick={() => setProfileOpen(false)}
                 className="flex items-center gap-2.5 px-3.5 py-2 text-sm font-medium text-black transition hover:bg-black/[0.04]"

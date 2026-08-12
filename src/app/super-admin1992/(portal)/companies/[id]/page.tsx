@@ -210,11 +210,11 @@ export default function CompanyDetailPage() {
     <div className="p-4 md:p-8">
       {/* Breadcrumb */}
       <div className="flex flex-wrap items-center gap-2 text-sm text-[#9ca3af]">
-        <Link href="/super-admin/companies" className="hover:text-brand transition font-semibold">Companies</Link>
+        <Link href="/super-admin1992/companies" className="hover:text-brand transition font-semibold">Companies</Link>
         <span>/</span>
         <span className="font-bold text-[#2d2d4e]">{company.name}</span>
         <Link
-          href="/super-admin/companies"
+          href="/super-admin1992/companies"
           className="ml-auto inline-flex items-center gap-1 text-sm font-medium text-slate-500 transition hover:text-slate-900"
         >
           <ChevronLeft className="h-4 w-4" />

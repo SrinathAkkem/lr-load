@@ -32,16 +32,16 @@ const superAdminNav: NavGroup[] = [
   {
     label: "Main Menu",
     items: [
-      { title: "Dashboard", href: "/super-admin/dashboard", icon: LayoutDashboard },
-      { title: "Companies", href: "/super-admin/companies", icon: Building2 },
-      { title: "All Executives", href: "/super-admin/executives", icon: Users },
+      { title: "Dashboard", href: "/super-admin1992/dashboard", icon: LayoutDashboard },
+      { title: "Companies", href: "/super-admin1992/companies", icon: Building2 },
+      { title: "All Executives", href: "/super-admin1992/executives", icon: Users },
     ],
   },
   {
     label: "System",
     items: [
-      { title: "Settings", href: "/super-admin/settings", icon: Settings },
-      { title: "Audit Log", href: "/super-admin/audit", icon: ScrollText },
+      { title: "Settings", href: "/super-admin1992/settings", icon: Settings },
+      { title: "Audit Log", href: "/super-admin1992/audit", icon: ScrollText },
     ],
   },
 ];
@@ -120,7 +120,7 @@ export function PortalSidebar({
           <X className="h-5 w-5" />
         </button>
         <Link
-          href={variant === "super_admin" ? "/super-admin/dashboard" : "/company/dashboard"}
+          href={variant === "super_admin" ? "/super-admin1992/dashboard" : "/company/dashboard"}
           className="inline-flex items-center gap-2"
         >
           <Image src="/rono-logo.svg" alt="RonoHub" width={120} height={20} className="h-5 w-auto" />

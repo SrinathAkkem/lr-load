@@ -90,7 +90,7 @@ export default async function CompaniesListPage({
           </span>
           {pendingCount > 0 && (
             <Link
-              href="/super-admin/companies?status=pending"
+              href="/super-admin1992/companies?status=pending"
               className="flex items-center gap-1.5 font-bold text-[#c8890a] hover:underline"
             >
               <span className="h-2 w-2 rounded-full bg-[#f7ce25]" />
@@ -115,7 +115,7 @@ export default async function CompaniesListPage({
           <h2 className="text-base font-bold text-[#2d2d4e]">All Onboarded Companies</h2>
           <div className="mt-3 flex flex-wrap items-center gap-3">
             <span className="text-xs font-bold text-[#6b7280]">Filter by:</span>
-            <form action="/super-admin/companies" method="GET" className="flex flex-wrap items-center gap-2">
+            <form action="/super-admin1992/companies" method="GET" className="flex flex-wrap items-center gap-2">
               <select
                 name="status"
                 defaultValue={status}
@@ -174,7 +174,7 @@ export default async function CompaniesListPage({
                     className="border-b border-[#e8edf5] last:border-0 transition hover:bg-[#fafbff]"
                   >
                     <td className="px-6 py-3.5">
-                      <Link href={`/super-admin/companies/${company.id}`} className="block">
+                      <Link href={`/super-admin1992/companies/${company.id}`} className="block">
                         <p className="font-bold text-[#2d2d4e] hover:text-brand transition">
                           {company.name}
                         </p>
@@ -222,7 +222,7 @@ export default async function CompaniesListPage({
                       <div className="flex items-center justify-end gap-2">
                         {company.status === "pending" ? (
                           <Link
-                            href={`/super-admin/companies/${company.id}`}
+                            href={`/super-admin1992/companies/${company.id}`}
                             className="rounded-full border border-[#f7ce25] bg-[#fef9e7] px-3 py-1 text-[11px] font-bold text-[#c8890a] transition hover:bg-[#fef1c4]"
                           >
                             Review
@@ -230,13 +230,13 @@ export default async function CompaniesListPage({
                         ) : (
                           <>
                             <Link
-                              href={`/super-admin/companies/${company.id}`}
+                              href={`/super-admin1992/companies/${company.id}`}
                               className="rounded-full border border-[#e8edf5] px-3 py-1 text-[11px] font-bold text-brand transition hover:bg-brand-gradient-soft"
                             >
                               Edit Limits
                             </Link>
                             <Link
-                              href={`/super-admin/companies/${company.id}`}
+                              href={`/super-admin1992/companies/${company.id}`}
                               className={`rounded-full border px-3 py-1 text-[11px] font-bold transition ${
                                 company.status === "active"
                                   ? "border-[#fdedec] text-[#e74c3c] hover:bg-[#fdedec]"
@@ -265,7 +265,7 @@ export default async function CompaniesListPage({
             <div className="flex flex-wrap items-center gap-1">
               {page > 1 && (
                 <Link
-                  href={`/super-admin/companies?page=${page - 1}${search ? `&search=${search}` : ""}${status !== "all" ? `&status=${status}` : ""}`}
+                  href={`/super-admin1992/companies?page=${page - 1}${search ? `&search=${search}` : ""}${status !== "all" ? `&status=${status}` : ""}`}
                   className="rounded-lg border border-[#e8edf5] px-2.5 py-1 text-xs font-bold text-[#6b7280] hover:bg-[#fafbff]"
                 >
                   ←
@@ -274,7 +274,7 @@ export default async function CompaniesListPage({
               {Array.from({ length: Math.min(totalPages, 3) }, (_, i) => i + 1).map((p) => (
                 <Link
                   key={p}
-                  href={`/super-admin/companies?page=${p}${search ? `&search=${search}` : ""}${status !== "all" ? `&status=${status}` : ""}`}
+                  href={`/super-admin1992/companies?page=${p}${search ? `&search=${search}` : ""}${status !== "all" ? `&status=${status}` : ""}`}
                   className={`rounded-lg px-2.5 py-1 text-xs font-bold ${
                     p === page
                       ? "bg-brand text-white"
@@ -286,7 +286,7 @@ export default async function CompaniesListPage({
               ))}
               {page < totalPages && (
                 <Link
-                  href={`/super-admin/companies?page=${page + 1}${search ? `&search=${search}` : ""}${status !== "all" ? `&status=${status}` : ""}`}
+                  href={`/super-admin1992/companies?page=${page + 1}${search ? `&search=${search}` : ""}${status !== "all" ? `&status=${status}` : ""}`}
                   className="rounded-lg border border-[#e8edf5] px-2.5 py-1 text-xs font-bold text-[#6b7280] hover:bg-[#fafbff]"
                 >
                   →

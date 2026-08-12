@@ -55,7 +55,7 @@ INSERT INTO `Branch` (`id`, `companyId`, `name`, `city`, `state`, `createdAt`) V
 
 -- ─── Users ───────────────────────────────────────────────────────────────────
 -- Super admin password is `admin123`, stored as a bcrypt hash. Login at
--- /super-admin/login with admin@ronohub.com / admin123, then immediately
+-- /super-admin1992/login with admin@ronohub.com / admin123, then immediately
 -- change the password on first login (planned UI).
 INSERT INTO `User`
   (`id`, `mobile`, `email`, `password`, `role`, `companyId`, `branchId`,

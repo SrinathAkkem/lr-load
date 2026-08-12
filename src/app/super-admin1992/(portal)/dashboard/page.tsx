@@ -139,7 +139,7 @@ export default async function SuperAdminDashboardPage() {
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold text-[#2d2d4e]">Recent Activity</h2>
             <Link
-              href="/super-admin/audit"
+              href="/super-admin1992/audit"
               className="rounded-full border border-[#e8edf5] px-3 py-1 text-[11px] font-bold text-[#6b7280] transition hover:border-brand hover:text-brand"
             >
               See all
@@ -197,7 +197,7 @@ export default async function SuperAdminDashboardPage() {
               Top 5
             </span>
             <Link
-              href="/super-admin/companies"
+              href="/super-admin1992/companies"
               className="rounded-full border border-[#e8edf5] px-3 py-1 text-[11px] font-bold text-[#6b7280] transition hover:border-brand hover:text-brand"
             >
               View All →
@@ -240,7 +240,7 @@ export default async function SuperAdminDashboardPage() {
                     </td>
                     <td className="py-4 pr-4">
                       <Link
-                        href={`/super-admin/companies/${company.id}`}
+                        href={`/super-admin1992/companies/${company.id}`}
                         className="text-sm font-bold text-[#2d2d4e] hover:text-brand"
                       >
                         {company.name}

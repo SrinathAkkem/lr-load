@@ -32,7 +32,7 @@ export default function SuperAdminLoginPage() {
       }
       toast.success("Welcome back!");
       setRedirecting(true);
-      router.push("/super-admin/dashboard");
+      router.push("/super-admin1992/dashboard");
       router.refresh();
     } catch {
       toast.error("Network error");

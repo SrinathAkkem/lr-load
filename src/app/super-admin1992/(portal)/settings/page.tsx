@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export default async function SuperAdminSettingsPage() {
   const session = await getSession();
   if (!session || session.role !== "super_admin") {
-    redirect("/super-admin/login");
+    redirect("/super-admin1992/login");
   }
 
   const me = await prisma.user.findUnique({

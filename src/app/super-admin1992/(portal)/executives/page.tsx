@@ -91,7 +91,7 @@ export default async function SuperAdminExecutivesPage({
       </div>
 
       <form
-        action="/super-admin/executives"
+        action="/super-admin1992/executives"
         method="GET"
         className="mt-6 flex flex-wrap items-center gap-3 rounded-2xl border-0 bg-white p-3 shadow-sm"
       >
@@ -174,7 +174,7 @@ export default async function SuperAdminExecutivesPage({
                     <td className="p-4">
                       {d.company ? (
                         <Link
-                          href={`/super-admin/companies/${d.companyId}`}
+                          href={`/super-admin1992/companies/${d.companyId}`}
                           className="text-brand font-bold hover:underline"
                         >
                           {d.company.name}

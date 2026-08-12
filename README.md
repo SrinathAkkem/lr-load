@@ -72,7 +72,7 @@ src/
 │   ├── api/          # API routes (unchanged from v1)
 │   ├── company/      # Company admin portal
 │   │   └── login/    # NEW: Redesigned login page
-│   ├── super-admin/  # Super admin portal
+│   ├── super-admin1992/  # Super admin portal
 │   └── legal/        # Legal pages
 ├── components/       # Reusable components
 ├── lib/             # Utility functions and configs
