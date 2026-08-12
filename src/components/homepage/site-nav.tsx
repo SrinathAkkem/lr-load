@@ -13,23 +13,20 @@ const NAV_LINKS = [
 
 export function SiteNav() {
   return (
-    <header className="relative z-20 w-full overflow-visible py-[clamp(0.875rem,2vw,1.25rem)]">
-      <Link
-        href="/"
-        className="absolute top-1/2 z-30 -translate-y-1/2 left-[-1rem] sm:left-[-1.25rem] lg:left-[-1.5rem]"
-      >
-        <Image
-          src="/rono-logo.png"
-          alt="Rono"
-          width={120}
-          height={36}
-          className="h-[clamp(2.25rem,5vw,2.75rem)] w-auto"
-          priority
-        />
-      </Link>
+    <header className="relative z-20 w-full py-[clamp(0.875rem,2vw,1.25rem)]">
+      <div className="mkt-container flex items-center justify-between gap-4">
+        <Link href="/" className="shrink-0">
+          <Image
+            src="/rono-logo.png"
+            alt="Rono"
+            width={120}
+            height={36}
+            className="h-[clamp(2rem,4.5vw,2.5rem)] w-auto"
+            priority
+          />
+        </Link>
 
-      <div className="mkt-container flex items-center justify-between gap-2 pl-[clamp(5.75rem,21vw,9rem)] sm:gap-3">
-        <nav className="hidden min-w-0 flex-1 items-center justify-center gap-8 lg:flex xl:gap-10">
+        <nav className="hidden flex-1 items-center justify-center gap-6 lg:flex xl:gap-8">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.label}
@@ -45,16 +42,16 @@ export function SiteNav() {
           ))}
         </nav>
 
-        <div className="ml-auto flex min-w-0 shrink-0 items-center gap-1.5 sm:gap-2 md:gap-3 lg:ml-0">
-          <LoginButton className="btn-mkt-outline h-9 whitespace-nowrap px-3 sm:px-4 sm:h-10 md:px-6">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <LoginButton className="btn-mkt-outline h-9 whitespace-nowrap px-3 text-sm sm:h-10 sm:px-5">
             Login
           </LoginButton>
           <Link
             href="/contact?subject=demo"
-            className="btn-mkt-primary hidden h-9 whitespace-nowrap px-3 text-xs md:inline-flex md:px-4 lg:h-10 lg:px-6 lg:text-sm"
+            className="btn-mkt-primary h-9 whitespace-nowrap px-3 text-sm sm:h-10 sm:px-5"
           >
-            <span className="hidden lg:inline">Request for demo</span>
-            <span className="lg:hidden">Demo</span>
+            <span className="hidden sm:inline">Request for demo</span>
+            <span className="sm:hidden">Demo</span>
           </Link>
         </div>
       </div>

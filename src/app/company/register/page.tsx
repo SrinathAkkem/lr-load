@@ -284,7 +284,7 @@ function CompanyRegisterForm() {
                   <input
                     value={form.lrCode}
                     onChange={(e) =>
-                      update("lrCode", e.target.value.replace(/[^a-zA-Z]/g, "").slice(0, 8).toUpperCase())
+                      update("lrCode", e.target.value.toUpperCase())
                     }
                     placeholder="1234"
                     className={inputClass}
